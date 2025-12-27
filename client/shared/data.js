@@ -17,7 +17,7 @@ window.products = [
         calories: 320,
         category: "salads",
         rating: 4.8,
-        image: "../client/assets/superfood-salad.avif",
+        image: "../assets/superfood-salad.avif",
         ingredients: ["Kale", "Quinoa", "Avocado", "Mixed Berries", "Almonds", "Lemon Vinaigrette"],
         nutrients: {
             protein: 15,
@@ -35,7 +35,7 @@ window.products = [
         calories: 280,
         category: "smoothies",
         rating: 4.6,
-        image: '../client/assets/green-power-smoothie.jpg',
+        image: '../assets/green-power-smoothie.jpg',
         ingredients: ["Spinach", "Banana", "Almond Milk", "Chia Seeds", "Protein Powder", "Honey"],
         nutrients: {
             protein: 20,
@@ -53,7 +53,7 @@ window.products = [
         calories: 450,
         category: "bowls",
         rating: 4.9,
-        image: "../client/assets/vegan-buddha-bowl.avif",
+        image: "../assets/vegan-buddha-bowl.avif",
         ingredients: ["Brown Rice", "Roasted Veggies", "Chickpeas", "Avocado", "Tahini Dressing"],
         nutrients: {
             protein: 18,
@@ -70,7 +70,7 @@ window.products = [
         calories: 180,
         category: "snacks",
         rating: 4.5,
-        image: "../client/assets/protein-energy-balls.jpg",
+        image: "../assets/protein-energy-balls.jpg",
         ingredients: ["Dates", "Mixed Nuts", "Protein Powder", "Coconut", "Cacao"],
         nutrients: {
             protein: 12,
@@ -87,7 +87,7 @@ window.products = [
         calories: 520,
         category: "meals",
         rating: 4.7,
-        image: "../client/assets/grilled-salmon-and-veggies.avif",
+        image: "../assets/grilled-salmon-and-veggies.avif",
         ingredients: ["Salmon", "Seasonal Vegetables", "Quinoa", "Lemon", "Herbs"],
         nutrients: {
             protein: 35,
@@ -105,7 +105,7 @@ window.products = [
         calories: 380,
         category: "bowls",
         rating: 4.8,
-        image: "../client/assets/acai-superfood-bowl.avif",
+        image: "../assets/acai-superfood-bowl.avif",
         ingredients: ["Acai Berry", "Granola", "Mixed Fruits", "Coconut", "Honey"],
         nutrients: {
             protein: 8,
@@ -122,7 +122,7 @@ window.products = [
         calories: 420,
         category: "bowls",
         rating: 4.6,
-        image: "../client/assets/mediterranean-bowl.avif",
+        image: "../assets/mediterranean-bowl.avif",
         ingredients: ["Quinoa", "Chickpeas", "Olives", "Feta", "Cucumber", "Tomatoes"],
         nutrients: {
             protein: 16,
@@ -139,7 +139,7 @@ window.products = [
         calories: 120,
         category: "smoothies",
         rating: 4.4,
-        image: "../client/assets/detox-green-juice.jpg",
+        image: "../assets/detox-green-juice.jpg",
         ingredients: ["Kale", "Cucumber", "Celery", "Green Apple", "Lemon", "Ginger"],
         nutrients: {
             protein: 3,
@@ -156,7 +156,7 @@ window.products = [
         calories: 480,
         category: "meals",
         rating: 4.9,
-        image: "../client/assets/protein-power-bowl.jpg",
+        image: "../assets/protein-power-bowl.jpg",
         ingredients: ["Brown Rice", "Grilled Chicken", "Black Beans", "Corn", "Avocado"],
         nutrients: {
             protein: 38,
@@ -174,7 +174,7 @@ window.products = [
         calories: 250,
         category: "smoothies",
         rating: 4.7,
-        image: "../client/assets/berry-bliss-smoothie.webp",
+        image: "../assets/berry-bliss-smoothie.webp",
         ingredients: ["Mixed Berries", "Greek Yogurt", "Almond Milk", "Honey", "Flax Seeds"],
         nutrients: {
             protein: 15,
