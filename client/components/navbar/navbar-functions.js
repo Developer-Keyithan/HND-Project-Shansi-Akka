@@ -34,15 +34,13 @@ function toggleSearchBar() {
 
 // User Menu
 function updateUserMenu() {
-    const userData = localStorage.getItem('helthybite-user');
-    const currentUser = userData ? JSON.parse(userData) : null;
-    if (!currentUser) return;
-
+    
     const userMenu = document.querySelector('.user-menu');
     if (!userMenu) return;
-
+    
+    const userData = localStorage.getItem('helthybite-user');
+    const currentUser = userData ? JSON.parse(userData) : null;
     userMenu.innerHTML = '';
-
     if (currentUser) {
         // Logged in user dropdown
         userMenu.innerHTML = `
