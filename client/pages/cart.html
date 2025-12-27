@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - HelthyBite</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/pages/pages.css">
+    <link rel="stylesheet" href="/plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="/index.html" class="logo">
+                    <i class="fas fa-leaf"></i>
+                    <span>HelthyBite</span>
+                </a>
+
+                <ul class="nav-menu">
+                    <li><a href="/index.html">Home</a></li>
+                    <li><a href="/pages/menu.html">Menu</a></li>
+                    <li><a href="/index.html#about">About</a></li>
+                    <li><a href="/pages/diet-planning.html">Diet Planning</a></li>
+                    <li><a href="/pages/faqs.html">FAQs</a></li>
+                    <li><a href="/pages/contact.html">Contact</a></li>
+                </ul>
+
+                <div class="nav-actions">
+                    <a href="/pages/menu.html" class="btn btn-search"><i class="fas fa-search"></i></a>
+                    <a href="/pages/cart.html" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                    </a>
+                    <div class="user-menu">
+                        <button class="btn-login" id="login-btn">Login</button>
+                        <button class="btn-register" id="register-btn">Sign Up</button>
+                    </div>
+                </div>
+
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Cart Section -->
+    <section class="page-hero cart-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Shopping Cart</h1>
+                <p>Review your selected healthy meals and proceed to checkout</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Content -->
+    <section class="cart-section">
+        <div class="container">
+            <div class="cart-container">
+                <!-- Cart Items -->
+                <div class="cart-items-container">
+                    <div class="cart-header">
+                        <h2>Your Items</h2>
+                        <button class="btn-clear-cart" id="clear-cart-btn">Clear Cart</button>
+                    </div>
+                    <div id="cart-items" class="cart-items">
+                        <!-- Cart items loaded by JavaScript -->
+                        <div class="empty-cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>Your cart is empty</h3>
+                            <p>Add some healthy meals to get started!</p>
+                            <a href="/pages/menu.html" class="btn btn-primary">Browse Menu</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="cart-summary">
+                    <h2>Order Summary</h2>
+                    <div class="summary-details">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal">LKR 0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Delivery Fee</span>
+                            <span id="delivery-fee">LKR 200.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (5%)</span>
+                            <span id="cart-tax">LKR 0.00</span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span id="cart-total">LKR 0.00</span>
+                        </div>
+                    </div>
+                    <div class="summary-actions">
+                        <a href="/pages/menu.html" class="btn btn-outline">Continue Shopping</a>
+                        <button class="btn btn-primary btn-block" id="checkout-btn" disabled>Proceed to Checkout</button>
+                    </div>
+                    <div class="payment-methods">
+                        <p><i class="fas fa-lock"></i> Secure checkout with Stripe</p>
+                        <div class="payment-icons">
+                            <i class="fab fa-cc-visa"></i>
+                            <i class="fab fa-cc-mastercard"></i>
+                            <i class="fab fa-cc-amex"></i>
+                            <i class="fab fa-cc-paypal"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="/index.html" class="logo">
+                        <i class="fas fa-leaf"></i>
+                        <span>HelthyBite</span>
+                    </a>
+                    <p>Delivering healthy, delicious meals to nourish your body and mind. Your wellness is our mission.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/index.html">Home</a></li>
+                        <li><a href="/pages/menu.html">Menu</a></li>
+                        <li><a href="/pages/about.html">About Us</a></li>
+                        <li><a href="/pages/diet-planning.html">Diet Planning</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Contact</h3>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> +94 11 234 5678</li>
+                        <li><i class="fas fa-envelope"></i> info@helthybite.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Colombo, Sri Lanka</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 HelthyBite. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/shared/data.js"></script>
+    <script src="/shared/utils.js"></script>
+    <script src="/shared/auth.js"></script>
+    <script src="/shared/router.js"></script>
+    <script type="module" src="/pages/cart.js"></script>
+</body>
+
+</html>
+

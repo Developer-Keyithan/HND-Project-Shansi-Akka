@@ -1,0 +1,43 @@
+{
+  "name": "healthybite-platform",
+  "version": "1.0.0",
+  "description": "A comprehensive online platform for HealthyBite (PVT) Ltd that enables owners to sell pure and healthy foods online, customers to purchase products, and join fitness and healthy plans.",
+  "keywords": [
+    "healthybite",
+    "diet-palnning"
+  ],
+  "homepage": "https://github.com/Developer-Keyithan/shansi-akka-HND-project#readme",
+  "bugs": {
+    "url": "https://github.com/Developer-Keyithan/shansi-akka-HND-project/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Developer-Keyithan/shansi-akka-HND-project.git"
+  },
+  "license": "ISC",
+  "author": "HealthyBite (PVT)",
+  "type": "module",
+  "main": "script.js",
+  "scripts": {
+    "dev": "nodemon server/server.js",
+    "start": "node server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.1",
+    "emailjs": "^5.0.0",
+    "express": "^5.2.1",
+    "google-auth-library": "^10.5.0",
+    "jsonwebtoken": "^9.0.3",
+    "jwt-decode": "^4.0.0",
+    "mongodb": "^7.0.0",
+    "mongoose": "^9.0.2",
+    "stripe": "^20.1.0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.3",
+    "nodemon": "^3.1.11"
+  }
+}

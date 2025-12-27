@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toast</title>
+    <!-- <link rel="stylesheet" href="toast.css"> -->
+    <!-- <link rel="stylesheet" href="../fontawesome-free-7.1.0-web/css/all.min.css"> -->
+</head>
+
+<body>
+</body>
+
+<!-- Load the main toast JS -->
+<script type="module">
+    import { Toast } from './toast.js';
+ Toast({
+        icon: 'success',
+        title: 'Success!',
+        message: 'This is a success toast'
+    });
+    setTimeout(() => {
+        Toast({
+            icon: 'error',
+            title: 'Error!',
+            message: 'This is an error toast',
+            position: 'top-left'
+        });
+    }, 100);
+    setTimeout(() => {
+        Toast({
+            icon: 'info',
+            title: 'Info!',
+            message: 'This is an info toast',
+            position: 'top'
+        });
+    }, 200);
+    setTimeout(() => {
+        Toast({
+            icon: 'info',
+            title: 'Info!',
+            message: 'This is an info toast',
+            position: 'left'
+        });
+    }, 300);
+    setTimeout(() => {
+        Toast({
+            icon: 'warning',
+            title: 'Warning!',
+            message: 'This is a warning toast',
+            position: 'bottom-right'
+        });
+    }, 400);
+    setTimeout(() => {
+        Toast({
+            icon: 'dark',
+            title: 'Dark!',
+            message: 'This is a dark toast',
+            position: 'bottom-left'
+        });
+    }, 500);
+    setTimeout(() => {
+        Toast({
+            icon: 'light',
+            title: 'Light!',
+            message: 'This is a light toast',
+            position: 'bottom'
+        });
+    }, 600);
+    setTimeout(() => {
+        Toast({
+            icon: 'light',
+            title: 'Light!',
+            message: 'This is a light toast',
+            position: 'right'
+        });
+    }, 700);
+    // Fire a toast
+    setInterval(() => {
+        Toast({
+            icon: 'success',
+            title: 'Success!',
+            message: 'This is a success toast'
+        });
+        setTimeout(() => {
+            Toast({
+                icon: 'error',
+                title: 'Error!',
+                message: 'This is an error toast',
+                position: 'top-left'
+            });
+        }, 100);
+        setTimeout(() => {
+            Toast({
+                icon: 'info',
+                title: 'Info!',
+                message: 'This is an info toast',
+                position: 'top'
+            });
+        }, 200);
+        setTimeout(() => {
+            Toast({
+                icon: 'info',
+                title: 'Info!',
+                message: 'This is an info toast',
+                position: 'left'
+            });
+        }, 300);
+        setTimeout(() => {
+            Toast({
+                icon: 'warning',
+                title: 'Warning!',
+                message: 'This is a warning toast',
+                position: 'bottom-right'
+            });
+        }, 400);
+        setTimeout(() => {
+            Toast({
+                icon: 'dark',
+                title: 'Dark!',
+                message: 'This is a dark toast',
+                position: 'bottom-left'
+            });
+        }, 500);
+        setTimeout(() => {
+            Toast({
+                icon: 'light',
+                title: 'Light!',
+                message: 'This is a light toast',
+                position: 'bottom'
+            });
+        }, 600);
+        setTimeout(() => {
+            Toast({
+                icon: 'light',
+                title: 'Light!',
+                message: 'This is a light toast',
+                position: 'right'
+            });
+        }, 700);
+    }, 5000);
+</script>
+
+</html>

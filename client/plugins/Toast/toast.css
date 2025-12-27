@@ -1,0 +1,276 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+
+    font-family: "Google Sans", sans-serif;
+}
+
+:root {
+    /* Status colors (text / accents) */
+    --success: #4fA746;
+    --error: #DC3545;
+    --info: #427BFF;
+    --warning: #EBBA0F;
+
+    /* Neutrals */
+    --dark: #343A40;
+    --light: #F0F1F2;
+
+    /* Base */
+    --white: #F9FAFB;
+    --black: #0F172A;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+}
+
+/* =========================
+   Base Toast Card
+========================= */
+.toast-card {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 10000;
+    min-width: 20rem;
+    max-width: 36rem;
+    min-height: 5rem;
+}
+
+.toast-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-grow: 1;
+}
+
+/* =========================
+   Positions & Animations
+========================= */
+
+/* Right */
+.toast-right,
+.toast-top-right,
+.toast-bottom-right {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.toast-right.show,
+.toast-top-right.show,
+.toast-bottom-right.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Left */
+.toast-left,
+.toast-top-left,
+.toast-bottom-left {
+    opacity: 0;
+    transform: translateX(-100%);
+}
+
+.toast-left.show,
+.toast-top-left.show,
+.toast-bottom-left.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Top Center */
+.toast-top {
+    opacity: 0;
+    left: 50%;
+    top: 1rem;
+    transform: translate(-50%, -100%);
+}
+
+.toast-top.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* Bottom Center */
+.toast-bottom {
+    opacity: 0;
+    left: 50%;
+    bottom: 1rem;
+    transform: translate(-50%, 100%);
+}
+
+.toast-bottom.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* Middle Left */
+.toast-left {
+    top: 50%;
+    left: 1rem;
+    transform: translate(-100%, 0);
+}
+
+.toast-left.show {
+    transform: translate(0, 0);
+}
+
+/* Middle Right */
+.toast-right {
+    top: 50%;
+    right: 1rem;
+    transform: translate(100%, 0);
+}
+
+.toast-right.show {
+    transform: translate(0, 0);
+}
+
+/* Corners */
+.toast-top-right {
+    top: 1rem;
+    right: 1rem;
+}
+
+.toast-top-left {
+    top: 1rem;
+    left: 1rem;
+}
+
+.toast-bottom-right {
+    bottom: 1rem;
+    right: 1rem;
+}
+
+.toast-bottom-left {
+    bottom: 1rem;
+    left: 1rem;
+}
+
+/* =========================
+   Toast Types
+========================= */
+.toast-success {
+    background-color: var(--success);
+    color: var(--white);
+}
+
+.toast-error {
+    background-color: var(--error);
+    color: var(--white);
+}
+
+.toast-info {
+    background-color: var(--info);
+    color: var(--white);
+}
+
+.toast-warning {
+    background-color: var(--warning);
+    color: var(--white);
+}
+
+.toast-dark {
+    background-color: var(--dark);
+    color: var(--white);
+}
+
+.toast-light {
+    background-color: var(--light);
+    color: var(--black);
+}
+
+/* =========================
+   Toast Icon
+========================= */
+.toast-icon {
+    margin-right: 1rem;
+    font-size: 2.5rem;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-light .toast-icon {
+    color: var(--black);
+}
+
+/* =========================
+   Toast Title
+========================= */
+.toast-title {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* =========================
+   Toast Close Button
+========================= */
+.toast-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.toast-close:hover {
+    opacity: 1;
+}
+
+/* =========================
+   Toast Progress
+========================= */
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+    border-bottom-left-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.toast-progress-bar {
+    height: 100%;
+    width: 100%;
+    transform-origin: left;
+    transform: scaleX(1);
+}
+
+.toast-success .toast-progress-bar {
+    background-color: #22c55e;
+}
+
+.toast-error .toast-progress-bar {
+    background-color: #ef4444;
+}
+
+.toast-info .toast-progress-bar {
+    background-color: #3b82f6;
+}
+
+.toast-warning .toast-progress-bar {
+    background-color: #facc15;
+}
+
+.toast-dark .toast-progress-bar {
+    background-color: #4b5563;
+}
+
+.toast-light .toast-progress-bar {
+    background-color: #d1d5db;
+}
