@@ -65,6 +65,16 @@ window.API = {
     getDietPlans: async () => {
         await window.API._delay(400);
         return window.dietPlans ? [...window.dietPlans] : [];
+    },
+
+    // Offers
+    // getOffers: async () => {
+    //     await window.API._delay(400);
+    //     return window.offers ? [...window.offers] : [];
+    // },
+    getCTAOffer: async () => {
+        await window.API._delay(400);
+        return window.ctaOffer ? { ...window.ctaOffer } : null;
     }
 };
 

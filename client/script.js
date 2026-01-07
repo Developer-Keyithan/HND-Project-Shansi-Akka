@@ -8,7 +8,17 @@ let currentUser = JSON.parse(localStorage.getItem('healthybite-user')) || null;
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function () {
-    loadProducts();
+    const checkAPI = setInterval(() => {
+        if (window.API) {
+            clearInterval(checkAPI);
+            loadProducts();
+            setCTADiscount();
+        }
+    }, 50);
+
+    // Stop checking after 10 seconds to avoid infinite loop (though critical if API missing)
+    setTimeout(() => clearInterval(checkAPI), 10000);
+
     initCategoryFilters();
     updateCartCount();
     initSearch();
@@ -132,7 +142,7 @@ async function addToCart(productId) {
 }
 
 function updateCartCount() {
-    const cartCount = document.querySelector('.cart-count');
+    const cartCount = document.getElementById('cart-count');
     if (!cartCount) return;
 
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -143,6 +153,23 @@ function updateCartCount() {
         cartCount.style.display = 'none';
     } else {
         cartCount.style.display = 'flex';
+    }
+}
+
+async function setCTADiscount() {
+    const discount = document.getElementById('cta-discount');
+    if (!discount) return;
+
+    let offers;
+    try {
+        offers = await window.API.getCTAOffer();
+    } catch (e) {
+        console.error(e);
+        return;
+    }
+
+    if (offers && discount) {
+        discount.textContent = offers.discountRate;
     }
 }
 
@@ -291,7 +318,8 @@ window.healthybite = {
     showNotification,
     formatPrice,
     currentUser,
-    cart
+    cart,
 };
 
 window.addToCart = addToCart;
+window.setCTADiscount = setCTADiscount;

@@ -368,15 +368,15 @@
 }
 
 .cta-content h2 {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     margin-bottom: 20px;
-    color: var(--dark-green);
+    color: var(--white);
 }
 
 .cta-content p {
     font-size: 1.2rem;
-    color: var(--text-light);
     margin-bottom: 30px;
+    opacity: 0.9;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
@@ -776,7 +776,6 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    margin-bottom: 20px;
 }
 
 .stars {
@@ -811,7 +810,7 @@
 }
 
 .product-price {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--primary-green);
 }

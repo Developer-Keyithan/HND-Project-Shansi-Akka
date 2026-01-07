@@ -1,24 +1,22 @@
 // Menu Page JavaScript
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize menu
-    initMenu();
 
-    // Load categories
-    loadCategories();
+    const checkAPI = setInterval(() => {
+        if (window.API) {
+            clearInterval(checkAPI);
 
-    // Load products
-    loadMenuProducts();
-
-    // Load diet plans
-    loadDietPlans();
-
-    // Initialize filters
-    initFilters();
+            loadCategories();
+            loadMenuProducts();
+            loadDietPlans();
+            initFilters();
+            initMenu();
+        }
+    }, 50);
 });
 
 let currentCategory = 'all';
 let currentSort = 'popular';
-let maxPrice = 50;
+let maxPrice = 5000;
 let maxCalories = 1000;
 let visibleProducts = 6;
 
@@ -67,6 +65,7 @@ function loadCategories() {
 let allProducts = [];
 
 async function loadMenuProducts() {
+    console.log('Loading menu products...');
     const container = document.getElementById('menu-products');
     const countElement = document.getElementById('product-count');
     const titleElement = document.getElementById('menu-title');
@@ -149,10 +148,12 @@ async function loadMenuProducts() {
                     <span class="nutrient">Fat: ${product.nutrients.fat}g</span>
                 </div>
                 <div class="product-actions">
-                    <button class="btn-add-to-cart" onclick="addToCart(${product.id})">
+                    <button class="btn btn-add-to-cart" onclick="addToCart(${product.id})">
                         <i class="fas fa-plus"></i> Add to Cart
                     </button>
-                    <a href="product-view.html?id=${product.id}" class="btn-view-details">View Details</a>
+                    <button class="btn btn-view-details" onclick="viewProductDetails(${product.id})">
+                        View Details
+                    </button>
                 </div>
             </div>
         </div>
@@ -401,6 +402,10 @@ window.addToCart = function (productId) {
     localStorage.setItem('healthybite-cart', JSON.stringify(cart));
     updateCartCount();
     showNotification(`${product.name} added to cart!`, 'success');
+};
+
+window.viewProductDetails = function (productId) {
+    window.location.href = `product-view.html?id=${productId}`;
 };
 
 function updateCartCount() {

@@ -8,7 +8,6 @@ window.users = [
 ];
 
 // Products Data
-// Products Data
 window.products = [
     {
         id: 1,
@@ -204,7 +203,7 @@ window.dietPlans = [
         description: "A balanced plan focusing on calorie deficit and nutrient density.",
         calories: 1500,
         duration: "4 weeks",
-        price: 99.99,
+        price: 499.99,
         features: [
             "Custom meal plans",
             "Weekly grocery list",
@@ -218,7 +217,7 @@ window.dietPlans = [
         description: "High-protein plan for muscle building and strength training.",
         calories: 2500,
         duration: "8 weeks",
-        price: 149.99,
+        price: 1499.99,
         features: [
             "High-protein meals",
             "Workout recommendations",
@@ -232,7 +231,7 @@ window.dietPlans = [
         description: "Plant-based nutrition for optimal health and energy.",
         calories: 1800,
         duration: "6 weeks",
-        price: 119.99,
+        price: 999.99,
         features: [
             "100% plant-based",
             "Protein balancing",
@@ -316,5 +315,13 @@ window.adminStats = {
     activeUsers: 892,
     pendingDeliveries: 12,
     monthlyGrowth: 23.5,
-    popularProducts: [1, 5, 3, 6, 2]
+    popularProducts: [1, 5, 3, 6, 2],
+};
+
+// Discount Data
+window.ctaOffer = {
+    discountRate: 80,
+    validTill: "2026-12-31T23:59:59+05:30.000Z",
+    minimumOrderValue: 50,
+    maxDiscount: 100
 };

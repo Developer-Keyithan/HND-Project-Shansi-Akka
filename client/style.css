@@ -448,23 +448,22 @@ a {
 
 .product-actions {
     display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
     gap: 10px;
 }
 
 .btn-add-to-cart {
-    flex: 1;
     background-color: var(--primary-green);
     color: var(--white);
-    padding: 10px;
+    padding: 10px 15px;
     border-radius: var(--radius);
     font-size: 0.9rem;
     border: none;
     cursor: pointer;
     transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
+    width: 100%;
 }
 
 .btn-add-to-cart:hover {
@@ -480,6 +479,7 @@ a {
     border: 1px solid var(--primary-green);
     cursor: pointer;
     transition: var(--transition);
+    width: 100%;
 }
 
 .btn-view-details:hover {
