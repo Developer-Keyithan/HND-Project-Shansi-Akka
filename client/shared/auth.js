@@ -1,8 +1,15 @@
-// Authentication utilities for HealthyBite Platform
+// Authentication utilities for HealthyBite Platform (Dummy Data Mode)
+
+// Initialize EmailJS (Replace 'YOUR_PUBLIC_KEY' with actual key in production)
+// For this demo, we assume EmailJS SDK is loaded in index.html
+const EMAILJS_SERVICE_ID = 'service_healthybite';
+const EMAILJS_TEMPLATE_ID_WELCOME = 'template_welcome';
+const EMAILJS_TEMPLATE_ID_RESET = 'template_reset';
+const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // Placeholder
 
 // Get current user from localStorage
 function getCurrentUser() {
-    const userStr = localStorage.getItem('helthybite-user');
+    const userStr = localStorage.getItem('healthybite-user');
     if (!userStr) return null;
     try {
         return JSON.parse(userStr);
@@ -13,12 +20,16 @@ function getCurrentUser() {
 
 // Set current user
 function setCurrentUser(user) {
-    localStorage.setItem('helthybite-user', JSON.stringify(user));
+    localStorage.setItem('healthybite-user', JSON.stringify(user));
 }
 
 // Remove current user (logout)
 function removeCurrentUser() {
-    localStorage.removeItem('helthybite-user');
+    localStorage.removeItem('healthybite-user');
+    if (window.Navbar && typeof window.Navbar.updateUserMenu === 'function') {
+        window.Navbar.updateUserMenu();
+    }
+    window.location.href = '/index.html';
 }
 
 // Check if user is authenticated
@@ -33,87 +44,111 @@ function hasRole(role) {
 }
 
 // Require authentication (redirect if not logged in)
-function requireAuth(redirectTo = '/auth/login.html') {
+function requireAuth(redirectTo = '/index.html') {
     if (!isAuthenticated()) {
-        window.location.href = redirectTo;
+        // Open login modal instead of redirect logic which can be complex with static pages
+        // Or redirect to special page
+        window.location.href = '/pages/errors/401.html';
         return false;
     }
     return true;
 }
 
 // Require specific role
-function requireRole(role, redirectTo = '/index.html') {
+function requireRole(role) {
     if (!hasRole(role)) {
-        window.location.href = redirectTo;
+        window.location.href = '/pages/errors/403.html';
         return false;
     }
     return true;
 }
 
-// API call to authenticate user
+// Helper: Send Email via EmailJS
+async function sendEmail(templateId, templateParams) {
+    try {
+        if (window.emailjs) {
+            await window.emailjs.send(EMAILJS_SERVICE_ID, templateId, templateParams);
+            console.log('Email sent successfully:', templateId);
+        } else {
+            console.warn('EmailJS not loaded');
+        }
+    } catch (error) {
+        console.error('Email sending failed:', error);
+    }
+}
+
+// Authenticate user (Mock)
 async function loginUser(email, password) {
     try {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        });
+        // Use API for validation
+        const result = await window.API.login(email, password);
 
-        const data = await response.json();
-        
-        if (response.ok && data.user) {
-            setCurrentUser(data.user);
-            return { success: true, user: data.user };
+        if (result.success) {
+            setCurrentUser(result.user);
+            // Send Login Notification Email (Optional)
+            // await sendEmail(EMAILJS_TEMPLATE_ID_WELCOME, { to_name: result.user.name, to_email: result.user.email, message: "New login detected." });
+            return result;
         } else {
-            return { success: false, error: data.error || 'Login failed' };
+            return { success: false, error: result.message };
         }
     } catch (error) {
-        console.error('Login error:', error);
-        return { success: false, error: 'Network error. Please try again.' };
+        return { success: false, error: 'Login failed. Please try again.' };
     }
 }
 
-// API call to register user
+// Register user (Mock)
 async function registerUser(userData) {
     try {
-        const response = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userData)
-        });
+        // API Call
+        const result = await window.API.register(userData);
 
-        const data = await response.json();
-        
-        if (response.ok && data.user) {
-            setCurrentUser(data.user);
-            return { success: true, user: data.user };
+        if (result.success) {
+            setCurrentUser(result.user);
+
+            // Send Welcome Email
+            await sendEmail(EMAILJS_TEMPLATE_ID_WELCOME, {
+                to_name: result.user.name,
+                to_email: result.user.email,
+                subject: "Welcome to HealthyBite!",
+                message: "Thank you for joining us. Start your healthy journey today."
+            });
+
+            return result;
         } else {
-            return { success: false, error: data.error || 'Registration failed' };
+            return { success: false, error: result.message };
         }
     } catch (error) {
-        console.error('Registration error:', error);
-        return { success: false, error: 'Network error. Please try again.' };
+        return { success: false, error: 'Registration failed.' };
     }
 }
 
-// API call to logout
-async function logoutUser() {
-    try {
-        await fetch('/api/auth/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
+// Forgot Password (Mock)
+async function forgotPassword(email) {
+    return new Promise((resolve) => {
+        setTimeout(async () => {
+            const users = window.users || [];
+            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+            if (user) {
+                // Send Reset Email
+                await sendEmail(EMAILJS_TEMPLATE_ID_RESET, {
+                    to_name: user.name,
+                    to_email: user.email,
+                    reset_link: "http://localhost:3000/auth/reset-password.html?token=dummy"
+                });
+                resolve({ success: true, message: 'Password reset link sent to your email.' });
+            } else {
+                // For security, usually say "If account exists..." but for this mock:
+                resolve({ success: false, error: 'User not found' });
             }
-        });
-    } catch (error) {
-        console.error('Logout error:', error);
-    } finally {
-        removeCurrentUser();
-    }
+        }, 800);
+    });
+}
+
+// Logout
+async function logoutUser() {
+    removeCurrentUser();
+    // Redirect handled in removeCurrentUser or caller
 }
 
 // Export functions
@@ -127,6 +162,8 @@ window.Auth = {
     requireRole,
     loginUser,
     registerUser,
-    logoutUser
+    logoutUser,
+    forgotPassword,
+    sendEmail
 };
 

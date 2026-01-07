@@ -3,7 +3,7 @@ import { Toast } from "../plugins/Toast/toast.js";
 
 let currentProduct = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadProduct();
     initEventListeners();
     updateCartCount();
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initEventListeners() {
     // Add to cart button
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.closest('.btn-add-to-cart')) {
             const productId = parseInt(e.target.closest('.btn-add-to-cart').dataset.productId);
             addToCart(productId);
@@ -19,12 +19,12 @@ function initEventListeners() {
     });
 
     // Quantity buttons
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.closest('.quantity-btn')) {
             const btn = e.target.closest('.quantity-btn');
             const action = btn.dataset.action;
             const input = document.getElementById('product-quantity');
-            
+
             if (action === 'decrease' && input.value > 1) {
                 input.value = parseInt(input.value) - 1;
             } else if (action === 'increase') {
@@ -39,7 +39,7 @@ function initEventListeners() {
 function initNavigation() {
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
-    
+
     if (hamburger && navMenu) {
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('active');
@@ -50,7 +50,7 @@ function initNavigation() {
 
 function loadProduct() {
     const productId = parseInt(window.Utils?.getUrlParam('id') || 0);
-    
+
     if (!productId) {
         showError('Product not found');
         return;
@@ -78,12 +78,12 @@ function loadProduct() {
 function loadFromLocalData(productId) {
     const products = window.products || [];
     currentProduct = products.find(p => p.id === productId);
-    
+
     if (!currentProduct) {
         showError('Product not found');
         return;
     }
-    
+
     renderProduct();
     loadRelatedProducts();
 }
@@ -166,20 +166,20 @@ function generateStars(rating) {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     let stars = '';
-    
+
     for (let i = 0; i < fullStars; i++) {
         stars += '<i class="fas fa-star"></i>';
     }
-    
+
     if (hasHalfStar) {
         stars += '<i class="fas fa-star-half-alt"></i>';
     }
-    
+
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     for (let i = 0; i < emptyStars; i++) {
         stars += '<i class="far fa-star"></i>';
     }
-    
+
     return stars;
 }
 
@@ -229,7 +229,7 @@ function addToCart(productId) {
         return;
     }
 
-    let cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
     const existingItem = cart.find(item => item.id === productId);
 
     if (existingItem) {
@@ -244,13 +244,13 @@ function addToCart(productId) {
         });
     }
 
-    localStorage.setItem('helthybite-cart', JSON.stringify(cart));
+    localStorage.setItem('healthybite-cart', JSON.stringify(cart));
     updateCartCount();
     showNotification(`${product.name} added to cart!`, 'success');
 }
 
 function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
+    const cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
     const cartCount = document.querySelector('.cart-count');
     if (cartCount) {

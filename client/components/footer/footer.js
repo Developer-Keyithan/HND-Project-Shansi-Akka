@@ -1,14 +1,15 @@
-let footerHTMLPath = '';
+// Footer Component Loader
+// Uses window.ClientRoot set by load-scripts.js for correct path resolution
 
-if (window.location.pathname.includes('/pages/') || window.location.pathname.includes('/dashboards/')) {
-    footerHTMLPath = '../components/footer/footer.html';
-} else {
-    footerHTMLPath = 'components/footer/footer.html';
-}
+const prefix = window.ClientRoot || ''; // Fallback to empty if not set
+const footerHTMLPath = prefix + 'components/footer/footer.html';
 
 fetch(footerHTMLPath)
     .then(response => response.text())
     .then(data => {
-        document.getElementById('footer-placeholder').innerHTML = data;
+        const placeholder = document.getElementById('footer-placeholder');
+        if (placeholder) {
+            placeholder.innerHTML = data;
+        }
     })
-    .catch(err => console.error('footer load failed:', err));
+    .catch(err => console.error('Footer load failed:', err));

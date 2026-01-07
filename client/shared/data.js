@@ -1,23 +1,24 @@
-// Dummy Data for HelthyBite
+// Dummy Data for healthybite
 // User Data
 window.users = [
     { email: 'user@example.com', password: 'password123', name: 'John Doe', role: 'consumer' },
-    { email: 'admin@helthybite.com', password: 'admin123', name: 'Admin User', role: 'admin' },
-    { email: 'seller@helthybite.com', password: 'seller123', name: 'Healthy Seller', role: 'seller' },
-    { email: 'delivery@helthybite.com', password: 'delivery123', name: 'Delivery Partner', role: 'delivery-partner' }
+    { email: 'admin@healthybite.com', password: 'admin123', name: 'Admin User', role: 'admin' },
+    { email: 'seller@healthybite.com', password: 'seller123', name: 'Healthy Seller', role: 'seller' },
+    { email: 'delivery@healthybite.com', password: 'delivery123', name: 'Delivery Partner', role: 'delivery-partner' }
 ];
 
+// Products Data
 // Products Data
 window.products = [
     {
         id: 1,
         name: "Superfood Salad",
         description: "A nutrient-packed salad with kale, quinoa, avocado, berries, and lemon vinaigrette.",
-        price: 499,
+        price: 1850,
         calories: 320,
         category: "salads",
         rating: 4.8,
-        image: "../assets/superfood-salad.avif",
+        image: "./assets/superfood-salad.avif",
         ingredients: ["Kale", "Quinoa", "Avocado", "Mixed Berries", "Almonds", "Lemon Vinaigrette"],
         nutrients: {
             protein: 15,
@@ -31,11 +32,11 @@ window.products = [
         id: 2,
         name: "Green Power Smoothie",
         description: "Spinach, banana, almond milk, chia seeds, protein powder, and honey.",
-        price: 1099,
+        price: 950,
         calories: 280,
         category: "smoothies",
         rating: 4.6,
-        image: '../assets/green-power-smoothie.jpg',
+        image: './assets/green-power-smoothie.jpg',
         ingredients: ["Spinach", "Banana", "Almond Milk", "Chia Seeds", "Protein Powder", "Honey"],
         nutrients: {
             protein: 20,
@@ -49,11 +50,11 @@ window.products = [
         id: 3,
         name: "Vegan Buddha Bowl",
         description: "Brown rice, roasted vegetables, chickpeas, avocado, and tahini dressing.",
-        price: 2199,
+        price: 2200,
         calories: 450,
         category: "bowls",
         rating: 4.9,
-        image: "../assets/vegan-buddha-bowl.avif",
+        image: "./assets/vegan-buddha-bowl.avif",
         ingredients: ["Brown Rice", "Roasted Veggies", "Chickpeas", "Avocado", "Tahini Dressing"],
         nutrients: {
             protein: 18,
@@ -66,11 +67,11 @@ window.products = [
         id: 4,
         name: "Protein Energy Ball",
         description: "Healthy snacks made with dates, nuts, protein powder, and coconut.",
-        price: 199,
+        price: 250,
         calories: 180,
         category: "snacks",
         rating: 4.5,
-        image: "../assets/protein-energy-balls.jpg",
+        image: "./assets/protein-energy-balls.jpg",
         ingredients: ["Dates", "Mixed Nuts", "Protein Powder", "Coconut", "Cacao"],
         nutrients: {
             protein: 12,
@@ -83,11 +84,11 @@ window.products = [
         id: 5,
         name: "Grilled Salmon & Veggies",
         description: "Wild-caught salmon with roasted seasonal vegetables and quinoa.",
-        price: 2499,
+        price: 3400,
         calories: 520,
         category: "meals",
         rating: 4.7,
-        image: "../assets/grilled-salmon-and-veggies.avif",
+        image: "./assets/grilled-salmon-and-veggies.avif",
         ingredients: ["Salmon", "Seasonal Vegetables", "Quinoa", "Lemon", "Herbs"],
         nutrients: {
             protein: 35,
@@ -101,11 +102,11 @@ window.products = [
         id: 6,
         name: "Acai Superfood Bowl",
         description: "Acai berry base topped with granola, fruits, coconut, and honey.",
-        price: 2249,
+        price: 2400,
         calories: 380,
         category: "bowls",
         rating: 4.8,
-        image: "../assets/acai-superfood-bowl.avif",
+        image: "./assets/acai-superfood-bowl.avif",
         ingredients: ["Acai Berry", "Granola", "Mixed Fruits", "Coconut", "Honey"],
         nutrients: {
             protein: 8,
@@ -118,11 +119,11 @@ window.products = [
         id: 7,
         name: "Mediterranean Bowl",
         description: "Quinoa, chickpeas, olives, feta, cucumber, tomatoes, and lemon dressing.",
-        price: 2399,
+        price: 2100,
         calories: 420,
         category: "bowls",
         rating: 4.6,
-        image: "../assets/mediterranean-bowl.avif",
+        image: "./assets/mediterranean-bowl.avif",
         ingredients: ["Quinoa", "Chickpeas", "Olives", "Feta", "Cucumber", "Tomatoes"],
         nutrients: {
             protein: 16,
@@ -135,11 +136,11 @@ window.products = [
         id: 8,
         name: "Detox Green Juice",
         description: "Kale, cucumber, celery, green apple, lemon, and ginger.",
-        price: 899,
+        price: 850,
         calories: 120,
         category: "smoothies",
         rating: 4.4,
-        image: "../assets/detox-green-juice.jpg",
+        image: "./assets/detox-green-juice.jpg",
         ingredients: ["Kale", "Cucumber", "Celery", "Green Apple", "Lemon", "Ginger"],
         nutrients: {
             protein: 3,
@@ -152,11 +153,11 @@ window.products = [
         id: 9,
         name: "Protein Power Bowl",
         description: "Brown rice, grilled chicken, black beans, corn, and avocado.",
-        price: 1599,
+        price: 1950,
         calories: 480,
         category: "meals",
         rating: 4.9,
-        image: "../assets/protein-power-bowl.jpg",
+        image: "./assets/protein-power-bowl.jpg",
         ingredients: ["Brown Rice", "Grilled Chicken", "Black Beans", "Corn", "Avocado"],
         nutrients: {
             protein: 38,
@@ -170,11 +171,11 @@ window.products = [
         id: 10,
         name: "Berry Bliss Smoothie",
         description: "Mixed berries, Greek yogurt, almond milk, honey, and flax seeds.",
-        price: 999,
+        price: 1100,
         calories: 250,
         category: "smoothies",
         rating: 4.7,
-        image: "../assets/berry-bliss-smoothie.webp",
+        image: "./assets/berry-bliss-smoothie.webp",
         ingredients: ["Mixed Berries", "Greek Yogurt", "Almond Milk", "Honey", "Flax Seeds"],
         nutrients: {
             protein: 15,
@@ -282,7 +283,7 @@ window.deliveryPartners = [
     {
         id: 1,
         name: "John Delivery",
-        email: "john@helthybite.com",
+        email: "john@healthybite.com",
         phone: "+1 (234) 567-8901",
         status: "active",
         deliveries: 124,
@@ -291,7 +292,7 @@ window.deliveryPartners = [
     {
         id: 2,
         name: "Sarah Courier",
-        email: "sarah@helthybite.com",
+        email: "sarah@healthybite.com",
         phone: "+1 (234) 567-8902",
         status: "active",
         deliveries: 89,
@@ -300,7 +301,7 @@ window.deliveryPartners = [
     {
         id: 3,
         name: "Mike Rider",
-        email: "mike@helthybite.com",
+        email: "mike@healthybite.com",
         phone: "+1 (234) 567-8903",
         status: "inactive",
         deliveries: 45,

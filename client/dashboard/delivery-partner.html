@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Dashboard - healthybite</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/index.html" class="logo">
+                    <i class="fas fa-leaf"></i>
+                    <span>healthybite</span>
+                </a>
+            </div>
+
+            <div class="user-profile">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Rider Profile" id="user-avatar">
+                <h3 id="user-name">Rider</h3>
+                <p id="user-role">Delivery Partner</p>
+                <span class="user-status active">● On Duty</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#overview" onclick="loadSection('overview')" class="active"><i
+                                class="fas fa-motorcycle"></i> Dashboard</a></li>
+                    <li><a href="#available" onclick="loadSection('available')"><i class="fas fa-map-marked-alt"></i>
+                            Available Orders</a></li>
+                    <li><a href="#history" onclick="loadSection('history')"><i class="fas fa-history"></i> History</a>
+                    </li>
+                    <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <h1 id="greeting">Ready to ride?</h1>
+                    <p id="dashboard-date">Deliver happiness today</p>
+                </div>
+            </header>
+
+            <div class="dashboard-sections">
+                <!-- Overview -->
+                <section class="dashboard-section active" id="overview-section">
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: #fff8e1;">
+                                <i class="fas fa-box" style="color: #ff8f00;"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="completed-deliveries">12</h3>
+                                <p>Completed Today</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: #e8f5e9;">
+                                <i class="fas fa-dollar-sign" style="color: #2e7d32;"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="earnings">LKR 4,500</h3>
+                                <p>Today's Earnings</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-header" style="margin-top: 30px;">
+                        <h2>Current Delivery</h2>
+                    </div>
+                    <div class="order-card">
+                        <p>No active delivery. Go to Available Orders to pick one up!</p>
+                    </div>
+                </section>
+
+                <!-- Available Orders -->
+                <section class="dashboard-section" id="available-section">
+                    <div class="section-header">
+                        <h2>Available for Pickup</h2>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Pickup</th>
+                                    <th>Dropoff</th>
+                                    <th>Fee</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>HB78245</td>
+                                    <td>Taco Bell, Main St</td>
+                                    <td>45 Park Ave</td>
+                                    <td>LKR 350</td>
+                                    <td><button class="btn btn-primary btn-sm">Accept</button></td>
+                                </tr>
+                                <tr>
+                                    <td>HB78246</td>
+                                    <td>Salad Bar, 2nd St</td>
+                                    <td>89 Lake View</td>
+                                    <td>LKR 280</td>
+                                    <td><button class="btn btn-primary btn-sm">Accept</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- History Placeholder -->
+                <section class="dashboard-section" id="history-section">
+                    <div class="section-header">
+                        <h2>Delivery History</h2>
+                    </div>
+                    <p>History log placeholder.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/shared/data.js"></script>
+    <script src="/shared/auth.js"></script>
+    <script src="delivery-partner.js"></script>
+</body>
+
+</html>

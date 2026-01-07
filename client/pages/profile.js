@@ -1,7 +1,7 @@
 // Profile Page JavaScript
 import { Toast } from "../plugins/Toast/toast.js";
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Check authentication
     if (!window.Auth?.requireAuth()) {
         return;
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initEventListeners() {
     // Profile navigation
     document.querySelectorAll('.profile-nav-item').forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
             e.preventDefault();
             const section = this.dataset.section;
             showSection(section);
@@ -34,7 +34,7 @@ function initEventListeners() {
 function initNavigation() {
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
-    
+
     if (hamburger && navMenu) {
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('active');
@@ -50,7 +50,7 @@ function updateUserMenu() {
     if (!userMenu) return;
 
     const currentUser = window.Auth?.getCurrentUser();
-    
+
     if (currentUser) {
         userMenu.innerHTML = `
             <div class="user-dropdown">
@@ -66,7 +66,7 @@ function updateUserMenu() {
                 </div>
             </div>
         `;
-        
+
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', async (e) => {
@@ -80,7 +80,7 @@ function updateUserMenu() {
 
 function loadProfile() {
     const currentUser = window.Auth?.getCurrentUser();
-    
+
     if (!currentUser) {
         window.location.href = '../auth/login.html';
         return;
@@ -156,27 +156,23 @@ async function loadOrders() {
     if (!currentUser) return;
 
     const ordersContainer = document.getElementById('orders-list');
-    
-    try {
-        // Try to load from API
-        const response = await fetch(`/api/orders?userId=${currentUser.id}`);
-        const data = await response.json();
 
-        if (data.success && data.orders) {
-            renderOrders(data.orders);
-        } else {
-            // Fallback to local data
-            renderOrders(window.orders || []);
-        }
+    // Set loading state if needed
+    ordersContainer.innerHTML = '<div class="loading-spinner">Loading orders...</div>';
+
+    try {
+        const orders = await window.API.getUserOrders(currentUser.email);
+        renderOrders(orders);
     } catch (error) {
-        // Fallback to local data
-        renderOrders(window.orders || []);
+        console.error('Failed to load orders:', error);
+        ordersContainer.innerHTML = '<p class="error-text">Failed to load orders. Please try again.</p>';
+        // Fallback or empty state handled by renderOrders if needed
     }
 }
 
 function renderOrders(orders) {
     const ordersContainer = document.getElementById('orders-list');
-    
+
     if (!orders || orders.length === 0) {
         ordersContainer.innerHTML = `
             <div class="empty-state">
@@ -217,9 +213,23 @@ function renderOrders(orders) {
     `).join('');
 }
 
-function loadDietPlans() {
+async function loadDietPlans() {
     const plansContainer = document.getElementById('diet-plans-list');
-    const plans = window.dietPlans || [];
+
+    // Set loading
+    plansContainer.innerHTML = '<div class="loading-spinner">Loading plans...</div>';
+
+    try {
+        const plans = await window.API.getDietPlans();
+        renderDietPlans(plans); // Helper function or inline
+    } catch (err) {
+        console.error(err);
+        plansContainer.innerHTML = 'Failed to load plans.';
+    }
+}
+
+function renderDietPlans(plans) {
+    const plansContainer = document.getElementById('diet-plans-list');
 
     if (plans.length === 0) {
         plansContainer.innerHTML = `
@@ -247,7 +257,7 @@ function loadDietPlans() {
 }
 
 function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
+    const cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
     const cartCount = document.querySelector('.cart-count');
     if (cartCount) {

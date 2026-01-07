@@ -7,7 +7,7 @@ let paymentElement;
 let clientSecret;
 let orderData = {};
 
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     // Check authentication
     const currentUser = window.Auth?.getCurrentUser();
     if (!currentUser) {
@@ -43,7 +43,7 @@ async function initializeStripe() {
         // Get Stripe publishable key from API
         // This endpoint returns the publishable key from environment variables
         let stripePublishableKey = 'pk_test_your_key_here';
-        
+
         try {
             const keyResponse = await fetch('/api/config/stripe-key');
             if (keyResponse.ok) {
@@ -57,11 +57,11 @@ async function initializeStripe() {
             // In development, you might want to use a test key directly
             // stripePublishableKey = 'pk_test_your_development_key';
         }
-        
+
         if (!stripePublishableKey || stripePublishableKey === 'pk_test_your_key_here') {
             throw new Error('Stripe publishable key not configured. Please set STRIPE_PUBLISHABLE_KEY environment variable.');
         }
-        
+
         stripe = Stripe(stripePublishableKey);
 
         // Calculate total
@@ -124,7 +124,7 @@ function loadOrderSummary() {
     orderItemsContainer.innerHTML = orderData.cart.map(item => {
         const product = products.find(p => p.id === item.id) || item;
         const itemTotal = (product.price || item.price) * item.quantity;
-        
+
         return `
             <div class="order-item">
                 <div class="order-item-image">
@@ -151,7 +151,7 @@ function loadOrderSummary() {
         const nameInput = document.getElementById('delivery-name');
         const phoneInput = document.getElementById('delivery-phone');
         const addressInput = document.getElementById('delivery-address');
-        
+
         if (nameInput) nameInput.value = orderData.user.name || '';
         if (phoneInput) phoneInput.value = orderData.user.phone || '';
         if (addressInput) addressInput.value = orderData.user.address || '';
@@ -172,7 +172,7 @@ function initEventListeners() {
 function initNavigation() {
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
-    
+
     if (hamburger && navMenu) {
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('active');
@@ -224,80 +224,72 @@ async function handlePayment(event) {
             throw error;
         }
 
-            if (paymentIntent.status === 'succeeded') {
-                // Create order in database
-                const orderId = window.Utils?.generateOrderId() || 'HB' + Date.now();
-                const total = parseFloat(document.getElementById('order-total').textContent.replace('LKR ', '').replace(',', ''));
-                
-                const orderDataToSave = {
-                    orderId,
-                    userId: orderData.user.id,
-                    items: orderData.cart.map(item => {
-                        const product = window.products?.find(p => p.id === item.id) || item;
-                        return {
-                            productId: item.id,
-                            name: product.name || item.name,
-                            price: product.price || item.price,
-                            quantity: item.quantity,
-                            image: product.image || item.image
-                        };
-                    }),
-                    total,
-                    deliveryAddress: deliveryInfo.address,
-                    paymentStatus: 'paid',
-                    paymentIntentId: orderData.paymentIntentId,
-                    status: 'confirmed',
-                    date: new Date().toISOString()
-                };
-                
-                const orderResponse = await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(orderDataToSave)
+        if (paymentIntent.status === 'succeeded') {
+            // Mock Order Creation (Frontend Only)
+            const orderId = window.Utils?.generateOrderId() || 'HB' + Date.now();
+            const total = parseFloat(document.getElementById('order-total').textContent.replace('LKR ', '').replace(',', ''));
+
+            const orderDataToSave = {
+                orderId,
+                userId: orderData.user.id,
+                items: orderData.cart.map(item => {
+                    const product = window.products?.find(p => p.id === item.id) || item;
+                    return {
+                        productId: item.id,
+                        name: product.name || item.name,
+                        price: product.price || item.price,
+                        quantity: item.quantity,
+                        image: product.image || item.image
+                    };
+                }),
+                total,
+                deliveryAddress: deliveryInfo.address,
+                paymentStatus: 'paid',
+                paymentIntentId: orderData.paymentIntentId,
+                status: 'confirmed',
+                date: new Date().toISOString()
+            };
+
+            // Store in local "database" (dummy data persistence)
+            const existingOrders = JSON.parse(localStorage.getItem('healthybite-orders') || '[]');
+            existingOrders.push(orderDataToSave);
+            localStorage.setItem('healthybite-orders', JSON.stringify(existingOrders));
+
+            // Send Bill via EmailJS
+            if (window.Auth && typeof window.Auth.sendEmail === 'function') {
+                // Create bill details string
+                const itemsList = orderDataToSave.items.map(item =>
+                    `${item.name} x${item.quantity} - LKR ${item.price * item.quantity}`
+                ).join('\n');
+
+                await window.Auth.sendEmail('template_bill', {
+                    to_name: orderData.user.name,
+                    to_email: orderData.user.email,
+                    order_id: orderId,
+                    total_amount: `LKR ${total.toFixed(2)}`,
+                    items_list: itemsList,
+                    delivery_address: deliveryInfo.address
                 });
-
-                if (orderResponse.ok) {
-                    // Log transaction
-                    window.Logger?.info('Transaction completed', {
-                        orderId,
-                        userId: orderData.user.id,
-                        total
-                    });
-                    
-                    // Send transaction notification email
-                    try {
-                        await window.EmailService?.notifyTransaction(orderData.user.email, {
-                            orderId,
-                            total,
-                            date: new Date(),
-                            items: orderDataToSave.items,
-                            paymentStatus: 'paid'
-                        });
-                    } catch (emailError) {
-                        console.warn('Failed to send transaction email:', emailError);
-                    }
-                    
-                    // Clear cart
-                    localStorage.removeItem('helthybite-cart');
-                    sessionStorage.removeItem('checkout-cart');
-
-                    // Show success and redirect
-                    showNotification('Payment successful! Order placed.', 'success');
-                    setTimeout(() => {
-                        window.location.href = `/pages/payment-success.html?orderId=${orderId}`;
-                    }, 1500);
-                } else {
-                    throw new Error('Failed to create order');
-                }
+            } else {
+                console.warn('Auth.sendEmail not found, skipping email');
             }
+
+            // Clear cart
+            localStorage.removeItem('healthybite-cart');
+            sessionStorage.removeItem('checkout-cart');
+
+            // Show success and redirect
+            showNotification('Payment successful! Order placed.', 'success');
+            setTimeout(() => {
+                window.location.href = `/pages/payment-success.html?orderId=${orderId}`;
+            }, 1500);
+        }
 
     } catch (error) {
         console.error('Payment error:', error);
         errorsDiv.textContent = error.message || 'Payment failed. Please try again.';
         showNotification(error.message || 'Payment failed', 'error');
-        
+
         // Re-enable button
         submitBtn.disabled = false;
         buttonText.textContent = 'Pay Now';
@@ -306,7 +298,7 @@ async function handlePayment(event) {
 }
 
 function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
+    const cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
     const cartCount = document.querySelector('.cart-count');
     if (cartCount) {

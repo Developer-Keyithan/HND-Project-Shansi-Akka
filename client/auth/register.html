@@ -1,30 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - HelthyBite</title>
+    <title>Register - healthybite</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
     <style>
         /* Additional styles for register page */
         .password-strength {
             margin-top: 8px;
             font-size: 12px;
         }
-        
+
         .strength-text {
             display: block;
             margin-bottom: 3px;
             color: #666;
         }
-        
+
         #strength-level {
             font-weight: 600;
         }
-        
+
         .strength-meter {
             height: 4px;
             background-color: #e0e0e0;
@@ -32,7 +35,7 @@
             overflow: hidden;
             margin-top: 2px;
         }
-        
+
         .strength-bar {
             height: 100%;
             width: 0%;
@@ -40,121 +43,122 @@
             border-radius: 2px;
             transition: width 0.3s ease, background-color 0.3s ease;
         }
-        
+
         .strength-bar.weak {
             width: 33%;
             background-color: #dc3545;
         }
-        
+
         .strength-bar.fair {
             width: 66%;
             background-color: #ffc107;
         }
-        
+
         .strength-bar.good {
             width: 100%;
             background-color: #28a745;
         }
-        
+
         .password-match {
             display: block;
             margin-top: 5px;
             font-size: 12px;
             min-height: 16px;
         }
-        
+
         .password-match.match {
             color: #28a745;
         }
-        
+
         .password-match.no-match {
             color: #dc3545;
         }
-        
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 15px;
         }
-        
+
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
             }
         }
-        
+
         .form-options .checkbox {
             display: flex;
             align-items: flex-start;
             margin-bottom: 10px;
             line-height: 1.4;
         }
-        
+
         .form-options .checkbox input {
             margin-top: 3px;
             margin-right: 8px;
             flex-shrink: 0;
         }
-        
+
         .form-options .checkbox a {
             color: #4fA746;
             text-decoration: none;
         }
-        
+
         .form-options .checkbox a:hover {
             text-decoration: underline;
         }
-        
+
         /* Form validation styles */
         .form-group.error input {
             border-color: #dc3545;
         }
-        
+
         .form-group.error .error-message {
             color: #dc3545;
             font-size: 12px;
             margin-top: 5px;
             display: block;
         }
-        
+
         .form-group.success input {
             border-color: #28a745;
         }
-        
+
         .checkbox.error {
             color: #dc3545;
         }
     </style>
 </head>
+
 <body>
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
                 <a href="/index.html" class="logo">
                     <i class="fas fa-leaf"></i>
-                    <span>HelthyBite</span>
+                    <span>healthybite</span>
                 </a>
-                <h1>Join HelthyBite</h1>
+                <h1>Join healthybite</h1>
                 <p>Create your account to start your healthy journey</p>
             </div>
-            
+
             <form class="auth-form" id="registerForm">
                 <div class="form-group">
                     <label for="fullname">Full Name</label>
                     <input type="text" id="fullname" placeholder="Enter your full name" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" id="email" placeholder="Enter your email" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="phone">Phone Number</label>
                     <input type="tel" id="phone" placeholder="Enter your phone number" required>
                 </div>
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="password">Password</label>
@@ -171,7 +175,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="confirmPassword">Confirm Password</label>
                         <div class="password-input">
@@ -183,43 +187,44 @@
                         <span class="password-match" id="password-match-indicator"></span>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="referral">Referral Code (Optional)</label>
                     <input type="text" id="referral" placeholder="Enter referral code if any">
                 </div>
-                
+
                 <div class="form-options">
                     <label class="checkbox">
                         <input type="checkbox" id="acceptTerms" required>
-                        <span>I agree to the <a href="../terms.html" target="_blank">Terms of Service</a> and <a href="../privacy.html" target="_blank">Privacy Policy</a></span>
+                        <span>I agree to the <a href="/pages/terms.html" target="_blank">Terms of Service</a> and <a
+                                href="/pages/privacy.html" target="_blank">Privacy Policy</a></span>
                     </label>
                     <label class="checkbox">
                         <input type="checkbox" id="newsletter" checked>
                         <span>Subscribe to our newsletter for health tips and offers</span>
                     </label>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary btn-block">Create Account</button>
-                
+
                 <div class="divider">
                     <span>or continue with</span>
                 </div>
-                
+
                 <button type="button" class="btn btn-google">
                     <i class="fab fa-google"></i> Google
                 </button>
             </form>
-            
+
             <div class="auth-footer">
                 <p>Already have an account? <a href="/auth/login.html">Log in now</a></p>
                 <p><a href="/index.html"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
             </div>
         </div>
-        
+
         <div class="auth-hero">
             <div class="auth-hero-content">
-                <h2>Why Join HelthyBite?</h2>
+                <h2>Why Join healthybite?</h2>
                 <p>Become a member and unlock exclusive benefits for your health journey.</p>
                 <div class="auth-features">
                     <div class="feature">
@@ -265,9 +270,10 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="testimonial">
-                    <p>"HelthyBite transformed my eating habits. The personalized meal plans made healthy living easy and enjoyable!"</p>
+                    <p>"healthybite transformed my eating habits. The personalized meal plans made healthy living easy
+                        and enjoyable!"</p>
                     <div class="testimonial-author">
                         <div class="author-avatar">
                             <i class="fas fa-user"></i>
@@ -281,11 +287,19 @@
             </div>
         </div>
     </div>
-    
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function () {
+            emailjs.init("YOUR_PUBLIC_KEY");
+        })();
+    </script>
     <script src="/shared/data.js"></script>
+    <script src="/shared/auth.js"></script>
     <script>
         // Register Page JavaScript
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            // ... (Keep existing UI toggle/password strength logic) ...
             // Toggle password visibility
             const togglePassword = document.getElementById('togglePassword');
             const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
@@ -294,30 +308,30 @@
             const strengthBar = document.querySelector('.strength-bar');
             const strengthLevel = document.getElementById('strength-level');
             const passwordMatchIndicator = document.getElementById('password-match-indicator');
-            
-            togglePassword.addEventListener('click', function() {
+
+            togglePassword.addEventListener('click', function () {
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordInput.setAttribute('type', type);
                 this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
             });
-            
-            toggleConfirmPassword.addEventListener('click', function() {
+
+            toggleConfirmPassword.addEventListener('click', function () {
                 const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 confirmPasswordInput.setAttribute('type', type);
                 this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
             });
-            
+
             // Password strength checker
-            passwordInput.addEventListener('input', function() {
+            passwordInput.addEventListener('input', function () {
                 const password = this.value;
                 let strength = 0;
-                
+
                 // Criteria checks
                 if (password.length >= 8) strength++;
                 if (/[A-Z]/.test(password)) strength++;
                 if (/[0-9]/.test(password)) strength++;
                 if (/[^A-Za-z0-9]/.test(password)) strength++;
-                
+
                 // Update strength indicator
                 if (password.length === 0) {
                     resetPasswordStrength();
@@ -335,12 +349,12 @@
                     strengthLevel.style.color = '#28a745';
                 }
             });
-            
+
             // Password match checker
-            confirmPasswordInput.addEventListener('input', function() {
+            confirmPasswordInput.addEventListener('input', function () {
                 const password = passwordInput.value;
                 const confirmPassword = this.value;
-                
+
                 if (confirmPassword.length === 0) {
                     resetPasswordMatch();
                 } else if (password === confirmPassword) {
@@ -351,7 +365,7 @@
                     passwordMatchIndicator.className = 'password-match no-match';
                 }
             });
-            
+
             // Reset password strength indicator
             function resetPasswordStrength() {
                 strengthBar.className = 'strength-bar';
@@ -359,164 +373,113 @@
                 strengthLevel.textContent = 'Weak';
                 strengthLevel.style.color = '#666';
             }
-            
+
             // Reset password match indicator
             function resetPasswordMatch() {
                 passwordMatchIndicator.textContent = '';
                 passwordMatchIndicator.className = 'password-match';
             }
-            
-            // Form validation and submission
-            const registerForm = document.getElementById('registerForm');
-            
-            registerForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Reset previous errors
-                clearErrors();
-                
-                // Get form values
-                const fullName = document.getElementById('fullname').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const phone = document.getElementById('phone').value.trim();
-                const password = passwordInput.value;
-                const confirmPassword = confirmPasswordInput.value;
-                const acceptTerms = document.getElementById('acceptTerms').checked;
-                
-                let isValid = true;
-                
-                // Validate full name
-                if (!fullName || fullName.length < 2) {
-                    showError('fullname', 'Please enter a valid full name');
-                    isValid = false;
-                }
-                
-                // Validate email
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!email || !emailRegex.test(email)) {
-                    showError('email', 'Please enter a valid email address');
-                    isValid = false;
-                }
-                
-                // Validate phone (simple validation)
-                const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-                const cleanedPhone = phone.replace(/\D/g, '');
-                if (!phone || !phoneRegex.test(cleanedPhone)) {
-                    showError('phone', 'Please enter a valid phone number');
-                    isValid = false;
-                }
-                
-                // Validate password
-                if (password.length < 8) {
-                    showError('password', 'Password must be at least 8 characters long');
-                    isValid = false;
-                }
-                
-                // Validate password match
-                if (password !== confirmPassword) {
-                    showError('confirmPassword', 'Passwords do not match');
-                    isValid = false;
-                }
-                
-                // Validate terms acceptance
-                if (!acceptTerms) {
-                    showError('acceptTerms', 'Please accept the Terms of Service and Privacy Policy');
-                    isValid = false;
-                }
-                
-                if (isValid) {
-                    // Here you would typically send the data to your backend
-                    console.log('Registration data:', {
-                        fullName,
-                        email,
-                        phone: cleanedPhone,
-                        password,
-                        acceptTerms
-                    });
-                    
-                    // Show success message (you can replace this with your Toast system)
-                    alert('Account created successfully! Welcome to HelthyBite.');
-                    
-                    // Redirect to login page after successful registration
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 1500);
-                }
-            });
-            
+
             // Helper functions for error handling
             function showError(inputId, message) {
                 const input = document.getElementById(inputId);
                 const formGroup = input ? input.closest('.form-group') : null;
-                
+
                 if (!formGroup && inputId === 'acceptTerms') {
-                    // For checkbox errors
                     const checkbox = document.getElementById(inputId);
-                    if (checkbox) {
-                        const label = checkbox.closest('label');
-                        if (label) {
-                            label.classList.add('error');
-                        }
+                    if (checkbox && checkbox.closest('label')) {
+                        checkbox.closest('label').classList.add('error');
                     }
                     return;
                 }
-                
+
                 if (formGroup) {
                     formGroup.classList.add('error');
-                    
-                    // Remove existing error message
                     const existingError = formGroup.querySelector('.error-message');
-                    if (existingError) {
-                        existingError.remove();
-                    }
-                    
-                    // Add new error message
+                    if (existingError) existingError.remove();
+
                     const errorSpan = document.createElement('span');
                     errorSpan.className = 'error-message';
                     errorSpan.textContent = message;
                     formGroup.appendChild(errorSpan);
                 }
             }
-            
+
             function clearErrors() {
-                // Clear input errors
-                const errorGroups = document.querySelectorAll('.form-group.error');
-                errorGroups.forEach(group => {
+                document.querySelectorAll('.form-group.error').forEach(group => {
                     group.classList.remove('error');
-                    const errorMessage = group.querySelector('.error-message');
-                    if (errorMessage) {
-                        errorMessage.remove();
-                    }
+                    const msg = group.querySelector('.error-message');
+                    if (msg) msg.remove();
                 });
-                
-                // Clear checkbox errors
-                const checkboxErrors = document.querySelectorAll('label.checkbox.error');
-                checkboxErrors.forEach(label => {
-                    label.classList.remove('error');
-                });
+                document.querySelectorAll('label.checkbox.error').forEach(l => l.classList.remove('error'));
             }
-            
-            // Google sign-in button
-            document.querySelector('.btn-google').addEventListener('click', function() {
-                // Implement Google OAuth here
+
+            // Form validation and submission
+            const registerForm = document.getElementById('registerForm');
+
+            registerForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                clearErrors();
+
+                const fullName = document.getElementById('fullname').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                const acceptTerms = document.getElementById('acceptTerms').checked;
+
+                let isValid = true;
+
+                if (!fullName || fullName.length < 2) { showError('fullname', 'Please enter a valid full name'); isValid = false; }
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!email || !emailRegex.test(email)) { showError('email', 'Please enter a valid email address'); isValid = false; }
+                if (!phone) { showError('phone', 'Please enter a valid phone number'); isValid = false; }
+                if (password.length < 8) { showError('password', 'Password must be at least 8 characters long'); isValid = false; }
+                if (password !== confirmPassword) { showError('confirmPassword', 'Passwords do not match'); isValid = false; }
+                if (!acceptTerms) { showError('acceptTerms', 'Please accept the Terms'); isValid = false; }
+
+                if (isValid) {
+                    // Use Shared Auth
+                    const btn = registerForm.querySelector('button[type="submit"]');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+                    btn.disabled = true;
+
+                    try {
+                        if (!window.Auth) throw new Error("Auth module missing");
+
+                        const result = await window.Auth.registerUser({
+                            name: fullName,
+                            email: email,
+                            phone: phone,
+                            password: password // In real app, hash this or send over secure channel
+                        });
+
+                        if (result.success) {
+                            alert('Account created successfully! Welcome to healthybite.');
+                            window.location.href = '/dashboard/consumer.html';
+                        } else {
+                            alert(result.error);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert("An error occurred during registration.");
+                    } finally {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                }
+            });
+
+            // Google sign-in check
+            document.querySelector('.btn-google').addEventListener('click', function () {
                 alert('Google sign-in would be implemented here.');
             });
-            
-            // Check if user is already logged in (optional)
-            function checkAuthStatus() {
-                // You can implement this based on your auth system
-                const token = localStorage.getItem('authToken');
-                if (token) {
-                    // User is already logged in, redirect to dashboard
-                    window.location.href = '../pages/dashboard.html';
-                }
-            }
-            
-            // Check auth status on page load
-            checkAuthStatus();
         });
     </script>
 
     <script src="/shared/router.js"></script>
 </body>
+
 </html>

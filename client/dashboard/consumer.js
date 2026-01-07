@@ -1,37 +1,36 @@
 // Consumer Dashboard JavaScript
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize dashboard
     initDashboard();
-    
+
     // Load user data
     loadUserData();
-    
+
     // Load orders
     loadOrders();
-    
+
     // Load recommendations
     loadRecommendations();
-    
+
     // Initialize event listeners
     initEventListeners();
-    
+
     // Update dashboard date
     updateDashboardDate();
 });
 
 function initDashboard() {
-    // Check if user is logged in
-    const user = JSON.parse(localStorage.getItem('helthybite-user'));
-    if (!user) {
-        window.location.href = '../auth/login.html';
-        return;
-    }
-    
+    // Check for authorization
+    if (!window.Auth || !window.Auth.requireRole('consumer')) return;
+
+    const user = window.Auth.getCurrentUser();
+    // (Rest of initDashboard uses 'user', so we just get it from Auth)
+
     // Set user data
     document.getElementById('user-name').textContent = user.name;
     document.getElementById('user-role').textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
     document.getElementById('greeting').textContent = getGreeting() + ', ' + user.name.split(' ')[0] + '!';
-    
+
     // Update cart count
     updateCartCount();
 }
@@ -51,26 +50,26 @@ function updateDashboardDate() {
 
 function loadUserData() {
     // Load user stats from localStorage or calculate from orders
-    const orders = JSON.parse(localStorage.getItem('helthybite-orders')) || [];
+    const orders = JSON.parse(localStorage.getItem('healthybite-orders')) || [];
     const currentMonth = new Date().getMonth();
-    
+
     const monthlyOrders = orders.filter(order => {
         const orderDate = new Date(order.date);
         return orderDate.getMonth() === currentMonth;
     });
-    
+
     document.getElementById('total-orders').textContent = monthlyOrders.length;
-    
+
     // Calculate calories saved (mock calculation)
     const caloriesSaved = monthlyOrders.length * 650; // Average calories saved per meal
     document.getElementById('calories-saved').textContent = caloriesSaved.toLocaleString();
-    
+
     // Calculate healthy days streak
     const streak = calculateHealthyDaysStreak();
     document.getElementById('healthy-days').textContent = streak;
-    
+
     // Calculate active deliveries
-    const activeDeliveries = orders.filter(order => 
+    const activeDeliveries = orders.filter(order =>
         order.status === 'preparing' || order.status === 'shipping'
     ).length;
     document.getElementById('active-deliveries').textContent = activeDeliveries;
@@ -84,9 +83,9 @@ function calculateHealthyDaysStreak() {
 function loadOrders() {
     const orders = window.orders || [];
     const tableBody = document.getElementById('orders-table-body');
-    
+
     if (!tableBody) return;
-    
+
     tableBody.innerHTML = orders.map(order => `
         <tr>
             <td><strong>${order.id}</strong></td>
@@ -127,10 +126,10 @@ function formatDate(dateString) {
 function loadRecommendations() {
     const container = document.getElementById('recommendations-container');
     if (!container) return;
-    
+
     // Get recommendations based on user's order history
     const recommendations = window.products.slice(0, 4); // First 4 products as recommendations
-    
+
     container.innerHTML = recommendations.map(product => `
         <div class="recommendation-card">
             <div class="recommendation-image">
@@ -155,22 +154,22 @@ function initEventListeners() {
     // Logout button
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
+        logoutBtn.addEventListener('click', function (e) {
             e.preventDefault();
             logout();
         });
     }
-    
+
     // Section navigation
     const navLinks = document.querySelectorAll('.sidebar-nav a[href^="#"]');
     navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
             const sectionId = this.getAttribute('href').substring(1);
             loadSection(sectionId);
         });
     });
-    
+
     // Initialize progress circles
     initProgressCircles();
 }
@@ -180,18 +179,18 @@ function loadSection(sectionId) {
     document.querySelectorAll('.dashboard-section').forEach(section => {
         section.classList.remove('active');
     });
-    
+
     // Show selected section
     const section = document.getElementById(sectionId + '-section');
     if (section) {
         section.classList.add('active');
     }
-    
+
     // Update active nav link
     document.querySelectorAll('.sidebar-nav a').forEach(link => {
         link.classList.remove('active');
     });
-    
+
     const activeLink = document.querySelector(`.sidebar-nav a[href="#${sectionId}"]`);
     if (activeLink) {
         activeLink.classList.add('active');
@@ -204,7 +203,7 @@ function initProgressCircles() {
         const radius = 35;
         const circumference = 2 * Math.PI * radius;
         const offset = circumference - (progress / 100) * circumference;
-        
+
         const progressBar = circle.querySelector('.progress-bar');
         if (progressBar) {
             progressBar.style.strokeDasharray = `${circumference} ${circumference}`;
@@ -214,9 +213,9 @@ function initProgressCircles() {
 }
 
 function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
+    const cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    
+
     const cartCounts = document.querySelectorAll('.cart-count-sidebar');
     cartCounts.forEach(count => {
         count.textContent = totalItems;
@@ -230,15 +229,15 @@ function updateCartCount() {
 
 function addToCart(productId) {
     const product = window.products.find(p => p.id === productId);
-    
+
     if (!product) {
         showNotification('Product not found!', 'error');
         return;
     }
-    
-    let cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
+
+    let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
     const existingItem = cart.find(item => item.id === productId);
-    
+
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
@@ -250,8 +249,8 @@ function addToCart(productId) {
             quantity: 1
         });
     }
-    
-    localStorage.setItem('helthybite-cart', JSON.stringify(cart));
+
+    localStorage.setItem('healthybite-cart', JSON.stringify(cart));
     updateCartCount();
     showNotification(`${product.name} added to cart!`, 'success');
 }
@@ -277,9 +276,9 @@ function reorder(orderId) {
         showNotification('Order not found!', 'error');
         return;
     }
-    
-    let cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
-    
+
+    let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
+
     order.items.forEach(item => {
         const existingItem = cart.find(cartItem => cartItem.id === item.id);
         if (existingItem) {
@@ -293,8 +292,8 @@ function reorder(orderId) {
             });
         }
     });
-    
-    localStorage.setItem('helthybite-cart', JSON.stringify(cart));
+
+    localStorage.setItem('healthybite-cart', JSON.stringify(cart));
     updateCartCount();
     showNotification('Order added to cart!', 'success');
 }
@@ -305,7 +304,7 @@ function rateOrder(orderId) {
 }
 
 function logout() {
-    localStorage.removeItem('helthybite-user');
+    localStorage.removeItem('healthybite-user');
     showNotification('Logged out successfully!', 'success');
     setTimeout(() => {
         window.location.href = '../index.html';
@@ -322,7 +321,7 @@ function showNotification(message, type = 'info') {
         </div>
         <button class="notification-close"><i class="fas fa-times"></i></button>
     `;
-    
+
     notification.style.cssText = `
         position: fixed;
         top: 20px;
@@ -340,7 +339,7 @@ function showNotification(message, type = 'info') {
         max-width: 400px;
         animation: slideIn 0.5s ease forwards;
     `;
-    
+
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.addEventListener('click', () => {
         notification.style.animation = 'slideOut 0.3s ease forwards';
@@ -350,9 +349,9 @@ function showNotification(message, type = 'info') {
             }
         }, 300);
     });
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         if (notification.parentNode) {
             notification.style.animation = 'slideOut 0.3s ease forwards';

@@ -1,27 +1,38 @@
-// Main JavaScript for HelthyBite
+// Main JavaScript for healthybite
 
 import { Toast } from "./plugins/Toast/toast.js";
 
 // Global Variables
-let cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
-let currentUser = JSON.parse(localStorage.getItem('helthybite-user')) || null;
+let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
+let currentUser = JSON.parse(localStorage.getItem('healthybite-user')) || null;
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function () {
-
     loadProducts();
     initCategoryFilters();
     updateCartCount();
     initSearch();
-    performLogin();
+    // performLogin(); // Removed undefined function call
 });
 
 // Product Functions
-function loadProducts(category = 'all') {
+async function loadProducts(category = 'all') {
     const productsContainer = document.getElementById('products-container');
     if (!productsContainer) return;
 
-    let filteredProducts = window.products || [];
+    // Show loading
+    productsContainer.innerHTML = '<div class="loading-spinner">Loading recommendations...</div>';
+
+    let allProducts = [];
+    try {
+        allProducts = await window.API.getProducts();
+    } catch (e) {
+        console.error(e);
+        productsContainer.innerHTML = 'Failed to load products.';
+        return;
+    }
+
+    let filteredProducts = allProducts;
 
     if (category !== 'all') {
         filteredProducts = filteredProducts.filter(product => product.category === category);
@@ -77,8 +88,18 @@ function initCategoryFilters() {
 }
 
 // Cart Functions
-function addToCart(productId) {
-    const product = window.products.find(p => p.id === productId);
+async function addToCart(productId) {
+    let product;
+    try {
+        product = await window.API.getProductById(productId);
+    } catch (e) {
+        console.error(e);
+    }
+
+    // Fallback
+    if (!product) {
+        product = window.products ? window.products.find(p => p.id === productId) : null;
+    }
 
     if (!product) {
         showNotification('Product not found!', 'error');
@@ -101,7 +122,7 @@ function addToCart(productId) {
     }
 
     // Save to localStorage
-    localStorage.setItem('helthybite-cart', JSON.stringify(cart));
+    localStorage.setItem('healthybite-cart', JSON.stringify(cart));
 
     // Update cart count
     updateCartCount();
@@ -163,9 +184,10 @@ function showNotification(message, type = 'info') {
 
 // Utility Functions
 function formatPrice(price) {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-LK', {
         style: 'currency',
-        currency: 'USD'
+        currency: 'LKR',
+        maximumFractionDigits: 0
     }).format(price);
 }
 
@@ -181,60 +203,66 @@ function debounce(func, wait) {
     };
 }
 
-function performLogin() {
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
+const loginForm = document.getElementById('loginForm');
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            const email = document.getElementById('modal-email').value;
-            const password = document.getElementById('modal-password').value;
+        const email = document.getElementById('modal-email').value;
+        const password = document.getElementById('modal-password').value;
 
-            // Simple validation
-            if (!email || !password) {
-                showNotification('Please fill in all fields', 'error');
+        // Simple validation
+        if (!email || !password) {
+            showNotification('Please fill in all fields', 'error');
+            return;
+        }
+
+        // Show loading state
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+        submitBtn.disabled = true;
+
+        // Real authentication
+        try {
+            if (!window.Auth) {
+                showNotification('Authentication module not loaded', 'error');
                 return;
             }
 
-            // Mock authentication
-            const mockUsers = window.users;
+            const result = await window.Auth.loginUser(email, password);
 
-            const user = mockUsers.find(u => u.email === email && u.password === password);
-
-            if (user) {
-                // Store user data
-                currentUser = {
-                    id: Date.now(),
-                    email: user.email,
-                    name: user.name,
-                    role: user.role
-                };
-
-                localStorage.setItem('helthybite-user', JSON.stringify(currentUser));
-
+            if (result.success) {
+                currentUser = result.user;
                 showNotification('Login successful! Redirecting...', 'success');
 
                 // Close modal
+                const loginModal = document.getElementById('loginModal'); // Ensure we select the modal
                 if (loginModal) {
                     loginModal.style.display = 'none';
                     document.body.style.overflow = 'auto';
                 }
 
                 // Update user menu
-                // Update the navbar
                 if (window.Navbar && typeof window.Navbar.updateUserMenu === 'function') {
                     window.Navbar.updateUserMenu();
-                    setTimeout(window.Navbar.initDropdowns(), 100);
+                    // Re-init dropdowns after DOM update
+                    setTimeout(() => {
+                        if (typeof window.Navbar.initDropdowns === 'function') window.Navbar.initDropdowns();
+                    }, 100);
                 }
 
                 // Redirect based on role
                 setTimeout(() => {
-                    switch (user.role) {
+                    switch (result.user.role) {
                         case 'admin':
                             window.location.href = 'dashboard/admin.html';
                             break;
                         case 'seller':
                             window.location.href = 'dashboard/seller.html';
+                            break;
+                        case 'delivery-partner':
+                            window.location.href = 'dashboard/delivery.html';
                             break;
                         default:
                             window.location.href = 'dashboard/consumer.html';
@@ -242,14 +270,22 @@ function performLogin() {
                 }, 1500);
 
             } else {
-                showNotification('Invalid email or password', 'error');
+                showNotification(result.error || 'Invalid email or password', 'error');
             }
-        });
-    }
+        } catch (error) {
+            console.error("Login logic error:", error);
+            showNotification('An unexpected error occurred', 'error');
+        } finally {
+            // Restore button state
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    });
 }
 
+
 // Export functions for use in other modules
-window.HelthyBite = {
+window.healthybite = {
     addToCart,
     updateCartCount,
     showNotification,

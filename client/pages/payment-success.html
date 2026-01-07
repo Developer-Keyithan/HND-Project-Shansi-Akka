@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Success - HelthyBite</title>
+    <title>Payment Success - healthybite</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/pages/pages.css">
     <link rel="stylesheet" href="/plugins/fontawesome-free-7.1.0-web/css/all.min.css">
@@ -15,43 +15,7 @@
 
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="navbar">
-                <a href="/index.html" class="logo">
-                    <i class="fas fa-leaf"></i>
-                    <span>HelthyBite</span>
-                </a>
-
-                <ul class="nav-menu">
-                    <li><a href="/index.html">Home</a></li>
-                    <li><a href="/pages/menu.html">Menu</a></li>
-                    <li><a href="../index.html#about">About</a></li>
-                    <li><a href="/pages/diet-planning.html">Diet Planning</a></li>
-                    <li><a href="/pages/faqs.html">FAQs</a></li>
-                    <li><a href="/pages/contact.html">Contact</a></li>
-                </ul>
-
-                <div class="nav-actions">
-                    <a href="/pages/menu.html" class="btn btn-search"><i class="fas fa-search"></i></a>
-                    <a href="/pages/cart.html" class="cart-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-count">0</span>
-                    </a>
-                    <div class="user-menu">
-                        <button class="btn-login" id="login-btn">Login</button>
-                        <button class="btn-register" id="register-btn">Sign Up</button>
-                    </div>
-                </div>
-
-                <div class="hamburger">
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                </div>
-            </div>
-        </div>
-    </header>
+    <header id="navbar-placeholder" class="header"></header>
 
     <!-- Success Section -->
     <section class="payment-success-section">
@@ -62,7 +26,7 @@
                 </div>
                 <h1>Payment Successful!</h1>
                 <p class="success-message">Thank you for your order. Your payment has been processed successfully.</p>
-                
+
                 <div class="order-details" id="order-details">
                     <h3>Order Details</h3>
                     <div class="detail-row">
@@ -91,13 +55,13 @@
                 <div class="footer-col">
                     <a href="/index.html" class="logo">
                         <i class="fas fa-leaf"></i>
-                        <span>HelthyBite</span>
+                        <span>healthybite</span>
                     </a>
                     <p>Delivering healthy, delicious meals to nourish your body and mind.</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 HelthyBite. All rights reserved.</p>
+                <p>&copy; 2024 healthybite. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -109,7 +73,7 @@
         // Get order ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const orderId = urlParams.get('orderId');
-        
+
         if (orderId) {
             document.getElementById('order-id').textContent = orderId;
             document.getElementById('track-order-btn').href = `delivery-tracking.html?orderId=${orderId}`;
@@ -122,4 +86,3 @@
 </body>
 
 </html>
-

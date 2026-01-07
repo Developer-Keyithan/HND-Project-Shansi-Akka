@@ -34,11 +34,10 @@ function toggleSearchBar() {
 
 // User Menu
 function updateUserMenu() {
-    
     const userMenu = document.querySelector('.user-menu');
     if (!userMenu) return;
-    
-    const userData = localStorage.getItem('helthybite-user');
+
+    const userData = localStorage.getItem('healthybite-user');
     const currentUser = userData ? JSON.parse(userData) : null;
     userMenu.innerHTML = '';
     if (currentUser) {
@@ -95,7 +94,7 @@ function updateUserMenu() {
         if (newRegisterBtn) {
             newRegisterBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.location.href = 'auth/register.html';
+                window.location.href = '../auth/register.html';
             });
         }
 
@@ -175,43 +174,20 @@ function setActiveNav() {
     });
 }
 
+function handleCartIconDisplay() {
+    const cartIcon = document.getElementById('cart-icon');
+    if (!cartIcon) return;
 
-function handleHomeAboutActive() {
-    const aboutSection = document.getElementById('about');
-    const homeLink = document.getElementById('nav-home');
-    const aboutLink = document.getElementById('nav-about');
-
-    if (!aboutSection || !homeLink || !aboutLink) return;
-
-    const rect = aboutSection.getBoundingClientRect();
-
-    // About section visible on screen
-    const isVisible =
-        rect.top <= window.innerHeight / 2 &&
-        rect.bottom >= window.innerHeight / 2;
-
-    if (isVisible) {
-        homeLink.classList.remove('active');
-        aboutLink.classList.add('active');
+    if (window.location.pathname.endsWith('cart.html')) {
+        cartIcon.style.display = 'none';
     } else {
-        aboutLink.classList.remove('active');
-        homeLink.classList.add('active');
+        cartIcon.style.display = 'block';
     }
 }
 
-window.addEventListener('scroll', () => {
-    if (
-        window.location.pathname.endsWith('index.html') ||
-        window.location.pathname === '/'
-    ) {
-        handleHomeAboutActive();
-    }
-});
-
-
 // Logout
 function logout() {
-    localStorage.removeItem('helthybite-user');
+    localStorage.removeItem('healthybite-user');
     currentUser = null;
     updateUserMenu();
     alert('Logged out successfully!');
@@ -224,5 +200,6 @@ window.Navbar = {
     updateUserMenu,
     initDropdowns,
     logout,
-    setActiveNav
+    setActiveNav,
+    handleCartIconDisplay
 };

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - HelthyBite</title>
+    <title>My Profile - healthybite</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/pages/pages.css">
     <link rel="stylesheet" href="/plugins/fontawesome-free-7.1.0-web/css/all.min.css">
@@ -15,43 +15,7 @@
 
 <body>
     <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="navbar">
-                <a href="/index.html" class="logo">
-                    <i class="fas fa-leaf"></i>
-                    <span>HelthyBite</span>
-                </a>
-
-                <ul class="nav-menu">
-                    <li><a href="/index.html">Home</a></li>
-                    <li><a href="/pages/menu.html">Menu</a></li>
-                    <li><a href="../index.html#about">About</a></li>
-                    <li><a href="/pages/diet-planning.html">Diet Planning</a></li>
-                    <li><a href="/pages/faqs.html">FAQs</a></li>
-                    <li><a href="/pages/contact.html">Contact</a></li>
-                </ul>
-
-                <div class="nav-actions">
-                    <a href="/pages/menu.html" class="btn btn-search"><i class="fas fa-search"></i></a>
-                    <a href="/pages/cart.html" class="cart-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-count">0</span>
-                    </a>
-                    <div class="user-menu">
-                        <button class="btn-login" id="login-btn">Login</button>
-                        <button class="btn-register" id="register-btn">Sign Up</button>
-                    </div>
-                </div>
-
-                <div class="hamburger">
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                </div>
-            </div>
-        </div>
-    </header>
+    <header id="navbar-placeholder" class="header"></header>
 
     <!-- Profile Section -->
     <section class="page-hero profile-hero">
@@ -141,7 +105,8 @@
                                     <h3>Change Password</h3>
                                     <p>Update your account password</p>
                                 </div>
-                                <button class="btn btn-outline" onclick="showChangePasswordModal()">Change Password</button>
+                                <button class="btn btn-outline" onclick="showChangePasswordModal()">Change
+                                    Password</button>
                             </div>
                             <div class="setting-item">
                                 <div class="setting-info">
@@ -165,30 +130,12 @@
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <a href="/index.html" class="logo">
-                        <i class="fas fa-leaf"></i>
-                        <span>HelthyBite</span>
-                    </a>
-                    <p>Delivering healthy, delicious meals to nourish your body and mind.</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 HelthyBite. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <footer id="footer-placeholder" class="footer"></footer>
 
-    <script src="/shared/data.js"></script>
-    <script src="/shared/utils.js"></script>
-    <script src="/shared/auth.js"></script>
+    <script src="/load-scripts.js"></script>
+
     <script src="profile.js"></script>
-
     <script src="/shared/router.js"></script>
 </body>
 
 </html>
-

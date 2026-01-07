@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consumer Dashboard - HelthyBite</title>
+    <title>Consumer Dashboard - healthybite</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <!-- Dashboard Layout -->
     <div class="dashboard-container">
@@ -17,33 +21,35 @@
             <div class="sidebar-header">
                 <a href="/index.html" class="logo">
                     <i class="fas fa-leaf"></i>
-                    <span>HelthyBite</span>
+                    <span>healthybite</span>
                 </a>
             </div>
-            
+
             <div class="user-profile">
                 <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User Profile" id="user-avatar">
                 <h3 id="user-name">Emma Wilson</h3>
                 <p id="user-role">Consumer</p>
                 <span class="user-status active">● Active</span>
             </div>
-            
+
             <nav class="sidebar-nav">
                 <ul>
                     <li><a href="consumer.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
                     <li><a href="/pages/profile.html"><i class="fas fa-user"></i> My Profile</a></li>
                     <li><a href="/pages/menu.html"><i class="fas fa-utensils"></i> Order Food</a></li>
                     <li><a href="/pages/diet-planning.html"><i class="fas fa-clipboard-list"></i> Diet Plans</a></li>
-                    <li><a href="/pages/cart.html"><i class="fas fa-shopping-cart"></i> My Cart <span class="cart-count-sidebar">0</span></a></li>
+                    <li><a href="/pages/cart.html"><i class="fas fa-shopping-cart"></i> My Cart <span
+                                class="cart-count-sidebar">0</span></a></li>
                     <li><a href="/pages/delivery-tracking.html"><i class="fas fa-truck"></i> Order Tracking</a></li>
-                    <li><a href="#orders" onclick="loadSection('orders')"><i class="fas fa-history"></i> Order History</a></li>
+                    <li><a href="#orders" onclick="loadSection('orders')"><i class="fas fa-history"></i> Order
+                            History</a></li>
                     <li><a href="/pages/payment.html"><i class="fas fa-credit-card"></i> Payment Methods</a></li>
                     <li><a href="/pages/faqs.html"><i class="fas fa-question-circle"></i> Help & Support</a></li>
                     <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </nav>
         </aside>
-        
+
         <!-- Main Content -->
         <main class="main-content">
             <!-- Header -->
@@ -91,7 +97,7 @@
                     </button>
                 </div>
             </header>
-            
+
             <!-- Dashboard Stats -->
             <div class="dashboard-stats">
                 <div class="stat-card">
@@ -104,7 +110,7 @@
                         <span class="stat-change positive">+2 from last month</span>
                     </div>
                 </div>
-                
+
                 <div class="stat-card">
                     <div class="stat-icon" style="background-color: #f3e5f5;">
                         <i class="fas fa-fire" style="color: #7b1fa2;"></i>
@@ -115,7 +121,7 @@
                         <span class="stat-change positive">Equivalent to 2.3 lbs</span>
                     </div>
                 </div>
-                
+
                 <div class="stat-card">
                     <div class="stat-icon" style="background-color: #e3f2fd;">
                         <i class="fas fa-heartbeat" style="color: #1976d2;"></i>
@@ -126,7 +132,7 @@
                         <span class="stat-change positive">Keep it up! 🎯</span>
                     </div>
                 </div>
-                
+
                 <div class="stat-card">
                     <div class="stat-icon" style="background-color: #fff8e1;">
                         <i class="fas fa-truck" style="color: #ff8f00;"></i>
@@ -138,7 +144,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Main Content Sections -->
             <div class="dashboard-sections">
                 <!-- Active Orders -->
@@ -147,7 +153,7 @@
                         <h2>Active Orders & Tracking</h2>
                         <a href="/pages/delivery-tracking.html" class="btn btn-outline">View All Tracking</a>
                     </div>
-                    
+
                     <div class="orders-grid">
                         <div class="order-card">
                             <div class="order-header">
@@ -156,14 +162,16 @@
                             </div>
                             <div class="order-items">
                                 <div class="order-item">
-                                    <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Acai Bowl">
+                                    <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+                                        alt="Acai Bowl">
                                     <div>
                                         <h4>Acai Superfood Bowl</h4>
                                         <p>Quantity: 1 × $10.99</p>
                                     </div>
                                 </div>
                                 <div class="order-item">
-                                    <img src="https://images.unsplash.com/photo-1572802419226-7c94b6c42c4c?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Protein Balls">
+                                    <img src="https://images.unsplash.com/photo-1572802419226-7c94b6c42c4c?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+                                        alt="Protein Balls">
                                     <div>
                                         <h4>Protein Energy Balls</h4>
                                         <p>Quantity: 2 × $6.99</p>
@@ -185,7 +193,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="delivery-progress">
                             <h3>Delivery Progress</h3>
                             <div class="progress-steps">
@@ -238,7 +246,7 @@
                         </div>
                     </div>
                 </section>
-                
+
                 <!-- Recent Orders Section -->
                 <section class="dashboard-section" id="orders-section">
                     <div class="section-header">
@@ -247,7 +255,7 @@
                             <i class="fas fa-plus"></i> Place New Order
                         </button>
                     </div>
-                    
+
                     <div class="table-container">
                         <table class="data-table">
                             <thead>
@@ -266,14 +274,14 @@
                         </table>
                     </div>
                 </section>
-                
+
                 <!-- Diet Plan Section -->
                 <section class="dashboard-section" id="diet-section">
                     <div class="section-header">
                         <h2>Your Active Diet Plan</h2>
                         <a href="/pages/diet-planning.html" class="btn btn-outline">Edit Plan</a>
                     </div>
-                    
+
                     <div class="diet-plan-card">
                         <div class="diet-plan-header">
                             <div>
@@ -294,7 +302,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="diet-plan-meals">
                             <h4>Today's Meals</h4>
                             <div class="meal-schedule">
@@ -309,7 +317,7 @@
                                     </div>
                                     <span class="meal-status"><i class="fas fa-check"></i> Completed</span>
                                 </div>
-                                
+
                                 <div class="meal-item completed">
                                     <div class="meal-time">
                                         <i class="fas fa-sun"></i>
@@ -321,7 +329,7 @@
                                     </div>
                                     <span class="meal-status"><i class="fas fa-check"></i> Completed</span>
                                 </div>
-                                
+
                                 <div class="meal-item upcoming">
                                     <div class="meal-time">
                                         <i class="fas fa-moon"></i>
@@ -333,7 +341,7 @@
                                     </div>
                                     <button class="btn btn-outline">Order Now</button>
                                 </div>
-                                
+
                                 <div class="meal-item pending">
                                     <div class="meal-time">
                                         <i class="fas fa-apple-alt"></i>
@@ -349,14 +357,14 @@
                         </div>
                     </div>
                 </section>
-                
+
                 <!-- Recommendations Section -->
                 <section class="dashboard-section" id="recommendations-section">
                     <div class="section-header">
                         <h2>Recommended For You</h2>
                         <a href="/pages/menu.html" class="btn btn-outline">View All</a>
                     </div>
-                    
+
                     <div class="recommendations-grid" id="recommendations-container">
                         <!-- Recommendations loaded by JavaScript -->
                     </div>
@@ -364,10 +372,12 @@
             </div>
         </main>
     </div>
-    
+
     <script src="/shared/data.js"></script>
+    <script src="/shared/auth.js"></script>
     <script src="consumer.js"></script>
 
     <script src="/shared/router.js"></script>
 </body>
+
 </html>

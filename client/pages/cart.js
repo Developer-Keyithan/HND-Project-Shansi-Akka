@@ -1,15 +1,20 @@
 // Cart Page JavaScript
 import { Toast } from "../plugins/Toast/toast.js";
 
-let cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
+let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
 let deliveryFee = 200;
-let taxRate = 0.05;
+let taxRate = 0;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadCart();
     initEventListeners();
     updateCartCount();
+    setDeliveryFee();
 });
+
+function setDeliveryFee() {
+    document.getElementById('delivery-fee').textContent = `LKR ${deliveryFee.toFixed(2)}`;
+}
 
 function initEventListeners() {
     // Clear cart button
@@ -31,7 +36,7 @@ function initEventListeners() {
 function initNavigation() {
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
-    
+
     if (hamburger && navMenu) {
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('active');
@@ -48,7 +53,7 @@ function updateUserMenu() {
     if (!userMenu) return;
 
     const currentUser = window.Auth?.getCurrentUser();
-    
+
     if (currentUser) {
         userMenu.innerHTML = `
             <div class="user-dropdown">
@@ -64,7 +69,7 @@ function updateUserMenu() {
                 </div>
             </div>
         `;
-        
+
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', async (e) => {
@@ -77,7 +82,7 @@ function updateUserMenu() {
 }
 
 function loadCart() {
-    cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
+    cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
     const cartItemsContainer = document.getElementById('cart-items');
     const checkoutBtn = document.getElementById('checkout-btn');
 
@@ -97,35 +102,42 @@ function loadCart() {
 
     // Load products from data or API
     const products = window.products || [];
-    
+
     cartItemsContainer.innerHTML = cart.map(item => {
         const product = products.find(p => p.id === item.id) || item;
         const itemTotal = product.price * item.quantity;
-        
+
         return `
-            <div class="cart-item" data-id="${item.id}">
+        <div class="cart-item" data-id="${item.id}">
                 <div class="cart-item-image">
-                    <img src="${product.image || item.image}" alt="${product.name || item.name}">
+                ${product.image || item.image ?
+                    `<i class="fas fa-image"></i>` :
+                    `<img src="${product.image || item.image}" alt="${product.name || item.name}">`
+                } 
                 </div>
-                <div class="cart-item-details">
-                    <h3>${product.name || item.name}</h3>
-                    <p class="cart-item-price">LKR ${(product.price || item.price).toFixed(2)}</p>
+                <div class="cart-item-info">
+                    <div class="cart-item-details">
+                        <h3>${product.name || item.name}</h3>
+                        <p class="cart-item-price">LKR ${(product.price || item.price).toFixed(2)}</p>
+                    </div>
+                    <div class="cart-item-actions">
+                        <div class="cart-item-quantity">
+                            <button class="quantity-btn" onclick="decreaseQuantity(${item.id})">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="quantity-value">${item.quantity}</span>
+                            <button class="quantity-btn" onclick="increaseQuantity(${item.id})">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="cart-item-total">
+                            <span>LKR ${itemTotal.toFixed(2)}</span>
+                        </div>
+                        <button class="cart-item-remove" onclick="removeFromCart(${item.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="cart-item-quantity">
-                    <button class="quantity-btn" onclick="decreaseQuantity(${item.id})">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <span class="quantity-value">${item.quantity}</span>
-                    <button class="quantity-btn" onclick="increaseQuantity(${item.id})">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-                <div class="cart-item-total">
-                    <span>LKR ${itemTotal.toFixed(2)}</span>
-                </div>
-                <button class="cart-item-remove" onclick="removeFromCart(${item.id})">
-                    <i class="fas fa-trash"></i>
-                </button>
             </div>
         `;
     }).join('');
@@ -144,7 +156,7 @@ function updateSummary() {
     const total = subtotal + deliveryFee + tax;
 
     document.getElementById('cart-subtotal').textContent = `LKR ${subtotal.toFixed(2)}`;
-    document.getElementById('cart-tax').textContent = `LKR ${tax.toFixed(2)}`;
+    document.getElementById('cart-tax') ? document.getElementById('cart-tax').textContent = `LKR ${tax.toFixed(2)}` : null;
     document.getElementById('cart-total').textContent = `LKR ${total.toFixed(2)}`;
 }
 
@@ -152,7 +164,7 @@ function increaseQuantity(productId) {
     const item = cart.find(i => i.id === productId);
     if (item) {
         item.quantity += 1;
-        localStorage.setItem('helthybite-cart', JSON.stringify(cart));
+        localStorage.setItem('healthybite-cart', JSON.stringify(cart));
         loadCart();
         updateCartCount();
         showNotification('Item quantity updated', 'success');
@@ -163,7 +175,7 @@ function decreaseQuantity(productId) {
     const item = cart.find(i => i.id === productId);
     if (item && item.quantity > 1) {
         item.quantity -= 1;
-        localStorage.setItem('helthybite-cart', JSON.stringify(cart));
+        localStorage.setItem('healthybite-cart', JSON.stringify(cart));
         loadCart();
         updateCartCount();
         showNotification('Item quantity updated', 'success');
@@ -172,7 +184,7 @@ function decreaseQuantity(productId) {
 
 function removeFromCart(productId) {
     cart = cart.filter(item => item.id !== productId);
-    localStorage.setItem('helthybite-cart', JSON.stringify(cart));
+    localStorage.setItem('healthybite-cart', JSON.stringify(cart));
     loadCart();
     updateCartCount();
     showNotification('Item removed from cart', 'success');
@@ -181,7 +193,7 @@ function removeFromCart(productId) {
 function clearCart() {
     if (confirm('Are you sure you want to clear your cart?')) {
         cart = [];
-        localStorage.setItem('helthybite-cart', JSON.stringify(cart));
+        localStorage.setItem('healthybite-cart', JSON.stringify(cart));
         loadCart();
         updateCartCount();
         showNotification('Cart cleared', 'success');
@@ -190,7 +202,7 @@ function clearCart() {
 
 function proceedToCheckout() {
     const currentUser = window.Auth?.getCurrentUser();
-    
+
     if (!currentUser) {
         showNotification('Please login to proceed to checkout', 'error');
         setTimeout(() => {

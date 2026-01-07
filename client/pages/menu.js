@@ -1,17 +1,17 @@
 // Menu Page JavaScript
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize menu
     initMenu();
-    
+
     // Load categories
     loadCategories();
-    
+
     // Load products
     loadMenuProducts();
-    
+
     // Load diet plans
     loadDietPlans();
-    
+
     // Initialize filters
     initFilters();
 });
@@ -26,7 +26,7 @@ function initMenu() {
     // Check URL for search query
     const urlParams = new URLSearchParams(window.location.search);
     const searchQuery = urlParams.get('search');
-    
+
     if (searchQuery) {
         document.getElementById('search-input').value = searchQuery;
         performSearch();
@@ -36,7 +36,7 @@ function initMenu() {
 function loadCategories() {
     const container = document.getElementById('category-filters');
     if (!container) return;
-    
+
     container.innerHTML = window.categories.map(category => `
         <button class="category-filter-btn ${category.id === 'all' ? 'active' : ''}" 
                 data-category="${category.id}">
@@ -45,16 +45,16 @@ function loadCategories() {
             <span class="category-count">${category.count}</span>
         </button>
     `).join('');
-    
+
     // Add event listeners
     document.querySelectorAll('.category-filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             // Update active button
             document.querySelectorAll('.category-filter-btn').forEach(b => {
                 b.classList.remove('active');
             });
             this.classList.add('active');
-            
+
             // Update category and reload products
             currentCategory = this.getAttribute('data-category');
             visibleProducts = 6;
@@ -63,50 +63,69 @@ function loadCategories() {
     });
 }
 
-function loadMenuProducts() {
+// Global cache
+let allProducts = [];
+
+async function loadMenuProducts() {
     const container = document.getElementById('menu-products');
     const countElement = document.getElementById('product-count');
     const titleElement = document.getElementById('menu-title');
-    
+
     if (!container) return;
-    
+
+    // Show loading state
+    container.innerHTML = '<div class="loading-spinner">Loading healthy meals...</div>';
+
+    // Fetch if needed
+    if (allProducts.length === 0) {
+        try {
+            allProducts = await window.API.getProducts();
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = '<p class="error-text">Failed to load menu items.</p>';
+            return;
+        }
+    }
+
     // Filter products
-    let filteredProducts = window.products.filter(product => {
+    let filteredProducts = allProducts.filter(product => {
         // Category filter
         if (currentCategory !== 'all' && product.category !== currentCategory) {
             return false;
         }
-        
+
         // Price filter
         if (product.price > maxPrice) {
             return false;
         }
-        
+
         // Calories filter
         if (product.calories > maxCalories) {
             return false;
         }
-        
+
         return true;
     });
-    
+
     // Sort products
     filteredProducts = sortProducts(filteredProducts, currentSort);
-    
+
     // Update count and title
     const totalProducts = filteredProducts.length;
     const displayProducts = filteredProducts.slice(0, visibleProducts);
-    
-    countElement.textContent = totalProducts;
-    
+
+    if (countElement) countElement.textContent = totalProducts;
+
     // Update title based on category
-    if (currentCategory === 'all') {
-        titleElement.textContent = 'All Healthy Meals';
-    } else {
-        const category = window.categories.find(c => c.id === currentCategory);
-        titleElement.textContent = category ? category.name : 'Healthy Meals';
+    if (titleElement) {
+        if (currentCategory === 'all') {
+            titleElement.textContent = 'All Healthy Meals';
+        } else {
+            const category = window.categories.find(c => c.id === currentCategory);
+            titleElement.textContent = category ? category.name : 'Healthy Meals';
+        }
     }
-    
+
     // Render products
     container.innerHTML = displayProducts.map(product => `
         <div class="product-card" data-id="${product.id}">
@@ -138,7 +157,7 @@ function loadMenuProducts() {
             </div>
         </div>
     `).join('');
-    
+
     // Show/hide load more button
     const loadMoreContainer = document.getElementById('load-more-container');
     if (loadMoreContainer) {
@@ -152,8 +171,8 @@ function loadMenuProducts() {
 
 function sortProducts(products, sortBy) {
     const sorted = [...products];
-    
-    switch(sortBy) {
+
+    switch (sortBy) {
         case 'price-low':
             return sorted.sort((a, b) => a.price - b.price);
         case 'price-high':
@@ -179,43 +198,43 @@ function initFilters() {
     // Sort by
     const sortSelect = document.getElementById('sort-by');
     if (sortSelect) {
-        sortSelect.addEventListener('change', function() {
+        sortSelect.addEventListener('change', function () {
             currentSort = this.value;
             loadMenuProducts();
         });
     }
-    
+
     // Price range
     const priceRange = document.getElementById('price-range');
     const priceValue = document.getElementById('price-range-value');
-    
+
     if (priceRange && priceValue) {
-        priceRange.addEventListener('input', function() {
+        priceRange.addEventListener('input', function () {
             maxPrice = parseInt(this.value);
             priceValue.textContent = `LKR 0 - LKR ${maxPrice}`;
             loadMenuProducts();
         });
     }
-    
+
     // Calorie range
     const calorieRange = document.getElementById('calorie-range');
     const calorieValue = document.getElementById('calorie-value');
-    
+
     if (calorieRange && calorieValue) {
-        calorieRange.addEventListener('input', function() {
+        calorieRange.addEventListener('input', function () {
             maxCalories = parseInt(this.value);
             calorieValue.textContent = maxCalories;
             loadMenuProducts();
         });
     }
-    
+
     // Load more button
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', function() {
+        loadMoreBtn.addEventListener('click', function () {
             visibleProducts += 6;
             loadMenuProducts();
-            
+
             // Scroll to show new products
             const container = document.getElementById('menu-products');
             if (container) {
@@ -225,11 +244,22 @@ function initFilters() {
     }
 }
 
-function loadDietPlans() {
+async function loadDietPlans() {
     const container = document.getElementById('diet-plans');
     if (!container) return;
-    
-    container.innerHTML = window.dietPlans.map(plan => `
+
+    container.innerHTML = '<div class="loading-spinner">Loading plans...</div>';
+
+    let plans = [];
+    try {
+        plans = await window.API.getDietPlans();
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = 'Failed to load plans.';
+        return;
+    }
+
+    container.innerHTML = plans.map(plan => `
         <div class="plan-card">
             <div class="plan-header">
                 <h3>${plan.name}</h3>
@@ -288,24 +318,24 @@ function selectPlan(planId) {
 
 function performSearch() {
     const query = document.getElementById('search-input').value.trim().toLowerCase();
-    
+
     if (!query) {
         loadMenuProducts();
         return;
     }
-    
+
     // Filter products by search query
-    const filteredProducts = window.products.filter(product => 
+    const filteredProducts = window.products.filter(product =>
         product.name.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query) ||
         product.category.toLowerCase().includes(query) ||
         product.ingredients.some(ing => ing.toLowerCase().includes(query))
     );
-    
+
     // Update UI
     document.getElementById('product-count').textContent = filteredProducts.length;
     document.getElementById('menu-title').textContent = `Search Results for "${query}"`;
-    
+
     const container = document.getElementById('menu-products');
     if (container) {
         container.innerHTML = filteredProducts.map(product => `
@@ -334,7 +364,7 @@ function performSearch() {
             </div>
         `).join('');
     }
-    
+
     // Hide load more button for search results
     const loadMoreContainer = document.getElementById('load-more-container');
     if (loadMoreContainer) {
@@ -343,17 +373,19 @@ function performSearch() {
 }
 
 // Make functions available globally
-window.addToCart = function(productId) {
-    const product = window.products.find(p => p.id === productId);
-    
+// Make functions available globally
+window.addToCart = function (productId) {
+    // Search in cache or fallback to window.products if available (for legacy/other pages)
+    const product = (typeof allProducts !== 'undefined' ? allProducts.find(p => p.id === productId) : null) || (window.products && window.products.find(p => p.id === productId));
+
     if (!product) {
         showNotification('Product not found!', 'error');
         return;
     }
-    
-    let cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
+
+    let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
     const existingItem = cart.find(item => item.id === productId);
-    
+
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
@@ -365,16 +397,16 @@ window.addToCart = function(productId) {
             quantity: 1
         });
     }
-    
-    localStorage.setItem('helthybite-cart', JSON.stringify(cart));
+
+    localStorage.setItem('healthybite-cart', JSON.stringify(cart));
     updateCartCount();
     showNotification(`${product.name} added to cart!`, 'success');
 };
 
 function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('helthybite-cart')) || [];
+    const cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    
+
     const cartCount = document.querySelector('.cart-count');
     if (cartCount) {
         cartCount.textContent = totalItems;
@@ -396,7 +428,7 @@ function showNotification(message, type = 'info') {
         </div>
         <button class="notification-close"><i class="fas fa-times"></i></button>
     `;
-    
+
     notification.style.cssText = `
         position: fixed;
         top: 20px;
@@ -414,7 +446,7 @@ function showNotification(message, type = 'info') {
         max-width: 400px;
         animation: slideIn 0.5s ease forwards;
     `;
-    
+
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.addEventListener('click', () => {
         notification.style.animation = 'slideOut 0.3s ease forwards';
@@ -424,9 +456,9 @@ function showNotification(message, type = 'info') {
             }
         }, 300);
     });
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         if (notification.parentNode) {
             notification.style.animation = 'slideOut 0.3s ease forwards';

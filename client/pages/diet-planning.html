@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Planning - healthybite</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/pages/pages.css">
+    <link rel="stylesheet" href="/plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="navbar-placeholder" class="header"></header>
+
+    <!-- Page Hero -->
+    <section class="page-hero"
+        style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Diet Planning</h1>
+                <p>Achieve your health goals with our customized meal plans</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Diet Plans Section -->
+    <section class="diet-plans-section" style="padding: 80px 0;">
+        <div class="container">
+            <div class="section-header text-center" style="margin-bottom: 50px;">
+                <h2>Choose Your Plan</h2>
+                <p>Select a diet plan that fits your lifestyle and fitness goals</p>
+            </div>
+
+            <div id="diet-plans-container" class="diet-plans-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                <!-- Plans loaded by JS -->
+                <div class="loading-spinner">Loading plans...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features/Benefits -->
+    <section class="diet-features" style="background-color: #f9f9f9; padding: 80px 0;">
+        <div class="container">
+            <h2 class="text-center" style="margin-bottom: 50px;">Why Choose Our Plans?</h2>
+            <div class="features-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+                <div class="feature-card text-center">
+                    <div class="feature-icon"><i class="fas fa-carrot"></i></div>
+                    <h3>Fresh Ingredients</h3>
+                    <p>We use only the freshest, high-quality ingredients for your meals.</p>
+                </div>
+                <div class="feature-card text-center">
+                    <div class="feature-icon"><i class="fas fa-user-md"></i></div>
+                    <h3>Expertly Crafted</h3>
+                    <p>Designed by professional nutritionists to meet your dietary needs.</p>
+                </div>
+                <div class="feature-card text-center">
+                    <div class="feature-icon"><i class="fas fa-shipping-fast"></i></div>
+                    <h3>Doorstep Delivery</h3>
+                    <p>Enjoy convenient daily or weekly delivery right to your door.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer-placeholder" class="footer"></footer>
+
+    <script src="/load-scripts.js"></script>
+    <script src="/shared/router.js"></script>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('diet-plans-container');
+
+            try {
+                const plans = await window.API.getDietPlans();
+
+                if (plans && plans.length > 0) {
+                    container.innerHTML = plans.map(plan => `
+                        <div class="plan-card" style="background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s; display: flex; flex-direction: column;">
+                            <div class="plan-header" style="background: var(--primary-green); color: #fff; padding: 20px; text-align: center;">
+                                <h3 style="margin: 0; font-size: 1.5rem;">${plan.name}</h3>
+                                <div class="plan-price" style="font-size: 2rem; font-weight: 700; margin-top: 10px;">LKR ${plan.price}<span style="font-size: 1rem; font-weight: 400;">/mo</span></div>
+                            </div>
+                            <div class="plan-content" style="padding: 30px; flex: 1;">
+                                <p style="color: #666; margin-bottom: 20px; text-align: center;">${plan.description}</p>
+                                <div class="plan-meta" style="display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; color: #555; font-size: 0.9rem;">
+                                    <span><i class="fas fa-fire"></i> ${plan.calories} kcal</span>
+                                    <span><i class="fas fa-calendar"></i> ${plan.duration}</span>
+                                </div>
+                                <ul class="plan-features" style="list-style: none; padding: 0; margin-bottom: 30px;">
+                                    ${plan.features.map(feature => `
+                                        <li style="margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                                            <i class="fas fa-check-circle" style="color: var(--primary-green); margin-top: 5px;"></i>
+                                            <span>${feature}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                            <div class="plan-footer" style="padding: 0 30px 30px; text-align: center;">
+                                <button class="btn btn-primary btn-block" onclick="alert('Proceeding to plan selection: ${plan.name}')">Choose Plan</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p class="text-center">No diet plans available at the moment.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading plans:', error);
+                container.innerHTML = '<p class="error-text text-center">Failed to load diet plans. Please try again later.</p>';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -237,7 +237,7 @@ HealthyBite (PVT) Ltd Development Team
 
 ## 📞 Support
 
-For support, email info@helthybite.com or visit our contact page.
+For support, email info@healthybite.com or visit our contact page.
 
 ---
 

@@ -15,7 +15,7 @@ export async function getUserById(req, res) {
     try {
         await connectDB();
 
-        const userId = req.params.id;
+        const userId = req.query.id;
         if (!userId) {
             return res.status(400).json({ error: "User ID is required" });
         }

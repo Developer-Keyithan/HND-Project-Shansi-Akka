@@ -1,30 +1,39 @@
-let navbarHTMLPath = '';
+// Navbar Component Loader
+// Uses window.ClientRoot set by load-scripts.js for correct path resolution
 
-if (
-    window.location.pathname.includes('/pages/') ||
-    window.location.pathname.includes('/dashboards/')
-) {
-    navbarHTMLPath = '../components/navbar/navbar.html';
-} else {
-    navbarHTMLPath = 'components/navbar/navbar.html';
-}
+const prefix = window.ClientRoot || ''; // Fallback to empty if not set
+const navbarHTMLPath = prefix + 'components/navbar/navbar.html';
 
 fetch(navbarHTMLPath)
     .then(res => res.text())
     .then(html => {
-        document.getElementById('navbar-placeholder').innerHTML = html;
+        const placeholder = document.getElementById('navbar-placeholder');
+        if (placeholder) {
+            placeholder.innerHTML = html;
 
-        // 🔥 INIT AFTER HTML EXISTS
-        if (window.Navbar) {
-            Navbar.initNavigation();
-            Navbar.toggleSearchBar();
-            Navbar.setActiveNav();
-            Navbar.updateUserMenu();
-            Navbar.initDropdowns();
-        }
+            // Initialize Navbar Logic
+            // We need to wait a tick for DOM or check if Navbar global is available
+            // navbar-functions.js should have been loaded by load-scripts.js
 
-        if (window.HelthyBite?.updateCartCount) {
-            window.HelthyBite.updateCartCount();
+            const checkNavbar = setInterval(() => {
+                if (window.Navbar) {
+                    clearInterval(checkNavbar);
+                    Navbar.initNavigation();
+                    Navbar.toggleSearchBar();
+                    Navbar.setActiveNav();
+                    Navbar.updateUserMenu();
+                    Navbar.initDropdowns();
+                    Navbar.handleCartIconDisplay();
+
+                    // Cart Count
+                    if (window.healthybite?.updateCartCount) {
+                        window.healthybite.updateCartCount();
+                    }
+                }
+            }, 100);
+
+            // Timeout to clear interval if something fails
+            setTimeout(() => clearInterval(checkNavbar), 5000);
         }
     })
     .catch(err => console.error('Navbar load failed:', err));
