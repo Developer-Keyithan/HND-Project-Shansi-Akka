@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import Order from "../models/order.model.js";
-import connectDB from "../db.js";
+import connectDB from "../lib/db.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 

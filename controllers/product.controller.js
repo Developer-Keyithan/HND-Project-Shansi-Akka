@@ -1,4 +1,4 @@
-import connectDB from "../db.js";
+import connectDB from "../lib/db.js";
 import Product from "../models/product.model.js";
 
 // Get products

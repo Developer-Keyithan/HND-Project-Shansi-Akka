@@ -1,5 +1,5 @@
 import Order from "../models/order.model.js";
-import connectDB from "../db.js";
+import connectDB from "../lib/db.js";
 
 // Get orders
 export async function getOrders(req, res) {

@@ -1,5 +1,5 @@
 import Log from "../models/log.model.js";
-import connectDB from "../db.js";
+import connectDB from "../lib/db.js";
 
 export async function handleLogs(req, res) {
     try {
@@ -9,7 +9,7 @@ export async function handleLogs(req, res) {
             const logEntry = new Log(req.body);
             await logEntry.save();
             res.status(201).json({ success: true });
-        } 
+        }
         else if (req.method === 'GET') {
             const { level, limit = 100 } = req.query;
             let query = {};
@@ -23,7 +23,7 @@ export async function handleLogs(req, res) {
                 .limit(parseInt(limit));
 
             res.status(200).json({ success: true, logs });
-        } 
+        }
         else {
             res.status(405).json({ error: 'Method not allowed' });
         }

@@ -1,9 +1,9 @@
-import connectDB from '../db.js';
+import connectDB from "../lib/db.js";
 import User from '../models/user.model.js';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY; 
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 let tokenBlacklist = [];
 
 export async function registerUser(req, res) {
