@@ -20,9 +20,6 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => clearInterval(checkAPI), 10000);
 
     initCategoryFilters();
-    updateCartCount();
-    initSearch();
-    // performLogin(); // Removed undefined function call
 });
 
 // Product Functions
@@ -132,28 +129,13 @@ async function addToCart(productId) {
     }
 
     // Save to localStorage
-    localStorage.setItem('healthybite-cart', JSON.stringify(cart));
+    await localStorage.setItem('healthybite-cart', JSON.stringify(cart));
 
     // Update cart count
-    updateCartCount();
+    await window.Navbar.updateCartCount();
 
     // Show notification
     showNotification(`${product.name} added to cart!`, 'success');
-}
-
-function updateCartCount() {
-    const cartCount = document.getElementById('cart-count');
-    if (!cartCount) return;
-
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    cartCount.textContent = totalItems;
-
-    // Hide cart count if zero
-    if (totalItems === 0) {
-        cartCount.style.display = 'none';
-    } else {
-        cartCount.style.display = 'flex';
-    }
 }
 
 async function setCTADiscount() {
@@ -173,32 +155,6 @@ async function setCTADiscount() {
     }
 }
 
-// Search Functionality
-function initSearch() {
-    const searchBtn = document.getElementById('search-btn');
-    const searchInput = document.getElementById('search-input');
-    if (searchBtn && searchInput) {
-        searchBtn.addEventListener('click', performSearch);
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-    }
-}
-
-function performSearch() {
-    const query = searchInput.value.trim().toLowerCase();
-
-    if (!query) {
-        showNotification('Please enter a search term', 'error');
-        return;
-    }
-
-    // Redirect to menu page with search query
-    window.location.href = `pages/menu.html?search=${encodeURIComponent(query)}`;
-}
-
 // Notification System
 function showNotification(message, type = 'info') {
     const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
@@ -216,18 +172,6 @@ function formatPrice(price) {
         currency: 'LKR',
         maximumFractionDigits: 0
     }).format(price);
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
 }
 
 const loginForm = document.getElementById('loginForm');
@@ -314,7 +258,6 @@ if (loginForm) {
 // Export functions for use in other modules
 window.healthybite = {
     addToCart,
-    updateCartCount,
     showNotification,
     formatPrice,
     currentUser,

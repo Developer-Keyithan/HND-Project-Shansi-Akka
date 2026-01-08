@@ -9,7 +9,10 @@ document.addEventListener('DOMContentLoaded', function () {
             loadMenuProducts();
             loadDietPlans();
             initFilters();
-            initMenu();
+
+            if (window.Common && window.Common.currentNav() === 'menu.html') {
+                window.Navbar.toggleSearchBar();
+            }
         }
     }, 50);
 });
@@ -20,16 +23,6 @@ let maxPrice = 5000;
 let maxCalories = 1000;
 let visibleProducts = 6;
 
-function initMenu() {
-    // Check URL for search query
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('search');
-
-    if (searchQuery) {
-        document.getElementById('search-input').value = searchQuery;
-        performSearch();
-    }
-}
 
 function loadCategories() {
     const container = document.getElementById('category-filters');
@@ -121,7 +114,8 @@ async function loadMenuProducts() {
             titleElement.textContent = 'All Healthy Meals';
         } else {
             const category = window.categories.find(c => c.id === currentCategory);
-            titleElement.textContent = category ? category.name : 'Healthy Meals';
+            const catName = category ? category.name : 'Healthy Meals';
+            titleElement.textContent = catName;
         }
     }
 
@@ -130,29 +124,29 @@ async function loadMenuProducts() {
         <div class="product-card" data-id="${product.id}">
             ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
             <div class="product-image">
-                <img src="${product.image}" alt="${product.name}" loading="lazy">
+                <img src="../${product.image}" alt="${product.name}" loading="lazy">
             </div>
             <div class="product-info">
                 <h3 class="product-title">${product.name}</h3>
                 <p class="product-description">${product.description}</p>
                 <div class="product-meta">
-                    <span class="product-price">LKR ${product.price.toFixed(2)}</span>
+                    <span class="product-price">${window.Common.formatCurrency(product.price)}</span>
                     <span class="product-calories">${product.calories} cal</span>
                     <span class="product-rating">
                         <i class="fas fa-star"></i> ${product.rating}
                     </span>
                 </div>
                 <div class="product-nutrients">
-                    <span class="nutrient">Protein: ${product.nutrients.protein}g</span>
-                    <span class="nutrient">Carbs: ${product.nutrients.carbs}g</span>
-                    <span class="nutrient">Fat: ${product.nutrients.fat}g</span>
+                    <span class="nutrient"><span>Protein</span>: ${product.nutrients.protein}g</span>
+                    <span class="nutrient"><span>Carbs</span>: ${product.nutrients.carbs}g</span>
+                    <span class="nutrient"><span>Fat</span>: ${product.nutrients.fat}g</span>
                 </div>
                 <div class="product-actions">
                     <button class="btn btn-add-to-cart" onclick="addToCart(${product.id})">
-                        <i class="fas fa-plus"></i> Add to Cart
+                        <i class="fas fa-plus"></i> <span>Add to Cart</span>
                     </button>
                     <button class="btn btn-view-details" onclick="viewProductDetails(${product.id})">
-                        View Details
+                         <span>View Details</span>
                     </button>
                 </div>
             </div>
@@ -264,7 +258,7 @@ async function loadDietPlans() {
         <div class="plan-card">
             <div class="plan-header">
                 <h3>${plan.name}</h3>
-                <div class="plan-price">LKR ${plan.price}</div>
+                <div class="plan-price">${window.Common.formatCurrency(plan.price)}</div>
             </div>
             <div class="plan-content">
                 <p>${plan.description}</p>
@@ -289,10 +283,10 @@ async function loadDietPlans() {
             </div>
             <div class="plan-footer">
                 <button class="btn btn-outline" onclick="viewPlanDetails(${plan.id})">
-                    Learn More
+                     <span>Learn More</span>
                 </button>
                 <button class="btn btn-primary" onclick="selectPlan(${plan.id})">
-                    Select Plan
+                     <span>Select Plan</span>
                 </button>
             </div>
         </div>
@@ -349,7 +343,7 @@ function performSearch() {
                     <h3 class="product-title">${product.name}</h3>
                     <p class="product-description">${product.description}</p>
                     <div class="product-meta">
-                        <span class="product-price">LKR ${product.price.toFixed(2)}</span>
+                        <span class="product-price">${window.Common.formatCurrency(product.price)}</span>
                         <span class="product-calories">${product.calories} cal</span>
                         <span class="product-rating">
                             <i class="fas fa-star"></i> ${product.rating}

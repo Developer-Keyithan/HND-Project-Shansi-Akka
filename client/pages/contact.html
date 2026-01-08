@@ -22,7 +22,8 @@
         <div class="container">
             <div class="hero-content">
                 <h1>Contact Us</h1>
-                <p>We're here to help! Get in touch with our team for any questions or support.</p>
+                <p>We're here to help! Get in touch with our team for any
+                    questions or support.</p>
             </div>
         </div>
     </section>
@@ -53,8 +54,10 @@
                                 <option value="">Select a subject</option>
                                 <option value="general">General Inquiry</option>
                                 <option value="order">Order Support</option>
-                                <option value="nutrition">Nutrition Consultation</option>
-                                <option value="diet-plan">Diet Plan Questions</option>
+                                <option value="nutrition">Nutrition Consultation
+                                </option>
+                                <option value="diet-plan">Diet Plan Questions
+                                </option>
                                 <option value="feedback">Feedback</option>
                                 <option value="other">Other</option>
                             </select>
@@ -63,7 +66,8 @@
                             <label for="contact-message">Message</label>
                             <textarea id="contact-message" rows="6" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+                        <button type="submit" class="btn btn-primary btn-block">Send
+                            Message</button>
                     </form>
                 </div>
 
@@ -77,7 +81,7 @@
                             </div>
                             <div>
                                 <h3>Address</h3>
-                                <p>123 Health Street<br>Colombo 00500<br>Sri Lanka</p>
+                                <p><span data-config-key="appAddress"></span></p>
                             </div>
                         </div>
                         <div class="contact-info-item">
@@ -86,8 +90,7 @@
                             </div>
                             <div>
                                 <h3>Phone</h3>
-                                <p>+94 11 234 5678</p>
-                                <p>+94 77 123 4567</p>
+                                <p><a href="#" data-config-key="appPhone"></a></p>
                             </div>
                         </div>
                         <div class="contact-info-item">
@@ -96,8 +99,7 @@
                             </div>
                             <div>
                                 <h3>Email</h3>
-                                <p>info@healthybite.com</p>
-                                <p>support@healthybite.com</p>
+                                <p><a href="#" data-config-key="appEmail"></a></p>
                             </div>
                         </div>
                         <div class="contact-info-item">
@@ -106,8 +108,8 @@
                             </div>
                             <div>
                                 <h3>Business Hours</h3>
-                                <p>Monday - Friday: 8:00 AM - 8:00 PM</p>
-                                <p>Saturday - Sunday: 9:00 AM - 6:00 PM</p>
+                                <p>Monday - Friday: 8:00 AM - 10:00 PM</p>
+                                <p>Saturday - Sunday: 9:00 AM - 10:00 PM</p>
                             </div>
                         </div>
                     </div>
@@ -130,7 +132,7 @@
     <footer id="footer-placeholder" class="footer"></footer>
 
     <script src="/load-scripts.js"></script>
-    <script src="/shared/router.js"></script>
+
     <script>
         document.getElementById('contactForm')?.addEventListener('submit', function (e) {
             e.preventDefault();

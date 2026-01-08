@@ -24,11 +24,8 @@ fetch(navbarHTMLPath)
                     Navbar.updateUserMenu();
                     Navbar.initDropdowns();
                     Navbar.handleCartIconDisplay();
-
-                    // Cart Count
-                    if (window.healthybite?.updateCartCount) {
-                        window.healthybite.updateCartCount();
-                    }
+                    Navbar.initMenuSearch();
+                    Navbar.updateCartCount();
                 }
             }, 100);
 

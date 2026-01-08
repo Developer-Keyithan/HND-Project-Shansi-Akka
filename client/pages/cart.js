@@ -111,9 +111,9 @@ function loadCart() {
         <div class="cart-item" data-id="${item.id}">
                 <div class="cart-item-image">
                 ${product.image || item.image ?
-                    `<i class="fas fa-image"></i>` :
-                    `<img src="${product.image || item.image}" alt="${product.name || item.name}">`
-                } 
+                `<i class="fas fa-image"></i>` :
+                `<img src="${product.image || item.image}" alt="${product.name || item.name}">`
+            } 
                 </div>
                 <div class="cart-item-info">
                     <div class="cart-item-details">

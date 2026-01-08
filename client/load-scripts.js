@@ -20,11 +20,14 @@ const styles = [
 ];
 
 const sharedScripts = [
+    // 'shared/dictionary.js',
+    'shared/app-settings.js',
     'shared/data.js',
+    'shared/common.js',
     'shared/api.js',
     'shared/utils.js',
     'shared/auth.js',
-    // 'shared/router.js' // Disabled
+    // 'shared/router.js'
 ];
 
 // Determine the root prefix based on the script tag src
@@ -77,10 +80,9 @@ function injectShared() {
         if (!document.querySelector(`script[src="${fullSrc}"]`)) {
             const s = document.createElement('script');
             s.src = fullSrc;
-            // s.type = 'module'; // Shared scripts currently not modules in many HTMLs, but let's keep consistent if they are written as such. 
-            // Most shared scripts (auth, data) shown previously are regular scripts or have global exposure.
-            // Let's load them as regular scripts to ensure availability.
-            s.defer = true;
+            s.type = 'module';
+            // Ensure sequential execution for dependent scripts
+            s.async = false;
             document.head.appendChild(s);
         }
     });

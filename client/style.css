@@ -24,6 +24,9 @@
     --gray-dark: #bdbdbd;
     --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-dark: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lighter: 0 2px 8px rgba(0, 0, 0, 0.02);
+    --shadow-darken: 0 2px 8px rgba(0, 0, 0, 0.2);
     --radius: 8px;
     --radius-lg: 12px;
     --transition: all 0.3s ease;
@@ -358,7 +361,7 @@ a {
 
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(315px, 1fr));
     gap: 30px;
     margin-bottom: 50px;
 }
@@ -367,7 +370,7 @@ a {
     background-color: var(--white);
     border-radius: var(--radius);
     overflow: hidden;
-    box-shadow: var(--shadow-light);
+    box-shadow: var(--shadow-darken);
     transition: var(--transition);
     position: relative;
 }
@@ -391,7 +394,7 @@ a {
 }
 
 .product-image {
-    height: 200px;
+    height: 240px;
     overflow: hidden;
 }
 

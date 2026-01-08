@@ -1,7 +1,7 @@
 // Common head elements for all pages
 // This ensures consistent CSS and script loading
 
-(function() {
+(function () {
     // Add common CSS links
     const commonStyles = [
         { href: '/style.css', rel: 'stylesheet' },
@@ -21,10 +21,10 @@
     // Add common scripts
     const commonScripts = [
         '/shared/config.js',
-        '/shared/data.js',
-        '/shared/utils.js',
-        '/shared/auth.js',
-        '/shared/router.js',
+        // '/shared/data.js', // Handled by load-scripts.js
+        // '/shared/utils.js', // Handled by load-scripts.js
+        // '/shared/auth.js', // Handled by load-scripts.js
+        // '/shared/router.js',
         '/shared/emailjs.js',
         '/shared/googledrive.js',
         '/shared/socialauth.js',

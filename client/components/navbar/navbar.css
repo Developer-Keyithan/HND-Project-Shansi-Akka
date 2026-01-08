@@ -55,7 +55,7 @@
 .nav-menu {
     display: flex;
     list-style: none;
-    gap: 1rem;
+    gap: 2rem;
 }
 
 .nav-menu a {
@@ -256,7 +256,7 @@
 
 .dropdown-menu {
     position: absolute;
-    top: calc(100% + 5px);
+    top: calc(100% + 1rem);
     right: 0;
     background-color: var(--white);
     border-radius: var(--radius);
