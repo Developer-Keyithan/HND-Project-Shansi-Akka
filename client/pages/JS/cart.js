@@ -1,11 +1,31 @@
-// Cart Page JavaScript
-import { Toast } from "../plugins/Toast/toast.js";
+import { Toast } from "../../plugins/Toast/toast.js";
+import { Popover } from "../../plugins/Modal/modal.js";
 
 let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
-let deliveryFee = 200;
+let deliveryFee = 0;
 let taxRate = 0;
 
-document.addEventListener('DOMContentLoaded', function () {
+// Helper to wait for dependencies
+async function waitForDependencies() {
+    return new Promise(resolve => {
+        const check = () => {
+            if (window.AppConfig && window.Common) {
+                resolve();
+            } else {
+                setTimeout(check, 50);
+            }
+        };
+        check();
+    });
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+    await waitForDependencies();
+
+    // Initialize global config values
+    deliveryFee = window.AppConfig.deliveryFee;
+    taxRate = window.AppConfig.tax;
+
     loadCart();
     initEventListeners();
     updateCartCount();
@@ -13,7 +33,41 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function setDeliveryFee() {
-    document.getElementById('delivery-fee').textContent = `LKR ${deliveryFee.toFixed(2)}`;
+    const feeEl = document.getElementById('delivery-fee');
+    if (feeEl) {
+        feeEl.innerHTML = `LKR ${deliveryFee.toFixed(2)} <i class="fas fa-info-circle info-icon" id="delivery-info-btn" style="cursor: pointer; color: var(--primary-green); margin-left: 5px;"></i>`;
+
+        const infoBtn = document.getElementById('delivery-info-btn');
+        if (infoBtn) {
+            infoBtn.addEventListener('click', showDeliveryInfo);
+        }
+    }
+}
+
+function showDeliveryInfo() {
+    if (!window.CustomModal) return;
+
+    window.CustomModal.show({
+        title: 'Delivery Information',
+        content: `
+            <div style="font-family: 'Poppins', sans-serif;">
+                <div style="background: #f0f7f0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                    <p style="margin: 0; color: #2e7d32; font-weight: 600;"><i class="fas fa-truck"></i> Flat Rate Delivery</p>
+                    <p style="margin: 5px 0 0; font-size: 0.9rem;">We charge a flat fee of <strong>LKR 200.00</strong> for all orders within Colombo.</p>
+                </div>
+                <h4 style="margin-bottom: 10px; color: #333;">Estimated Delivery Times</h4>
+                <ul style="padding-left: 20px; color: #666; font-size: 0.95rem;">
+                    <li style="margin-bottom: 8px;"><strong>Standard:</strong> 30 - 45 minutes</li>
+                    <li style="margin-bottom: 8px;"><strong>Peak Hours:</strong> 50 - 70 minutes</li>
+                    <li><strong>Pre-orders:</strong> At your selected time slot</li>
+                </ul>
+                <div style="margin-top: 20px; padding: 10px; border-left: 3px solid var(--primary-green); background: #fafafa;">
+                    <p style="margin: 0; font-style: italic; font-size: 0.85rem;">"We ensure your meals remain at the perfect temperature during transit using insulated thermal bags."</p>
+                </div>
+            </div>
+        `,
+        confirmText: 'Got it!'
+    });
 }
 
 function initEventListeners() {
@@ -27,21 +81,6 @@ function initEventListeners() {
     const checkoutBtn = document.getElementById('checkout-btn');
     if (checkoutBtn) {
         checkoutBtn.addEventListener('click', proceedToCheckout);
-    }
-
-    // Navigation
-    initNavigation();
-}
-
-function initNavigation() {
-    const hamburger = document.querySelector('.hamburger');
-    const navMenu = document.querySelector('.nav-menu');
-
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
     }
 
     // Update user menu
@@ -75,7 +114,8 @@ function updateUserMenu() {
             logoutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 await window.Auth?.logoutUser();
-                window.location.href = '../index.html';
+                const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                window.location.href = appUrl + '/index.html';
             });
         }
     }
@@ -191,13 +231,27 @@ function removeFromCart(productId) {
 }
 
 function clearCart() {
-    if (confirm('Are you sure you want to clear your cart?')) {
-        cart = [];
-        localStorage.setItem('healthybite-cart', JSON.stringify(cart));
-        loadCart();
-        updateCartCount();
-        showNotification('Cart cleared', 'success');
-    }
+    Popover.confirm({
+        title: 'Clear Cart',
+        message: 'Are you sure you want to remove all items from your cart? This action cannot be undone.',
+        type: 'danger',
+        icon: 'fas fa-trash-alt',
+        confirm: {
+            text: 'Clear All',
+            onClick: () => performClearCart()
+        },
+        cancel: {
+            text: 'Keep Items'
+        }
+    });
+}
+
+function performClearCart() {
+    cart = [];
+    localStorage.setItem('healthybite-cart', JSON.stringify(cart));
+    loadCart();
+    updateCartCount();
+    showNotification('Cart cleared', 'success');
 }
 
 function proceedToCheckout() {
@@ -206,7 +260,8 @@ function proceedToCheckout() {
     if (!currentUser) {
         showNotification('Please login to proceed to checkout', 'error');
         setTimeout(() => {
-            window.location.href = '../auth/login.html?redirect=cart.html';
+            const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+            window.location.href = appUrl + '/auth/login.html?redirect=cart.html';
         }, 1500);
         return;
     }
@@ -218,7 +273,8 @@ function proceedToCheckout() {
 
     // Save cart to session for payment page
     sessionStorage.setItem('checkout-cart', JSON.stringify(cart));
-    window.location.href = 'payment.html';
+    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+    window.location.href = appUrl + '/pages/payment.html';
 }
 
 function updateCartCount() {

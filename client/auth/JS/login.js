@@ -1,50 +1,70 @@
 // Login Page JavaScript with EmailJS, Social Auth, and Logging
-import { Toast } from "../plugins/Toast/toast.js";
+import { Toast } from "../../plugins/Toast/toast.js";
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    // Check for existing session
+    const userStr = localStorage.getItem('healthybite-user');
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            const redirectPaths = {
+                'admin': '/dashboard/admin.html',
+                'seller': '/dashboard/seller.html',
+                'delivery-partner': '/dashboard/delivery-partner.html',
+                'delivery-man': '/dashboard/delivery-man.html'
+            };
+            const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
+            const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+            window.location.href = appUrl + redirectPath;
+            return;
+        } catch (e) {
+            localStorage.removeItem('healthybite-user');
+        }
+    }
+
     const loginForm = document.getElementById('loginForm');
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('password');
-    
+
     // Initialize services
     initServices();
-    
+
     // Toggle password visibility
     if (togglePassword && passwordInput) {
-        togglePassword.addEventListener('click', function() {
+        togglePassword.addEventListener('click', function () {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
+
             const icon = this.querySelector('i');
             icon.classList.toggle('fa-eye');
             icon.classList.toggle('fa-eye-slash');
         });
     }
-    
+
     // Handle form submission
     if (loginForm) {
-        loginForm.addEventListener('submit', async function(e) {
+        loginForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const rememberMe = document.getElementById('rememberMe')?.checked || false;
-            
+
             // Validation
             if (!email || !password) {
                 showNotification('Please fill in all fields', 'error');
                 return;
             }
-            
+
             if (!window.Utils?.validateEmail(email)) {
                 showNotification('Please enter a valid email address', 'error');
                 return;
             }
-            
+
             await handleLogin(email, password, rememberMe);
         });
     }
-    
+
     // Social login buttons
     initSocialLogin();
 });
@@ -59,7 +79,7 @@ function initServices() {
         '../shared/socialauth.js',
         '../shared/logger.js'
     ];
-    
+
     scripts.forEach(src => {
         const script = document.createElement('script');
         script.src = src;
@@ -87,7 +107,7 @@ async function handleLogin(email, password, rememberMe) {
 
         if (result && result.success) {
             const user = result.user;
-            
+
             // Store user session
             window.Auth?.setCurrentUser({
                 ...user,
@@ -103,10 +123,10 @@ async function handleLogin(email, password, rememberMe) {
             }
 
             // Log successful login
-            window.Logger?.info('Login successful', { 
-                email: user.email, 
+            window.Logger?.info('Login successful', {
+                email: user.email,
                 userId: user.id,
-                role: user.role 
+                role: user.role
             });
 
             showNotification('Login successful! Redirecting...', 'success');
@@ -121,7 +141,8 @@ async function handleLogin(email, password, rememberMe) {
                 };
 
                 const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-                window.location.href = redirectPath;
+                const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                window.location.href = appUrl + redirectPath;
             }, 1500);
 
         } else {
@@ -148,18 +169,19 @@ function initSocialLogin() {
             try {
                 window.Logger?.info('Google login initiated');
                 const user = await window.SocialAuth?.signInWithGoogle();
-                
+
                 if (user) {
                     window.Auth?.setCurrentUser(user);
                     window.Logger?.info('Google login successful', { userId: user.id });
-                    
+
                     // Send notification
                     const deviceInfo = getDeviceInfo();
                     await window.EmailService?.notifyLogin(user.email, deviceInfo, await getIPAddress());
-                    
+
                     showNotification('Login successful!', 'success');
                     setTimeout(() => {
-                        window.location.href = '/dashboard/consumer.html';
+                        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                        window.location.href = appUrl + '/dashboard/consumer.html';
                     }, 1500);
                 }
             } catch (error) {
@@ -176,17 +198,18 @@ function initSocialLogin() {
             try {
                 window.Logger?.info('Facebook login initiated');
                 const user = await window.SocialAuth?.signInWithFacebook();
-                
+
                 if (user) {
                     window.Auth?.setCurrentUser(user);
                     window.Logger?.info('Facebook login successful', { userId: user.id });
-                    
+
                     const deviceInfo = getDeviceInfo();
                     await window.EmailService?.notifyLogin(user.email, deviceInfo, await getIPAddress());
-                    
+
                     showNotification('Login successful!', 'success');
                     setTimeout(() => {
-                        window.location.href = '/dashboard/consumer.html';
+                        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                        window.location.href = appUrl + '/dashboard/consumer.html';
                     }, 1500);
                 }
             } catch (error) {

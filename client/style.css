@@ -6,6 +6,8 @@
 
     scroll-behavior: smooth;
     scroll-margin-top: 8rem;
+
+    accent-color: var(--primary-green);
 }
 
 :root {
@@ -29,6 +31,9 @@
     --shadow-darken: 0 2px 8px rgba(0, 0, 0, 0.2);
     --radius: 8px;
     --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-xxl: 20px;
+    --radius-full: 9999px;
     --transition: all 0.3s ease;
 }
 
@@ -141,6 +146,173 @@ a {
     box-shadow: var(--shadow);
 }
 
+.btn-secondary-white {
+    background-color: transparent;
+    color: var(--white);
+    border: 2px solid var(--white);
+    padding: 12px 24px;
+    font-size: 1rem;
+    border-radius: 50px !important;
+}
+
+.btn-secondary-white:hover {
+    background-color: var(--primary-green);
+    color: var(--white);
+    border-color: var(--primary-green);
+    box-shadow: var(--shadow);
+}
+
+/* Hide spin buttons for number inputs */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button,
+.num-type-input::-webkit-inner-spin-button,
+.num-type-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number],
+.num-type-input {
+    -moz-appearance: textfield;
+    /* Firefox */
+    appearance: textfield;
+    /* Standard compatibility fix */
+}
+
+/* Custom Select Dropdown */
+/* Custom Select Dropdown - Refactored for Wrapper Structure */
+.custom-select-wrapper {
+    position: relative;
+    user-select: none;
+    width: 100%;
+}
+
+.custom-select-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    font-size: 1rem;
+    color: var(--text-dark);
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.custom-select-wrapper.open .custom-select-trigger {
+    border-color: var(--primary-green);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.custom-select-trigger i {
+    transition: transform 0.3s ease;
+}
+
+.custom-select-wrapper.open .custom-select-trigger i {
+    transform: rotate(180deg);
+}
+
+/* The actual floating container */
+.custom-options-wrapper {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    background: #fff;
+    border: 1px solid var(--primary-green);
+    border-top: none;
+    border-bottom-left-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+
+    /* Ensure content stays inside */
+    overflow: hidden;
+}
+
+.custom-select-wrapper.open .custom-options-wrapper {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+/* The scrollable list inside */
+.custom-options {
+    max-height: 250px;
+    overflow-y: auto;
+    /* Reset absolute positioning from previous version */
+    position: static;
+    border: none;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+}
+
+.custom-options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-options::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.custom-options::-webkit-scrollbar-thumb {
+    background: var(--accent-green);
+    border-radius: 10px;
+}
+
+.custom-option {
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: var(--text-dark);
+}
+
+.custom-option:hover {
+    background-color: #e8f5e9;
+    color: var(--dark-green);
+}
+
+.custom-option.selected {
+    background-color: var(--primary-green);
+    color: #fff;
+}
+
+.custom-select-search {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    background: #f9f9f9;
+}
+
+.custom-select-search input {
+    width: 100%;
+    border: 1px solid #ddd;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    outline: none;
+    background: #fff;
+}
+
+.custom-select-search input:focus {
+    border-color: var(--primary-green);
+}
+
+
 .btn-outline {
     background-color: transparent;
     color: var(--text-dark);
@@ -167,14 +339,33 @@ a {
     color: #444;
     border: 1px solid #ddd;
     padding: 12px;
-    border-radius: var(--radius);
+    border-radius: var(--radius-full);
     width: 100%;
     font-weight: 500;
     margin-bottom: 15px;
+    transition: all 0.3s ease;
 }
 
 .btn-google:hover {
-    background-color: #f5f5f5;
+    color: var(--white);
+    border-color: transparent;
+    background: linear-gradient(90deg, #4285F4, #EA4335, #FBBC05, #34A853);
+    background-size: 300% 100%;
+    animation: google-gradient-move 6s ease infinite;
+}
+
+@keyframes google-gradient-move {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .btn-search {
@@ -200,9 +391,13 @@ a {
 
 /* Hero Section */
 .hero {
-    padding: 80px 0;
-    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    padding: 100px 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('assets/home-hero.png');
+    background-size: cover;
+    background-position: center;
     overflow: hidden;
+    position: relative;
+    color: var(--white);
 }
 
 .hero .container {
@@ -219,13 +414,14 @@ a {
 .hero-title {
     font-size: 3.2rem;
     margin-bottom: 20px;
-    color: var(--dark-green);
+    color: var(--white);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .hero-subtitle {
     font-size: 1.2rem;
     margin-bottom: 30px;
-    color: var(--text-light);
+    color: var(--white);
     line-height: 1.8;
 }
 
@@ -242,12 +438,12 @@ a {
 
 .stat h3 {
     font-size: 2rem;
-    color: var(--primary-green);
+    color: var(--white);
     margin-bottom: 5px;
 }
 
 .stat p {
-    color: var(--text-light);
+    color: var(--white);
     font-size: 0.9rem;
 }
 
@@ -403,6 +599,154 @@ a {
     height: 100%;
     object-fit: cover;
     transition: var(--transition);
+}
+
+/* --- Global Preloader --- */
+#global-preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--background-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+#global-preloader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.preloader-content {
+    text-align: center;
+}
+
+.preloader-logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    animation: pulse-logo 2s infinite ease-in-out;
+}
+
+.preloader-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(76, 175, 80, 0.1);
+    border-top: 3px solid var(--primary-green);
+    border-radius: 50%;
+    margin: 0 auto;
+    animation: spin 1s linear infinite;
+}
+
+.preloader-text {
+    margin-top: 15px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: var(--primary-green);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+/* --- Data Loading Styles --- */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    /* Take up available space if in flexbox */
+    grid-column: 1 / -1;
+    /* Span all columns if in grid */
+    align-self: center;
+    /* Center itself in grid/flex */
+    gap: 15px;
+    padding: 40px 20px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.loading-spinner {
+    width: 35px;
+    height: 35px;
+    border: 3px solid rgba(46, 125, 50, 0.1);
+    border-top: 3px solid var(--primary-green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+/* --- Empty State Styles --- */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    background: var(--white);
+    border-radius: var(--radius);
+    width: 100%;
+    grid-column: 1 / -1;
+    transition: var(--transition);
+}
+
+.empty-state i {
+    font-size: 3.5rem;
+    color: var(--gray);
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    font-size: 1.4rem;
+    color: var(--dark-green);
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: var(--text-light);
+    max-width: 400px;
+    margin: 0 auto 25px;
+    font-size: 0.95rem;
+}
+
+
+@keyframes pulse-logo {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .product-card:hover .product-image img {

@@ -1,12 +1,12 @@
 // Product View Page JavaScript
-import { Toast } from "../plugins/Toast/toast.js";
+import { Toast } from "../../plugins/Toast/toast.js";
 
 let currentProduct = null;
 
 document.addEventListener('DOMContentLoaded', function () {
-    loadProduct();
     initEventListeners();
     updateCartCount();
+    loadProduct();
 });
 
 function initEventListeners() {
@@ -33,46 +33,50 @@ function initEventListeners() {
         }
     });
 
-    initNavigation();
 }
 
-function initNavigation() {
-    const hamburger = document.querySelector('.hamburger');
-    const navMenu = document.querySelector('.nav-menu');
-
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
+async function loadProduct() {
+    // Wait for dependencies (Common and API) at the very start
+    let attempts = 0;
+    while ((!window.API || !window.Common) && attempts < 20) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
     }
-}
 
-function loadProduct() {
-    const productId = parseInt(window.Utils?.getUrlParam('id') || 0);
-
-    if (!productId) {
-        showError('Product not found');
+    if (!window.API || !window.Common) {
+        console.error('Core modules (API/Common) failed to load.');
+        showError('System component error. Please refresh.');
         return;
     }
 
-    // Try to load from API first, fallback to local data
-    fetch(`/api/products?id=${productId}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success && data.products && data.products.length > 0) {
-                currentProduct = data.products[0];
-                renderProduct();
-                loadRelatedProducts();
-            } else {
-                // Fallback to local data
-                loadFromLocalData(productId);
-            }
-        })
-        .catch(() => {
-            // Fallback to local data
-            loadFromLocalData(productId);
-        });
+    const productId = parseInt(window.Common.getParameterByName('id') || 0);
+    const container = document.querySelector('.product-view-section .container');
+
+    if (!productId) {
+        showError('Product not found');
+        loadRelatedProducts();
+        loadReviews();
+        return;
+    }
+
+    // Show loading
+    if (container) window.Common.showLoading(document.getElementById('product-container'), 'Fetching product details...');
+
+    try {
+        currentProduct = await window.API.getProductById(productId);
+
+        if (currentProduct) {
+            renderProduct();
+            // Load additional sections
+            loadRelatedProducts();
+            loadReviews();
+        } else {
+            showError('Product not found');
+        }
+    } catch (e) {
+        console.error(e);
+        showError('Failed to load product');
+    }
 }
 
 function loadFromLocalData(productId) {
@@ -183,41 +187,114 @@ function generateStars(rating) {
     return stars;
 }
 
-function loadRelatedProducts() {
+async function loadRelatedProducts() {
     if (!currentProduct) return;
-
-    const products = window.products || [];
-    const related = products
-        .filter(p => p.id !== currentProduct.id && p.category === currentProduct.category)
-        .slice(0, 4);
 
     const container = document.getElementById('related-products');
     if (!container) return;
 
-    if (related.length === 0) {
-        container.innerHTML = '<p>No related products found.</p>';
-        return;
-    }
+    // Show loading
+    window.Common.showLoading(container, 'Searching for similar items...');
 
-    container.innerHTML = related.map(product => `
-        <div class="product-card" data-id="${product.id}">
-            ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
-            <div class="product-image">
-                <img src="${product.image}" alt="${product.name}" loading="lazy">
-            </div>
-            <div class="product-info">
-                <h3 class="product-title">${product.name}</h3>
-                <p class="product-description">${product.description.substring(0, 80)}...</p>
-                <div class="product-meta">
-                    <span class="product-price">LKR ${product.price.toFixed(2)}</span>
-                    <span class="product-calories">${product.calories} cal</span>
+    try {
+        // Wait for API
+        let attempts = 0;
+        while (!window.API && attempts < 20) {
+            await new Promise(r => setTimeout(r, 100));
+            attempts++;
+        }
+
+        const allProducts = await window.API.getProducts();
+        const related = allProducts
+            .filter(p => p.id !== currentProduct.id && p.category === currentProduct.category)
+            .slice(0, 4);
+
+        if (related.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No Similar Items</h3>
+                    <p>We don't have any other products in this category right now, but check back soon!</p>
+                    <a href="menu.html" class="btn btn-outline">Explore Full Menu</a>
                 </div>
-                <div class="product-actions">
-                    <a href="product-view.html?id=${product.id}" class="btn-view-details">View Details</a>
+            `;
+            return;
+        }
+
+        container.innerHTML = related.map(product => `
+            <div class="product-card" data-id="${product.id}">
+                ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
+                <div class="product-image">
+                    <img src="${product.image}" alt="${product.name}" loading="lazy">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">${product.name}</h3>
+                    <p class="product-description">${product.description.substring(0, 80)}...</p>
+                    <div class="product-meta">
+                        <span class="product-price">LKR ${product.price.toFixed(2)}</span>
+                        <span class="product-calories">${product.calories} cal</span>
+                    </div>
+                    <div class="product-actions">
+                        <a href="product-view.html?id=${product.id}" class="btn-view-details">View Details</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = '<p class="error-text">Failed to load related products.</p>';
+    }
+}
+
+async function loadReviews() {
+    const container = document.getElementById('reviews-container');
+    if (!container) return;
+
+    // Show loading
+    window.Common.showLoading(container, 'Fetching customer reviews...');
+
+    try {
+        // Wait for API
+        let attempts = 0;
+        while (!window.API && attempts < 20) {
+            await new Promise(r => setTimeout(r, 100));
+            attempts++;
+        }
+
+        const reviews = await window.API.getReviews();
+
+        if (!reviews || reviews.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="far fa-comments"></i>
+                    <h3>No Reviews Yet</h3>
+                    <p>Be the first to share your experience with the <strong>${currentProduct.name}</strong>. Your feedback helps others make healthy choices!</p>
+                    <button class="btn btn-primary" onclick="showNotification('Review system coming soon!', 'info')">Write a Review</button>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%;">
+                ${reviews.map(review => `
+                    <div class="review-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f0f0f0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h4 style="margin: 0; color: #333;">${review.name}</h4>
+                            <span style="font-size: 0.8rem; color: #999;">${new Date(review.date).toLocaleDateString()}</span>
+                        </div>
+                        <div style="color: #ffc107; margin-bottom: 10px;">
+                            ${generateStars(review.rating)}
+                        </div>
+                        <p style="color: #555; font-style: italic; line-height: 1.6; margin: 0;">"${review.text}"</p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = '<p class="error-text">Failed to load reviews.</p>';
+    }
 }
 
 function addToCart(productId) {
@@ -278,3 +355,4 @@ function showNotification(message, type = 'info') {
     });
 }
 
+window.showNotification = showNotification;

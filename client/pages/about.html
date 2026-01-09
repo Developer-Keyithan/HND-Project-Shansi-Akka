@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us - healthybite</title>
     <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="/pages/pages.css">
+    <link rel="stylesheet" href="/pages/CSS/pages.css">
     <link rel="stylesheet" href="/plugins/fontawesome-free-7.1.0-web/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
@@ -28,13 +28,9 @@
     </section>
 
     <!-- About Content -->
-    <section class="about-content-section">
+    <section class="pages-content-section">
         <div class="container">
             <div class="about-story">
-                <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                        alt="About healthybite">
-                </div>
                 <div class="about-text">
                     <h2>Our Story</h2>
                     <p>Founded in 2020, healthybite was born from a simple idea: healthy
@@ -50,19 +46,22 @@
 
             <div class="mission-vision">
                 <div class="mission-card">
-                    <div class="card-icon">
-                        <i class="fas fa-bullseye"></i>
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h3>Our Mission</h3>
                     </div>
-                    <h3>Our Mission</h3>
                     <p>To make healthy eating an enjoyable and sustainable lifestyle
-                        choice for everyone. We strive to
                         provide nutritious, delicious meals that support your wellness journey.</p>
                 </div>
                 <div class="vision-card">
-                    <div class="card-icon">
-                        <i class="fas fa-eye"></i>
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3>Our Vision</h3>
                     </div>
-                    <h3>Our Vision</h3>
                     <p>To become the most trusted healthy food platform worldwide,
                         empowering people to live healthier,
                         happier lives through better nutrition.</p>
@@ -73,23 +72,31 @@
                 <h2>Our Values</h2>
                 <div class="values-grid">
                     <div class="value-item">
-                        <i class="fas fa-leaf"></i>
-                        <h4>100% Organic</h4>
+                        <div class="value-header">
+                            <i class="fas fa-leaf"></i>
+                            <h4>100% Organic</h4>
+                        </div>
                         <p>We use only organic, locally-sourced ingredients</p>
                     </div>
                     <div class="value-item">
-                        <i class="fas fa-heart"></i>
-                        <h4>Quality First</h4>
+                        <div class="value-header">
+                            <i class="fas fa-heart"></i>
+                            <h4>Quality First</h4>
+                        </div>
                         <p>Every meal is prepared with care and attention</p>
                     </div>
                     <div class="value-item">
-                        <i class="fas fa-users"></i>
-                        <h4>Customer Focus</h4>
+                        <div class="value-header">
+                            <i class="fas fa-users"></i>
+                            <h4>Customer Focus</h4>
+                        </div>
                         <p>Your satisfaction is our top priority</p>
                     </div>
                     <div class="value-item">
-                        <i class="fas fa-globe"></i>
-                        <h4>Sustainability</h4>
+                        <div class="value-header">
+                            <i class="fas fa-globe"></i>
+                            <h4>Sustainability</h4>
+                        </div>
                         <p>We care about the environment and our community</p>
                     </div>
                 </div>
@@ -98,33 +105,7 @@
             <div class="team-section">
                 <h2>Meet Our Team</h2>
                 <div class="team-grid">
-                    <div class="team-member">
-                        <div class="member-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <h4>Dr. Sarah Johnson</h4>
-                        <p class="member-role">Chief Nutritionist</p>
-                        <p class="member-bio">Certified nutritionist with 15+ years of
-                            experience</p>
-                    </div>
-                    <div class="team-member">
-                        <div class="member-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <h4>Chef Michael Chen</h4>
-                        <p class="member-role">Head Chef</p>
-                        <p class="member-bio">Award-winning chef specializing in healthy
-                            cuisine</p>
-                    </div>
-                    <div class="team-member">
-                        <div class="member-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <h4>Priya Sharma</h4>
-                        <p class="member-role">Operations Manager</p>
-                        <p class="member-bio">Ensuring smooth operations and customer
-                            satisfaction</p>
-                    </div>
+                    <!-- Team members will be loaded dynamically via JS -->
                 </div>
             </div>
         </div>
@@ -134,6 +115,7 @@
     <footer id="footer-placeholder" class="footer"></footer>
 
     <script src="/load-scripts.js"></script>
+    <script src="JS/about.js"></script>
 
 </body>
 

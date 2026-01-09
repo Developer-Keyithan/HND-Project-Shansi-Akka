@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diet Planning - healthybite</title>
     <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="/pages/pages.css">
+    <link rel="stylesheet" href="/pages/CSS/pages.css">
     <link rel="stylesheet" href="/plugins/fontawesome-free-7.1.0-web/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
@@ -18,8 +18,7 @@
     <header id="navbar-placeholder" class="header"></header>
 
     <!-- Page Hero -->
-    <section class="page-hero"
-        style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+    <section class="page-hero diet-hero">
         <div class="container">
             <div class="hero-content">
                 <h1>Diet Planning</h1>
@@ -80,23 +79,38 @@
     <script src="/load-scripts.js"></script>
 
     <script type="module">
+        import { Toast } from "/plugins/Toast/toast.js";
+
+        // Expose function to window for the onclick handler
+        window.selectPlan = function (planName) {
+            Toast({
+                icon: 'info',
+                title: 'Plan Selected',
+                message: `Proceeding to plan selection: ${planName}`
+            });
+        };
+
         document.addEventListener('DOMContentLoaded', async () => {
             const container = document.getElementById('diet-plans-container');
 
-            // Wait for API to be initialized
+            // Wait for dependencies
             let attempts = 0;
-            while (!window.API && attempts < 20) {
-                await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms
+            while ((!window.API || !window.Common) && attempts < 20) {
+                await new Promise(resolve => setTimeout(resolve, 100));
                 attempts++;
             }
 
-            if (!window.API) {
-                console.error('API not initialized');
-                container.innerHTML = '<p class="error-text text-center">System validation failed. Please refresh.</p>';
+            if (!container) return;
+
+            if (!window.API || !window.Common) {
+                container.innerHTML = '<p class="error-text text-center">Failed to load system components.</p>';
                 return;
             }
 
             try {
+                // Show loading state
+                window.Common.showLoading(container, 'Loading diet plans...');
+
                 const plans = await window.API.getDietPlans();
 
                 if (plans && plans.length > 0) {
@@ -121,9 +135,9 @@
                                     `).join('')}
                                 </ul>
                             </div>
-                            <div class="plan-footer" style="padding: 0 30px 30px; text-align: center;">
-                                <button class="btn btn-primary btn-block" onclick="alert('Proceeding to plan selection: ${plan.name}')">Choose Plan</button>
-                            </div>
+                                <div class="plan-footer" style="padding: 0 30px 30px; text-align: center;">
+                                    <button class="btn btn-primary btn-block" onclick="window.selectPlan('${plan.name}')">Choose Plan</button>
+                                </div>
                         </div>
                     `).join('');
                 } else {

@@ -3,13 +3,20 @@ import { AppConfig } from "../app.config.js";
 (function () {
     // Expose config globally
     window.AppConfig = AppConfig;
-    console.log('AppConfig loaded:', AppConfig.app?.name);
+    window.AppData = AppConfig.app;
 
     // Dispatch event for components waiting for config
     window.dispatchEvent(new Event('AppConfigLoaded'));
 
+    // Expose update function to window for dynamically loaded components
+    window.updateConfigElements = updateConfigElements;
+
     // Initial update
-    updateConfigElements();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateConfigElements);
+    } else {
+        updateConfigElements();
+    }
 
     function updateConfigElements() {
         if (!window.AppConfig) return;
@@ -33,7 +40,6 @@ import { AppConfig } from "../app.config.js";
             if (!value && key === 'appCopyright') value = getNestedValue(window.AppConfig, 'app.copyright');
 
             if (value) {
-
                 if (el.tagName === 'A' && (key === 'appEmail' || key === 'app.email')) {
                     el.href = 'mailto:' + value;
                     el.textContent = value;
@@ -47,7 +53,6 @@ import { AppConfig } from "../app.config.js";
         });
 
         // Update navigation links based on app.url
-        // Priority: window.AppConfig.app.url -> window.AppConfig.appUrl -> window.AppConfig.baseUrl
         let appUrl = getNestedValue(window.AppConfig, 'app.url') || window.AppConfig.appUrl || window.AppConfig.baseUrl;
 
         if (appUrl) {
@@ -56,14 +61,13 @@ import { AppConfig } from "../app.config.js";
             // Fix hrefs
             document.querySelectorAll('a, link').forEach(el => {
                 const href = el.getAttribute('href');
-                // Update internal root-relative links
                 if (href && href.startsWith('/') && !href.startsWith('//') && !el.hasAttribute('data-base-auto-updated')) {
                     el.href = appUrl + href;
                     el.setAttribute('data-base-auto-updated', 'true');
                 }
             });
 
-            // Fix srcs (scripts, images)
+            // Fix srcs
             document.querySelectorAll('img, script, source').forEach(el => {
                 const src = el.getAttribute('src');
                 if (src && src.startsWith('/') && !src.startsWith('//') && !el.hasAttribute('data-base-auto-updated')) {

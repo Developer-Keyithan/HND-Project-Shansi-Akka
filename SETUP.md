@@ -297,7 +297,20 @@ Your HealthyBite platform should now be live on Vercel!
 
 Visit your deployment URL and start using the platform.
 
+## 📝 Step 11: Update Production Configuration
+1. Open `client/app.config.js`
+2. Update the `app.url` and `api.url` to match your Vercel deployment URL:
+   ```javascript
+   url: "https://your-domain.vercel.app",
+   api: {
+       url: "https://your-domain.vercel.app/api"
+   }
+   ```
+3. Update `tax` and `deliveryFee` as needed for your specific region.
+
 ---
 
-**Need Help?** Contact support at info@helthybite.com
+**Last Updated**: January 2026
+
+## 🆘 Troubleshooting
 

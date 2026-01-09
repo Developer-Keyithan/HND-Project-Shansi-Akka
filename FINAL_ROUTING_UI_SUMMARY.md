@@ -45,6 +45,13 @@ The `scripts/fix-all-routing.js` script has successfully fixed **10 HTML files**
 10. **auth/login.html** - Login page ✅
 11. **auth/register.html** - Registration ✅
 12. **auth/forgot-password.html** - Password reset ✅
+13. **pages/terms.html** - Terms and Conditions ✅
+14. **pages/privacy.html** - Privacy Policy ✅
+
+### New Features Completed:
+- ✅ **Centralized Config**: App settings managed in `app.config.js`
+- ✅ **Popover System**: Custom modal/notifications in `plugins/Modal/modal.js`
+- ✅ **Currency & Tax**: Automatic calculation based on config
 
 ### Pages Needing Content:
 - **pages/faqs.html** - FAQ page (structure exists, needs content)

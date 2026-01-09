@@ -129,4 +129,14 @@
     .nav-actions .cart-icon {
         display: inline-block;
     }
+
+    /* --- Order Summary --- */
+    .order-summary {
+        padding: 20px;
+    }
+
+    /* --- Payment Form Container --- */
+    .payment-form-container {
+        padding: 20px;
+    }
 }

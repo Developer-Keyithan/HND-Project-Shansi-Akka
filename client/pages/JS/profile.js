@@ -1,7 +1,22 @@
 // Profile Page JavaScript
-import { Toast } from "../plugins/Toast/toast.js";
+import { Toast } from "../../plugins/Toast/toast.js";
 
-document.addEventListener('DOMContentLoaded', function () {
+// Helper to wait for Auth to be loaded by load-scripts.js
+async function waitForAuth() {
+    return new Promise(resolve => {
+        if (window.Auth) return resolve();
+        const interval = setInterval(() => {
+            if (window.Auth) {
+                clearInterval(interval);
+                resolve();
+            }
+        }, 50);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+    await waitForAuth();
+
     // Check authentication
     if (!window.Auth?.requireAuth()) {
         return;
@@ -28,20 +43,7 @@ function initEventListeners() {
         profileForm.addEventListener('submit', saveProfile);
     }
 
-    initNavigation();
-}
-
-function initNavigation() {
-    const hamburger = document.querySelector('.hamburger');
-    const navMenu = document.querySelector('.nav-menu');
-
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-    }
-
+    // Update user menu
     updateUserMenu();
 }
 
@@ -72,7 +74,8 @@ function updateUserMenu() {
             logoutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 await window.Auth?.logoutUser();
-                window.location.href = '../index.html';
+                const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                window.location.href = appUrl + '/index.html';
             });
         }
     }
@@ -82,7 +85,8 @@ function loadProfile() {
     const currentUser = window.Auth?.getCurrentUser();
 
     if (!currentUser) {
-        window.location.href = '../auth/login.html';
+        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+        window.location.href = appUrl + '/auth/login.html';
         return;
     }
 
@@ -158,7 +162,7 @@ async function loadOrders() {
     const ordersContainer = document.getElementById('orders-list');
 
     // Set loading state if needed
-    ordersContainer.innerHTML = '<div class="loading-spinner">Loading orders...</div>';
+    window.Common.showLoading(ordersContainer, 'Loading orders...');
 
     try {
         const orders = await window.API.getUserOrders(currentUser.email);
@@ -217,7 +221,7 @@ async function loadDietPlans() {
     const plansContainer = document.getElementById('diet-plans-list');
 
     // Set loading
-    plansContainer.innerHTML = '<div class="loading-spinner">Loading plans...</div>';
+    window.Common.showLoading(plansContainer, 'Loading plans...');
 
     try {
         const plans = await window.API.getDietPlans();

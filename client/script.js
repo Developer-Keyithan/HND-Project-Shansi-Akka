@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.API) {
             clearInterval(checkAPI);
             loadProducts();
+            loadReviews();
             setCTADiscount();
         }
     }, 50);
@@ -27,8 +28,17 @@ async function loadProducts(category = 'all') {
     const productsContainer = document.getElementById('products-container');
     if (!productsContainer) return;
 
+    // Wait for dependencies
+    let attempts = 0;
+    while ((!window.API || !window.Common) && attempts < 20) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+    }
+
+    if (!window.Common || !window.API) return;
+
     // Show loading
-    productsContainer.innerHTML = '<div class="loading-spinner">Loading recommendations...</div>';
+    window.Common.showLoading(productsContainer, 'Loading recommendations...');
 
     let allProducts = [];
     try {
@@ -68,12 +78,19 @@ async function loadProducts(category = 'all') {
                     <button class="btn btn-add-to-cart" onclick="addToCart(${product.id})">
                         <i class="fas fa-plus"></i> Add to Cart
                     </button>
-                    <a href="pages/product-view.html?id=${product.id}" class="btn btn-view-details">View Details</a>
+                        <button class="btn btn-view-details" onclick="viewProductDetails(${product.id})">
+                        <i class="fas fa-info-circle"></i> View Details
+                    </button>
                 </div>
             </div>
         </div>
     `).join('');
 }
+
+window.viewProductDetails = function (productId) {
+    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+    window.location.href = appUrl + `/pages/product-view.html?id=${productId}`;
+};
 
 function initCategoryFilters() {
     const categoryBtns = document.querySelectorAll('.category-btn');
@@ -225,18 +242,19 @@ if (loginForm) {
 
                 // Redirect based on role
                 setTimeout(() => {
+                    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
                     switch (result.user.role) {
                         case 'admin':
-                            window.location.href = 'dashboard/admin.html';
+                            window.location.href = appUrl + '/dashboard/admin.html';
                             break;
                         case 'seller':
-                            window.location.href = 'dashboard/seller.html';
+                            window.location.href = appUrl + '/dashboard/seller.html';
                             break;
                         case 'delivery-partner':
-                            window.location.href = 'dashboard/delivery.html';
+                            window.location.href = appUrl + '/dashboard/delivery.html';
                             break;
                         default:
-                            window.location.href = 'dashboard/consumer.html';
+                            window.location.href = appUrl + '/dashboard/consumer.html';
                     }
                 }, 1500);
 

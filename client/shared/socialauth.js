@@ -9,10 +9,10 @@ class SocialAuth {
     loadProviders() {
         // Load Google Sign-In
         this.loadGoogleSignIn();
-        
+
         // Load Facebook SDK
         // this.loadFacebookSDK();
-        
+
         // Load Twitter SDK
         // this.loadTwitterSDK();
     }
@@ -76,7 +76,7 @@ class SocialAuth {
     loadFacebookSDK() {
         if (window.FB) return;
 
-        window.fbAsyncInit = function() {
+        window.fbAsyncInit = function () {
             FB.init({
                 appId: window.Config?.socialAuth?.facebook?.appId,
                 cookie: true,
@@ -143,19 +143,22 @@ class SocialAuth {
     async signInWithTwitter() {
         // Redirect to Twitter OAuth
         const twitterAuthUrl = `/api/auth/twitter`;
-        window.location.href = twitterAuthUrl;
+        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+        window.location.href = appUrl + twitterAuthUrl;
     }
 
     // Instagram Sign-In
     async signInWithInstagram() {
         const instagramAuthUrl = `/api/auth/instagram?client_id=${this.config.instagram?.clientId}&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/instagram-callback.html')}&response_type=code&scope=user_profile,user_media`;
-        window.location.href = instagramAuthUrl;
+        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+        window.location.href = appUrl + instagramAuthUrl;
     }
 
     // TikTok Sign-In
     async signInWithTikTok() {
         const tiktokAuthUrl = `/api/auth/tiktok?client_key=${this.config.tiktok?.clientKey}&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/tiktok-callback.html')}&response_type=code&scope=user.info.basic`;
-        window.location.href = tiktokAuthUrl;
+        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+        window.location.href = appUrl + tiktokAuthUrl;
     }
 }
 

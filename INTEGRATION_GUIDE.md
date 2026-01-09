@@ -2,7 +2,26 @@
 
 This guide explains how to configure and use all the integrated services.
 
-## 📧 EmailJS Configuration
+## ⚙️ Application Configuration (AppConfig)
+
+The platform uses a centralized configuration file located at `client/app.config.js`. This file controls various aspects of the application.
+
+### Key Settings:
+- `tax`: Percentage tax applied to orders (e.g., `5` for 5%).
+- `deliveryFee`: Fixed delivery fee in LKR.
+- `app.version`: Current version of the application.
+- `api.url`: Base URL for API calls.
+
+### Usage in Code:
+```javascript
+import { AppConfig } from '/app.config.js';
+
+// Accessing settings
+const taxAmount = total * (AppConfig.tax / 100);
+const totalWithFee = total + AppConfig.deliveryFee;
+```
+
+---
 
 ### Setup Steps:
 1. Sign up at [EmailJS](https://www.emailjs.com/)

@@ -2,7 +2,6 @@ import { Toast } from "../../plugins/Toast/toast.js";
 
 let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
 let currentUser = JSON.parse(localStorage.getItem('user')) || null;
-const searchInput = document.getElementById('search-input');
 
 // Navigation Functions
 function initNavigation() {
@@ -62,9 +61,9 @@ function updateUserMenu() {
                     <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="dropdown-menu">
-                    <a href="dashboard/consumer.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                    <a href="pages/profile.html"><i class="fas fa-user"></i> Profile</a>
-                    <a href="pages/cart.html"><i class="fas fa-shopping-cart"></i> Cart</a>
+                    <a href="/dashboard/consumer.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="/pages/profile.html"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/pages/cart.html"><i class="fas fa-shopping-cart"></i> Cart</a>
                     <div class="dropdown-divider"></div>
                     <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </div>
@@ -98,7 +97,8 @@ function updateUserMenu() {
                     }
                 } else {
                     // Redirect on other pages
-                    window.location.href = '../auth/login.html';
+                    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                    window.location.href = appUrl + '../auth/login.html';
                 }
             });
         }
@@ -107,7 +107,8 @@ function updateUserMenu() {
         if (newRegisterBtn) {
             newRegisterBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.location.href = '../auth/register.html';
+                const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                window.location.href = appUrl + '../auth/register.html';
             });
         }
 
@@ -202,7 +203,9 @@ function logout() {
     localStorage.removeItem('healthybite-user');
     currentUser = null;
     updateUserMenu();
-    alert('Logged out successfully!');
+    showNotification('Logged out successfully!', 'success');
+    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+    window.location.href = appUrl + '/index.html'; // Add redirect for better flow
 }
 
 async function initMenuSearch() {
@@ -210,14 +213,19 @@ async function initMenuSearch() {
     const searchQuery = window.Common ? window.Common.getParameterByName('search') : null;
 
     if (searchQuery) {
-        document.getElementById('search-input').value = await searchQuery;
-        performSearch();
+        const input = document.getElementById('search-input');
+        if (input) {
+            input.value = searchQuery;
+            // Delay slightly to ensure everything is initialized
+            setTimeout(() => performSearch(), 100);
+        }
     }
 }
 
 // Search Functionality
 function initSearch() {
     const searchBtn = document.getElementById('search-btn');
+    const searchInput = document.getElementById('search-input');
     if (searchBtn && searchInput) {
         searchBtn.addEventListener('click', performSearch);
         searchInput.addEventListener('keypress', (e) => {
@@ -229,11 +237,10 @@ function initSearch() {
 }
 
 function performSearch() {
-    console.log('Performing search...');
-    const searchInput = document.getElementById('search-input'); // Get element directly
+    const searchInput = document.getElementById('search-input');
     if (!searchInput) return;
 
-    const query = searchInput.value.trim().toLowerCase();
+    const query = searchInput.value.trim();
 
     if (!query) {
         showNotification('Please enter a search term', 'error');
@@ -242,10 +249,15 @@ function performSearch() {
 
     // Redirect to menu page with search query
     if (window.location.pathname.includes('/menu.html')) {
+        // If on menu page, trigger the local search logic
+        if (typeof window.performMenuSearch === 'function') {
+            window.performMenuSearch(query);
+        }
         return;
     } else {
         const target = window.location.pathname.includes('/pages/') ? 'menu.html' : 'pages/menu.html';
-        window.location.href = `${target}?search=${encodeURIComponent(query)}`;
+        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+        window.location.href = appUrl + `${target}?search=${encodeURIComponent(query)}`;
     }
 }
 
@@ -282,21 +294,19 @@ function updateCartCount() {
         cartCount.style.display = 'flex';
     }
 }
-
-
 // Notification System
 function showNotification(message, type = 'info') {
-    console.log(message);
     const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
     try {
-        Toast({
-            icon: type,
-            title: capitalizedType,
-            message: message
-        });
+        if (typeof Toast === 'function') {
+            Toast({
+                icon: type,
+                title: capitalizedType,
+                message: message
+            });
+        }
     } catch (e) {
         console.error("Toast error:", e);
-        alert(message);
     }
 }
 
@@ -310,6 +320,7 @@ window.Navbar = {
     setActiveNav,
     handleCartIconDisplay,
     initMenuSearch,
+    initSearch,
     showNotification,
     updateCartCount
 };

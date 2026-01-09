@@ -1,3 +1,5 @@
+import { Toast } from "../../plugins/Toast/toast.js";
+
 // Menu Page JavaScript
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -7,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             loadCategories();
             loadMenuProducts();
-            loadDietPlans();
             initFilters();
 
             if (window.Common && window.Common.currentNav() === 'menu.html') {
@@ -58,15 +59,23 @@ function loadCategories() {
 let allProducts = [];
 
 async function loadMenuProducts() {
-    console.log('Loading menu products...');
     const container = document.getElementById('menu-products');
     const countElement = document.getElementById('product-count');
     const titleElement = document.getElementById('menu-title');
 
     if (!container) return;
 
+    // Wait for dependencies
+    let attempts = 0;
+    while ((!window.API || !window.Common) && attempts < 20) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+    }
+
+    if (!window.Common || !window.API) return;
+
     // Show loading state
-    container.innerHTML = '<div class="loading-spinner">Loading healthy meals...</div>';
+    window.Common.showLoading(container, 'Loading healthy meals...');
 
     // Fetch if needed
     if (allProducts.length === 0) {
@@ -146,7 +155,7 @@ async function loadMenuProducts() {
                         <i class="fas fa-plus"></i> <span>Add to Cart</span>
                     </button>
                     <button class="btn btn-view-details" onclick="viewProductDetails(${product.id})">
-                         <span>View Details</span>
+                        <i class="fas fa-info-circle"></i> View Details
                     </button>
                 </div>
             </div>
@@ -239,80 +248,8 @@ function initFilters() {
     }
 }
 
-async function loadDietPlans() {
-    const container = document.getElementById('diet-plans');
-    if (!container) return;
-
-    container.innerHTML = '<div class="loading-spinner">Loading plans...</div>';
-
-    let plans = [];
-    try {
-        plans = await window.API.getDietPlans();
-    } catch (e) {
-        console.error(e);
-        container.innerHTML = 'Failed to load plans.';
-        return;
-    }
-
-    container.innerHTML = plans.map(plan => `
-        <div class="plan-card">
-            <div class="plan-header">
-                <h3>${plan.name}</h3>
-                <div class="plan-price">${window.Common.formatCurrency(plan.price)}</div>
-            </div>
-            <div class="plan-content">
-                <p>${plan.description}</p>
-                <div class="plan-features">
-                    ${plan.features.map(feature => `
-                        <div class="feature">
-                            <i class="fas fa-check"></i>
-                            <span>${feature}</span>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="plan-meta">
-                    <span class="calories">
-                        <i class="fas fa-fire"></i>
-                        ${plan.calories} calories/day
-                    </span>
-                    <span class="duration">
-                        <i class="fas fa-calendar"></i>
-                        ${plan.duration}
-                    </span>
-                </div>
-            </div>
-            <div class="plan-footer">
-                <button class="btn btn-outline" onclick="viewPlanDetails(${plan.id})">
-                     <span>Learn More</span>
-                </button>
-                <button class="btn btn-primary" onclick="selectPlan(${plan.id})">
-                     <span>Select Plan</span>
-                </button>
-            </div>
-        </div>
-    `).join('');
-}
-
-function viewPlanDetails(planId) {
-    const plan = window.dietPlans.find(p => p.id === planId);
-    if (plan) {
-        showNotification(`Opening details for ${plan.name}...`, 'info');
-        // In real app, this would open a modal or redirect
-    }
-}
-
-function selectPlan(planId) {
-    const plan = window.dietPlans.find(p => p.id === planId);
-    if (plan) {
-        showNotification(`${plan.name} selected! Redirecting to diet planning...`, 'success');
-        setTimeout(() => {
-            window.location.href = 'diet-planning.html?plan=' + planId;
-        }, 1500);
-    }
-}
-
-function performSearch() {
-    const query = document.getElementById('search-input').value.trim().toLowerCase();
+async function performSearch(queryOverride = null) {
+    const query = (queryOverride || document.getElementById('search-input').value).trim().toLowerCase();
 
     if (!query) {
         loadMenuProducts();
@@ -333,6 +270,19 @@ function performSearch() {
 
     const container = document.getElementById('menu-products');
     if (container) {
+        window.Common.showLoading(container, `Searching for "${query}"...`);
+        // Simulate search delay for better UI feedback
+        await new Promise(r => setTimeout(r, 600));
+
+        if (filteredProducts.length === 0) {
+            container.innerHTML = `<div class="empty-state text-center" style="grid-column: 1/-1; padding: 40px;">
+                <i class="fas fa-search" style="font-size: 3rem; color: var(--gray); margin-bottom: 20px;"></i>
+                <h3>No results found</h3>
+                <p>We couldn't find anything matching "${query}". Try different keywords.</p>
+            </div>`;
+            return;
+        }
+
         container.innerHTML = filteredProducts.map(product => `
             <div class="product-card" data-id="${product.id}">
                 ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
@@ -353,7 +303,9 @@ function performSearch() {
                         <button class="btn-add-to-cart" onclick="addToCart(${product.id})">
                             <i class="fas fa-plus"></i> Add to Cart
                         </button>
-                        <a href="product-view.html?id=${product.id}" class="btn-view-details">View Details</a>
+                        <button class="btn btn-view-details" onclick="viewProductDetails(${product.id})">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </button>
                     </div>
                 </div>
             </div>
@@ -367,7 +319,6 @@ function performSearch() {
     }
 }
 
-// Make functions available globally
 // Make functions available globally
 window.addToCart = function (productId) {
     // Search in cache or fallback to window.products if available (for legacy/other pages)
@@ -399,7 +350,8 @@ window.addToCart = function (productId) {
 };
 
 window.viewProductDetails = function (productId) {
-    window.location.href = `product-view.html?id=${productId}`;
+    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+    window.location.href = appUrl + `/pages/product-view.html?id=${productId}`;
 };
 
 function updateCartCount() {
@@ -418,60 +370,16 @@ function updateCartCount() {
 }
 
 function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <div class="notification-content">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-            <p>${message}</p>
-        </div>
-        <button class="notification-close"><i class="fas fa-times"></i></button>
-    `;
-
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background-color: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        z-index: 3000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        min-width: 300px;
-        max-width: 400px;
-        animation: slideIn 0.5s ease forwards;
-    `;
-
-    const closeBtn = notification.querySelector('.notification-close');
-    closeBtn.addEventListener('click', () => {
-        notification.style.animation = 'slideOut 0.3s ease forwards';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                document.body.removeChild(notification);
-            }
-        }, 300);
+    Toast({
+        icon: type,
+        title: type.charAt(0).toUpperCase() + type.slice(1),
+        message: message
     });
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }
-    }, 5000);
 }
 
 // Initialize on page load
 updateCartCount();
+window.performMenuSearch = performSearch;
 
 // Add search event listener
 const searchBtn = document.getElementById('search-btn');

@@ -1,6 +1,29 @@
 # Changelog - HealthyBite Platform
 
-## Version 1.0.0 - Initial Release
+## Version 1.4.2 - Recent Refinements (2026-01-09)
+
+### Enhancements
+- **Centralized Configuration**: Implemented `client/app.config.js` to manage global settings like `tax` and `deliveryFee`.
+- **Popover API Refinement**: Updated `client/plugins/Modal/modal.js` with a robust `Popover` API supporting `alert`, `error`, `warning`, `info`, `success`, `confirm`, and `content`.
+- **Dynamic Tax Calculation**: Updated `cart.js` and `payment.js` to dynamically calculate tax based on `AppConfig.tax`.
+- **Error Handling**: Added custom 401 Unauthorized error page and improved session expiration handling.
+
+### Bug Fixes
+- Resolved `undefined` errors related to `window.AppConfig` by ensuring proper script loading order.
+- Fixed calculation inaccuracies in the checkout flow.
+
+---
+
+## Version 1.2.0 - Legal & Security Update (2026-01-07)
+
+### Features
+- **Legal Pages**: Added `terms.html` and `privacy.html` pages for compliance.
+- **Improved Routing**: Fixed navigation links in the registration and login flows.
+- **Dashboard UI**: Enhanced delivery partner and seller dashboard layouts.
+
+---
+
+## Version 1.0.0 - Initial Release (2024)
 
 ### Features Implemented
 
@@ -150,5 +173,5 @@
 
 ---
 
-**Last Updated**: 2024
+**Last Updated**: January 2026
 

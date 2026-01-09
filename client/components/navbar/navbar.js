@@ -11,6 +11,21 @@ fetch(navbarHTMLPath)
         if (placeholder) {
             placeholder.innerHTML = html;
 
+            // Trigger initialization of custom attributes (data-config-key, etc.)
+            const initCustomAttributes = () => {
+                if (window.Common && window.Common.initAttributes) {
+                    window.Common.initAttributes();
+                }
+                if (window.updateConfigElements) {
+                    window.updateConfigElements();
+                }
+            };
+
+            // Call immediately and also after a small delay to ensure modules are ready
+            initCustomAttributes();
+            setTimeout(initCustomAttributes, 100);
+            setTimeout(initCustomAttributes, 500);
+
             // Initialize Navbar Logic
             // We need to wait a tick for DOM or check if Navbar global is available
             // navbar-functions.js should have been loaded by load-scripts.js
@@ -25,6 +40,7 @@ fetch(navbarHTMLPath)
                     Navbar.initDropdowns();
                     Navbar.handleCartIconDisplay();
                     Navbar.initMenuSearch();
+                    Navbar.initSearch();
                     Navbar.updateCartCount();
                 }
             }, 100);

@@ -1,9 +1,8 @@
 (function () {
     // Common Utility Functions for HealthyBite
-
     /**
      * Format a mobile number to Sri Lankan standard +94 format
-     * @param {string} number 
+     * @param {string} number
      * @returns {string} Formatted number or original if invalid
      */
     function formatMobile(number) {
@@ -11,22 +10,25 @@
         // Remove spaces and non-numeric chars
         let cleaned = number.toString().replace(/\D/g, '');
 
-        // Handle 07... format (length 10)
+        let normalized;
+        // Normalize to 9 digits after the country code prefix (e.g., 771234567)
         if (cleaned.length === 10 && cleaned.startsWith('0')) {
-            return '+94' + cleaned.substring(1);
+            normalized = cleaned.substring(1);
+        } else if (cleaned.length === 9) {
+            normalized = cleaned;
+        } else if (cleaned.startsWith('94') && (cleaned.length === 11 || cleaned.length === 12)) {
+            // Handle both 94771234567 and potentially 094... (though less common)
+            normalized = cleaned.substring(cleaned.length - 9);
+        } else {
+            return number;
         }
 
-        // Handle 7... format (length 9)
-        if (cleaned.length === 9) {
-            return '+94' + cleaned;
-        }
+        // Format as +94 77 123 4567
+        const network = normalized.substring(0, 2);
+        const firstThree = normalized.substring(2, 5);
+        const lastFour = normalized.substring(5, 9);
 
-        // Handle 94... format
-        if (cleaned.startsWith('94') && cleaned.length === 11) {
-            return '+' + cleaned;
-        }
-
-        return number;
+        return `+94 ${network} ${firstThree} ${lastFour}`;
     }
 
     /**
@@ -405,6 +407,346 @@
         return currency.symbol + ' ' + formatNumber(converted, 2);
     }
 
+    /**
+     * Handle Number Inputs (prevent scroll change, spinners)
+     * @param {string} selector 
+     */
+    function numTypeInput(selector = 'input[type="number"], .num-type-input') {
+        const inputs = document.querySelectorAll(selector);
+        inputs.forEach(input => {
+            // Prevent scroll changing value
+            input.addEventListener('wheel', (e) => {
+                if (document.activeElement === input) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // Prevent invalid chars (optional, but requested behavior)
+            input.addEventListener('keydown', (e) => {
+                // Allow: backspace, delete, tab, escape, enter, .
+                if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+                    // Allow: Ctrl+A
+                    (e.keyCode === 65 && e.ctrlKey === true) ||
+                    // Allow: home, end, left, right
+                    (e.keyCode >= 35 && e.keyCode <= 39)) {
+                    return;
+                }
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    }
+
+    /**
+     * Handle Custom Select Dropdowns
+     * @param {string} selector 
+     */
+    /**
+     * Handle Custom Select Dropdowns
+     * @param {string} selector 
+     */
+    function selectDropdowns(selector = '.select-input-search, .select-input, .select-dropdown, .select-dropdown-search') {
+        const selects = document.querySelectorAll(selector);
+
+        // Add global listener only once to close dropdowns when clicking outside
+        if (!window.selectDropdownsGlobalListener) {
+            window.selectDropdownsGlobalListener = true;
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.custom-select-wrapper')) {
+                    document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+                }
+            });
+        }
+
+        selects.forEach(select => {
+            if (select.closest('.custom-select-wrapper')) return; // Already initialized
+
+            const isSearch = select.classList.contains('select-input-search') || select.classList.contains('select-dropdown-search');
+
+            // Create wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = `custom-select-wrapper ${select.className}`;
+
+            // Trigger
+            const trigger = document.createElement('div');
+            trigger.className = 'custom-select-trigger';
+            const selectedOption = select.options[select.selectedIndex];
+            trigger.innerHTML = `<span>${selectedOption ? selectedOption.text : 'Select'}</span> <i class="fas fa-chevron-down"></i>`;
+
+            // Options Container
+            const optionsContainerWrapper = document.createElement('div');
+            optionsContainerWrapper.className = 'custom-options-wrapper';
+
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'custom-options';
+
+
+            // Search Input (if enabled)
+            if (isSearch) {
+                const searchBox = document.createElement('div');
+                searchBox.className = 'custom-select-search';
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.placeholder = 'Search...';
+                searchInput.addEventListener('click', (e) => e.stopPropagation()); // Prevent closing
+
+                searchInput.addEventListener('input', (e) => {
+                    const filter = e.target.value.toLowerCase();
+                    const options = optionsContainer.querySelectorAll('.custom-option');
+                    options.forEach(opt => {
+                        const text = opt.textContent.toLowerCase();
+                        opt.style.display = text.includes(filter) ? 'block' : 'none';
+                    });
+                });
+
+                searchBox.appendChild(searchInput);
+                optionsContainer.appendChild(searchBox);
+            }
+
+            // Options List
+            Array.from(select.options).forEach(option => {
+                // Skip purely placeholder if it's empty value and disabled (often used as "Select One")
+                // But we might want to show it as "Select One".
+                // Let's assume options with value="" and disabled are placeholders.
+                // if (option.value === "" && option.disabled) return; 
+
+                const optDiv = document.createElement('div');
+                optDiv.className = 'custom-option';
+                if (option.selected) optDiv.classList.add('selected');
+                optDiv.textContent = option.text;
+                optDiv.dataset.value = option.value;
+
+                optDiv.addEventListener('click', () => {
+                    // Update Original Select
+                    select.value = option.value;
+                    select.dispatchEvent(new Event('change')); // Trigger change event
+
+                    // Update Trigger
+                    trigger.querySelector('span').textContent = option.text;
+
+                    // Update UI Selection
+                    optionsContainer.querySelectorAll('.custom-option').forEach(o => o.classList.remove('selected'));
+                    optDiv.classList.add('selected');
+
+                    // Close
+                    wrapper.classList.remove('open');
+                });
+
+                optionsContainer.appendChild(optDiv);
+            });
+
+            // DOM Insertion
+            select.parentNode.insertBefore(wrapper, select);
+            wrapper.appendChild(select);
+            select.style.display = 'none'; // Hide native select
+            wrapper.appendChild(trigger);
+            optionsContainerWrapper.appendChild(optionsContainer);
+            wrapper.appendChild(optionsContainerWrapper);
+
+            // Toggle Open/Close
+            trigger.addEventListener('click', (e) => {
+                // Close all other dropdowns first
+                document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+                    if (w !== wrapper) w.classList.remove('open');
+                });
+                wrapper.classList.toggle('open');
+                e.stopPropagation();
+            });
+        });
+    }
+
+    /**
+     * Render basic markdown to HTML
+     * @param {string} md 
+     * @returns {string}
+     */
+    function renderMarkdown(md) {
+        if (!md) return '';
+
+        // If marked.js is loaded (via load-scripts.js), use it for full support
+        if (typeof marked !== 'undefined') {
+            try {
+                return marked.parse(md, {
+                    gfm: true,
+                    breaks: true,
+                    headerIds: false,
+                    mangle: false
+                });
+            } catch (e) {
+                console.warn('Marked.js parse error:', e);
+            }
+        }
+
+        let html = md.trim();
+
+        // 1. Headers
+        html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+        html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+        // 2. Bold & Italic
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+        // 3. Links
+        html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+        // 4. Code
+        html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+        html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+
+        // 5. Lists (Group adjacent <li> items)
+        html = html.replace(/^\s*[\-\*]\s+(.*)$/gim, '<li>$1</li>');
+        html = html.replace(/((?:<li>.*?<\/li>\s*)+)/g, '<ul>$1</ul>');
+
+        // 6. Paragraphs
+        const blocks = html.split(/\n\n+/);
+        html = blocks.map(block => {
+            const trimmed = block.trim();
+            if (!trimmed) return '';
+            if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<pre') || trimmed.startsWith('<li')) {
+                return trimmed;
+            }
+            return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`;
+        }).join('\n');
+
+        return html;
+    }
+
+    /**
+     * Show a loading spinner inside an element
+     * @param {HTMLElement|string} target 
+     * @param {string} message 
+     */
+    function showLoading(target, message = 'Loading...') {
+        const el = typeof target === 'string' ? document.querySelector(target) : target;
+        if (!el) return;
+
+        el.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">${message}</div>
+            </div>
+        `;
+    }
+
+    /**
+     * Hide loading spinner from an element (clears it)
+     * @param {HTMLElement|string} target 
+     */
+    function hideLoading(target) {
+        const el = typeof target === 'string' ? document.querySelector(target) : target;
+        if (el) el.innerHTML = '';
+    }
+
+    /**
+     * Load and render a markdown file
+     * @param {HTMLElement|string} target - Target element or selector
+     * @param {string} url - URL to .md file
+     */
+    async function loadMarkdown(target, url) {
+        const el = typeof target === 'string' ? document.querySelector(target) : target;
+        if (!el) return;
+
+        try {
+            showLoading(el, 'Loading content...');
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Failed to load markdown');
+            const md = await response.text();
+            el.innerHTML = renderMarkdown(md);
+        } catch (error) {
+            console.error('Markdown load error:', error);
+            el.innerHTML = `<p class="error-text">Error loading content: ${error.message}</p>`;
+        }
+    }
+
+    /**
+     * Initialize elements with data-common-* attributes
+     * Allows using utilities directly in HTML
+     */
+    function initCommonAttributes() {
+        // Mobile Formatting
+        document.querySelectorAll('[data-mobile]').forEach(el => {
+            const val = el.getAttribute('data-mobile') || el.textContent.trim();
+            if (val) el.textContent = formatMobile(val);
+        });
+
+        // Number Formatting
+        document.querySelectorAll('[data-number]').forEach(el => {
+            const val = el.getAttribute('data-number') || el.textContent.trim();
+            const decimals = parseInt(el.getAttribute('data-decimals')) || 0;
+            if (val) el.textContent = formatNumber(val, decimals);
+        });
+
+        // Currency Formatting
+        document.querySelectorAll('[data-currency]').forEach(el => {
+            const val = el.getAttribute('data-currency') || el.textContent.trim();
+            if (val) el.textContent = formatCurrency(parseFloat(val) || 0);
+        });
+
+        // Date/Time Formatting
+        document.querySelectorAll('[data-date], [data-time], [data-datetime]').forEach(el => {
+            const val = el.getAttribute('data-date') ||
+                el.getAttribute('data-time') ||
+                el.getAttribute('data-datetime') ||
+                el.textContent.trim();
+            const format = el.getAttribute('data-format');
+
+            if (!val) return;
+
+            if (el.hasAttribute('data-date')) {
+                el.textContent = formatDate(format || 'YYYY-MM-DD', val);
+            } else if (el.hasAttribute('data-time')) {
+                el.textContent = formatTime(format || 'hh:mm a', val);
+            } else if (el.hasAttribute('data-datetime')) {
+                el.textContent = formatDateTime(format || 'YYYY-MM-DD hh:mm a', val);
+            }
+        });
+
+        // Relative Time (Time From Now)
+        document.querySelectorAll('[data-fromnow]').forEach(el => {
+            const val = el.getAttribute('data-fromnow') || el.textContent.trim();
+            if (val) el.textContent = timeFromNow(val);
+        });
+
+        // Countdown Timers
+        document.querySelectorAll('[data-timer]').forEach(el => {
+            const seconds = parseInt(el.getAttribute('data-timer') || el.textContent.trim());
+            if (!isNaN(seconds)) {
+                startTimer(seconds, (formatted) => {
+                    el.textContent = formatted;
+                });
+            }
+        });
+
+        // Markdown Rendering (Support both data-markdown and markdown)
+        document.querySelectorAll('[data-markdown], [markdown]').forEach(el => {
+            const val = el.getAttribute('data-markdown') || el.getAttribute('markdown') || el.textContent.trim();
+            if (val) el.innerHTML = renderMarkdown(val);
+        });
+
+        // Markdown File Loading (Support both data-markdown-file and markdown-file)
+        document.querySelectorAll('[data-markdown-file], [markdown-file]').forEach(el => {
+            const url = el.getAttribute('data-markdown-file') || el.getAttribute('markdown-file');
+            if (url) loadMarkdown(el, url);
+        });
+    }
+
+    // Auto-run on load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            numTypeInput();
+            selectDropdowns();
+            initCommonAttributes();
+        });
+    } else {
+        numTypeInput();
+        selectDropdowns();
+        initCommonAttributes();
+    }
+
     // Expose to window
     window.Common = {
         formatMobile,
@@ -421,7 +763,14 @@
         translate,
         setLanguage,
         setCurrency,
-        getSettings
+        getSettings,
+        numTypeInput,
+        selectDropdowns,
+        renderMarkdown,
+        loadMarkdown,
+        showLoading,
+        hideLoading,
+        initAttributes: initCommonAttributes
     };
 
 })();

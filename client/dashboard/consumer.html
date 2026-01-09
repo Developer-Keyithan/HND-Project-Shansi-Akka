@@ -92,7 +92,7 @@
                             <a href="#" class="view-all">View All Notifications</a>
                         </div>
                     </div>
-                    <button class="btn btn-primary" onclick="window.location.href='../pages/menu.html'">
+                    <button class="btn btn-primary" onclick="window.location.href='/pages/menu.html'">
                         <i class="fas fa-plus"></i> New Order
                     </button>
                 </div>
@@ -251,7 +251,7 @@
                 <section class="dashboard-section" id="orders-section">
                     <div class="section-header">
                         <h2>Recent Orders</h2>
-                        <button class="btn btn-primary" onclick="window.location.href='../pages/menu.html'">
+                        <button class="btn btn-primary" onclick="window.location.href ='/pages/menu.html'">
                             <i class="fas fa-plus"></i> Place New Order
                         </button>
                     </div>
@@ -369,13 +369,25 @@
                         <!-- Recommendations loaded by JavaScript -->
                     </div>
                 </section>
+
+                <!-- Subscriptions Section -->
+                <section class="dashboard-section" id="subscriptions-section">
+                    <div class="section-header">
+                        <h2>My Subscriptions</h2>
+                        <button class="btn btn-primary">Manage Plans</button>
+                    </div>
+
+                    <div id="subscriptions-container" class="subscriptions-grid"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <!-- Subscriptions loaded by JavaScript -->
+                    </div>
+                </section>
             </div>
         </main>
     </div>
 
-    <script src="/shared/data.js"></script>
-    <script src="/shared/auth.js"></script>
-    <script src="consumer.js"></script>
+    <script src="/load-scripts.js"></script>
+    <script src="JS/consumer.js"></script>
 
 
 </body>

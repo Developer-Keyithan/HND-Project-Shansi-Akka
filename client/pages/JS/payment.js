@@ -1,19 +1,56 @@
 // Payment Page JavaScript with Stripe Integration
-import { Toast } from "../plugins/Toast/toast.js";
+import { Toast } from "../../plugins/Toast/toast.js";
 
 let stripe;
 let elements;
 let paymentElement;
 let clientSecret;
 let orderData = {};
+let isMockPayment = false;
+let taxRate = 0;
+let deliveryFee = 0;
+
+// Helper to wait for dependencies
+async function waitForDependencies() {
+    return new Promise(resolve => {
+        const check = () => {
+            if (window.Auth && window.AppConfig && window.Common) {
+                resolve();
+            } else {
+                setTimeout(check, 50);
+            }
+        };
+        check();
+    });
+}
+
+// Helper to wait for Auth to be loaded by load-scripts.js
+async function waitForAuth() {
+    return new Promise(resolve => {
+        if (window.Auth) return resolve();
+        const interval = setInterval(() => {
+            if (window.Auth) {
+                clearInterval(interval);
+                resolve();
+            }
+        }, 50);
+    });
+}
 
 document.addEventListener('DOMContentLoaded', async function () {
+    await waitForDependencies();
+
+    // Initialize global config values
+    taxRate = (window.AppConfig.tax || 0) / 100;
+    deliveryFee = window.AppConfig.deliveryFee || 0;
+
     // Check authentication
     const currentUser = window.Auth?.getCurrentUser();
     if (!currentUser) {
         showNotification('Please login to continue', 'error');
         setTimeout(() => {
-            window.location.href = '../auth/login.html?redirect=payment.html';
+            const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+            window.location.href = appUrl + '/auth/login.html?redirect=payment.html';
         }, 1500);
         return;
     }
@@ -23,7 +60,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (!checkoutCart) {
         showNotification('No items in cart', 'error');
         setTimeout(() => {
-            window.location.href = 'cart.html';
+            const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+            window.location.href = appUrl + '/pages/cart.html';
         }, 1500);
         return;
     }
@@ -40,54 +78,23 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 async function initializeStripe() {
     try {
-        // Get Stripe publishable key from API
-        // This endpoint returns the publishable key from environment variables
-        let stripePublishableKey = 'pk_test_your_key_here';
-
-        try {
-            const keyResponse = await fetch('/api/config/stripe-key');
-            if (keyResponse.ok) {
-                const keyData = await keyResponse.json();
-                if (keyData.success && keyData.publishableKey) {
-                    stripePublishableKey = keyData.publishableKey;
-                }
-            }
-        } catch (e) {
-            console.warn('Could not fetch Stripe key from API:', e);
-            // In development, you might want to use a test key directly
-            // stripePublishableKey = 'pk_test_your_development_key';
-        }
-
-        if (!stripePublishableKey || stripePublishableKey === 'pk_test_your_key_here') {
-            throw new Error('Stripe publishable key not configured. Please set STRIPE_PUBLISHABLE_KEY environment variable.');
-        }
-
-        stripe = Stripe(stripePublishableKey);
-
         // Calculate total
         const subtotal = orderData.cart.reduce((total, item) => {
             const product = window.products?.find(p => p.id === item.id) || item;
             return total + (product.price || item.price) * item.quantity;
         }, 0);
 
-        const deliveryFee = 200;
-        const tax = subtotal * 0.05;
+        const tax = subtotal * taxRate;
         const total = subtotal + deliveryFee + tax;
 
-        // Create payment intent
-        const response = await fetch('/api/payments/create-intent', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                amount: total,
-                currency: 'lkr',
-                items: orderData.cart
-            })
-        });
-
-        const data = await response.json();
+        // Create payment intent (Mock or Real)
+        let data;
+        if (window.API && window.API.createPaymentIntent) {
+            data = await window.API.createPaymentIntent(total, 'lkr', orderData.cart);
+        } else {
+            // Fallback if API not updated yet (should not happen with correct load order)
+            data = { success: true, clientSecret: 'mock_secret_fallback', paymentIntentId: 'pi_mock_fallback' };
+        }
 
         if (!data.success) {
             throw new Error(data.error || 'Failed to initialize payment');
@@ -96,16 +103,69 @@ async function initializeStripe() {
         clientSecret = data.clientSecret;
         orderData.paymentIntentId = data.paymentIntentId;
 
-        // Create payment element
+        // Check if Mock Payment
+        if (clientSecret.startsWith('mock_')) {
+            isMockPayment = true;
+            renderMockPaymentElement();
+            return;
+        }
+
+        // Real Stripe Initialization (Requires Real Backend for Client Secret)
+        // Get Stripe publishable key
+        let stripePublishableKey = 'pk_test_51SiVxnJ7t3J5nMf6S27rcXJrY0T0mkR93ct5KNbmP9X1o12tgCRvAn6x910ONCHd605coYiWczJJu2VwxU7KKODP00rwN2gjel';
+        try {
+            const keyResponse = await fetch('/api/config/stripe-key');
+            if (keyResponse.ok) {
+                const keyData = await keyResponse.json();
+                if (keyData.success && keyData.publishableKey) {
+                    stripePublishableKey = keyData.publishableKey;
+                }
+            }
+        } catch (e) { /* Ignore */ }
+
+        stripe = Stripe(stripePublishableKey);
         elements = stripe.elements({ clientSecret });
         paymentElement = elements.create('payment');
         paymentElement.mount('#payment-element');
 
     } catch (error) {
-        console.error('Stripe initialization error:', error);
+        console.error('Payment initialization error:', error);
         showNotification('Failed to initialize payment. Please try again.', 'error');
     }
 }
+
+function renderMockPaymentElement() {
+    const container = document.getElementById('payment-element');
+    container.innerHTML = `
+        <div class="mock-card-form">
+            <div class="mock-notice">
+                <i class="fas fa-info-circle"></i> <strong>Demo Mode:</strong> No real payment will be processed.
+            </div>
+            <div class="mock-form-group">
+                <label>Card Number</label>
+                <div class="mock-input-wrapper">
+                    <input type="text" placeholder="4242 4242 4242 4242" value="4242 4242 4242 4242" disabled>
+                    <i class="far fa-credit-card"></i>
+                </div>
+            </div>
+            <div class="mock-row">
+                <div class="mock-col">
+                    <div class="mock-form-group">
+                        <label>Expiration</label>
+                        <input type="text" value="12/30" disabled>
+                    </div>
+                </div>
+                <div class="mock-col">
+                    <div class="mock-form-group">
+                        <label>CVC</label>
+                        <input type="text" value="123" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 
 function loadOrderSummary() {
     const orderItemsContainer = document.getElementById('order-items');
@@ -117,7 +177,7 @@ function loadOrderSummary() {
     }, 0);
 
     const deliveryFee = 200;
-    const tax = subtotal * 0.05;
+    const tax = subtotal * taxRate;
     const total = subtotal + deliveryFee + tax;
 
     // Update order items
@@ -142,9 +202,13 @@ function loadOrderSummary() {
     }).join('');
 
     // Update totals
-    document.getElementById('order-subtotal').textContent = `LKR ${subtotal.toFixed(2)}`;
-    document.getElementById('order-tax').textContent = `LKR ${tax.toFixed(2)}`;
-    document.getElementById('order-total').textContent = `LKR ${total.toFixed(2)}`;
+    const subtotalEl = document.getElementById('order-subtotal');
+    const taxEl = document.getElementById('order-tax');
+    const totalEl = document.getElementById('order-total');
+
+    if (subtotalEl) subtotalEl.textContent = `LKR ${subtotal.toFixed(2)}`;
+    if (taxEl) taxEl.textContent = `LKR ${tax.toFixed(2)}`;
+    if (totalEl) totalEl.textContent = `LKR ${total.toFixed(2)}`;
 
     // Pre-fill delivery form with user data
     if (orderData.user) {
@@ -165,20 +229,37 @@ function initEventListeners() {
         submitBtn.addEventListener('click', handlePayment);
     }
 
-    // Navigation
-    initNavigation();
+    // Security info button
+    const securityBtn = document.getElementById('security-info-btn');
+    if (securityBtn) {
+        securityBtn.addEventListener('click', showSecurityInfo);
+    }
 }
 
-function initNavigation() {
-    const hamburger = document.querySelector('.hamburger');
-    const navMenu = document.querySelector('.nav-menu');
+function showSecurityInfo() {
+    if (!window.CustomModal) return;
 
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-    }
+    window.CustomModal.show({
+        title: 'Payment Security',
+        content: `
+            <div style="font-family: 'Poppins', sans-serif;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--primary-green); opacity: 0.8;"></i>
+                </div>
+                <p style="color: #444; line-height: 1.6;">We take your security seriously. Your payment details are processed through <strong>Stripe</strong>, a global leader in payment processing.</p>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 12px; margin-top: 15px;">
+                    <h4 style="margin: 0 0 10px; font-size: 1rem; color: #333;"><i class="fas fa-check-circle" style="color: #4caf50;"></i> Security Features:</h4>
+                    <ul style="padding-left: 20px; color: #666; font-size: 0.9rem; margin: 0;">
+                        <li style="margin-bottom: 5px;">256-bit SSL/TLS Encryption</li>
+                        <li style="margin-bottom: 5px;">PCI DSS Level 1 Compliance</li>
+                        <li style="margin-bottom: 5px;">We never store your card numbers</li>
+                        <li>Fraud detection & prevention</li>
+                    </ul>
+                </div>
+            </div>
+        `,
+        confirmText: 'Understood'
+    });
 }
 
 async function handlePayment(event) {
@@ -211,20 +292,32 @@ async function handlePayment(event) {
     errorsDiv.textContent = '';
 
     try {
-        // Confirm payment with Stripe
-        const { error, paymentIntent } = await stripe.confirmPayment({
-            elements,
-            confirmParams: {
-                return_url: `${window.location.origin}/pages/payment-success.html`,
-            },
-            redirect: 'if_required'
-        });
+        let paymentSuccess = false;
 
-        if (error) {
-            throw error;
+        if (isMockPayment) {
+            // Simulate Payment Processing
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            paymentSuccess = true;
+        } else {
+            // Confirm payment with Stripe (Real Mode)
+            const { error, paymentIntent } = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: `${window.location.origin}/pages/payment-success.html`,
+                },
+                redirect: 'if_required'
+            });
+
+            if (error) {
+                throw error;
+            }
+
+            if (paymentIntent.status === 'succeeded') {
+                paymentSuccess = true;
+            }
         }
 
-        if (paymentIntent.status === 'succeeded') {
+        if (paymentSuccess) {
             // Mock Order Creation (Frontend Only)
             const orderId = window.Utils?.generateOrderId() || 'HB' + Date.now();
             const total = parseFloat(document.getElementById('order-total').textContent.replace('LKR ', '').replace(',', ''));
@@ -281,7 +374,8 @@ async function handlePayment(event) {
             // Show success and redirect
             showNotification('Payment successful! Order placed.', 'success');
             setTimeout(() => {
-                window.location.href = `/pages/payment-success.html?orderId=${orderId}`;
+                const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                window.location.href = appUrl + `/pages/payment-success.html?orderId=${orderId}`;
             }, 1500);
         }
 

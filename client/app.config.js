@@ -9,8 +9,9 @@ export const AppConfig = {
         keywords: "healthy meals, healthy body, healthy food, healthy eating",
         author: "Healthybite (PVT) LTD",
         copyright: `Copyright © ${new Date().getFullYear()} Healthybite (PVT) LTD. All rights reserved.`,
-        contact: "contact@healthybite.com",
         email: "office@healthybite.com",
+        contact: "contact@healthybite.com",
+        leagal: "legal@healthybite.com",
         phone: 771234567,
         address: "123 Main St, Anytown, USA",
         timezone: "UTC+05:30"
@@ -53,5 +54,7 @@ export const AppConfig = {
         enabled: false,
         level: "info",
         file: "app.log"
-    }
+    },
+    tax: 5,
+    deliveryFee: 200
 };

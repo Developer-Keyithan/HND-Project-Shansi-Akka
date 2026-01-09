@@ -70,7 +70,6 @@
         try {
             if (window.emailjs) {
                 await window.emailjs.send(EMAILJS_SERVICE_ID, templateId, templateParams);
-                console.log('Email sent successfully:', templateId);
             } else {
                 console.warn('EmailJS not loaded');
             }
@@ -148,6 +147,20 @@
         });
     }
 
+    // Reset Password (Mock)
+    async function resetPassword(token, newPassword) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                if (!token) {
+                    resolve({ success: false, error: 'Invalid or expired token.' });
+                    return;
+                }
+                // In a real app, verify token and update DB
+                resolve({ success: true, message: 'Password has been reset successfully.' });
+            }, 800);
+        });
+    }
+
     // Logout
     async function logoutUser() {
         removeCurrentUser();
@@ -167,6 +180,7 @@
         registerUser,
         logoutUser,
         forgotPassword,
+        resetPassword,
         sendEmail
     };
 })();

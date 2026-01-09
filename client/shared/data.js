@@ -3,6 +3,8 @@
 // This file relies on window.dictionary from dictionary.js which must be loaded before this.
 import { Dictionary } from "./dictionary.js";
 import { CurrencyRates } from "./currency-rate.js";
+import { PrivacyPolicy } from "./privacy-policy.js";
+import { TermsOfService } from "./terms-of-service.js";
 // User Data
 window.users = [
     { email: 'user@example.com', password: 'password123', name: 'John Doe', role: 'consumer' },
@@ -31,6 +33,12 @@ window.supportedLanguages = [
 
 // Dictionary
 window.dictionary = Dictionary;
+
+// Privacy Policy
+window.privacyPolicy = PrivacyPolicy;
+
+// Terms of Service
+window.termsOfService = TermsOfService;
 
 // Data Exports
 window.products = [
@@ -109,6 +117,41 @@ window.orders = [
 window.deliveryPartners = [
     { id: 1, name: "John Delivery", email: "john@healthybite.com", status: "active", deliveries: 124, rating: 4.8 },
     { id: 2, name: "Sarah Courier", email: "sarah@healthybite.com", status: "active", deliveries: 89, rating: 4.9 }
+];
+
+window.teamMembers = [
+    {
+        id: 1,
+        name: "Dr. Sarah Johnson",
+        role: "Chief Nutritionist",
+        bio: "Certified nutritionist with 15+ years of experience in clinical dietetics and sports nutrition.",
+        image: "https://randomuser.me/api/portraits/women/44.jpg",
+        icon: "fas fa-user-md"
+    },
+    {
+        id: 2,
+        name: "Chef Michael Chen",
+        role: "Head Chef",
+        bio: "Award-winning chef specializing in healthy cuisine. Former executive chef at GreenLeaf.",
+        image: "https://randomuser.me/api/portraits/men/32.jpg",
+        icon: "fas fa-utensils"
+    },
+    {
+        id: 3,
+        name: "Priya Sharma",
+        role: "Operations Manager",
+        bio: "Ensuring smooth operations and customer satisfaction. Expert in supply chain management.",
+        image: "https://randomuser.me/api/portraits/women/68.jpg",
+        icon: "fas fa-chart-line"
+    },
+    {
+        id: 4,
+        name: "Alex Silva",
+        role: "Sustainability Lead",
+        bio: "Passionately driving our zero-waste initiatives and sourcing organic partnerships.",
+        image: "https://randomuser.me/api/portraits/men/86.jpg",
+        icon: "fas fa-leaf"
+    }
 ];
 
 window.adminStats = { totalOrders: 1247, totalRevenue: 45678.90, activeUsers: 892, pendingDeliveries: 12, monthlyGrowth: 23.5, popularProducts: [1, 5, 3] };

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Details - healthybite</title>
     <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="/pages/pages.css">
+    <link rel="stylesheet" href="/pages/CSS/pages.css">
     <link rel="stylesheet" href="/plugins/fontawesome-free-7.1.0-web/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
@@ -40,11 +40,21 @@
         </div>
     </section>
 
+    <!-- Product Reviews -->
+    <section class="product-reviews-section">
+        <div class="container">
+            <h2 class="section-title">Customer Reviews</h2>
+            <div id="reviews-container" class="reviews-grid">
+                <!-- Reviews loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer id="footer-placeholder" class="footer"></footer>
 
     <script src="/load-scripts.js"></script>
-    <script src="product-view.js"></script>
+    <script type="module" src="JS/product-view.js"></script>
 
 
 </body>

@@ -140,6 +140,29 @@ scripts/
 └── fix-routing.js    # Script to fix all routing
 ```
 
+### 9. Popover & Modal System
+- ✅ Created `client/plugins/Modal/modal.js` - Advanced popover system
+- ✅ Supports multiple types: `alert`, `error`, `warning`, `info`, `success`, `confirm`
+- ✅ Dynamic content loading with `content` and `apiContent`
+- ✅ Smooth animations and backdrop handling
+- ✅ Integrated throughout the app for better user feedback
+
+### 10. Centralized Configuration
+- ✅ Created `client/app.config.js` - Single source of truth for app settings
+- ✅ Manages:
+  - Versioning
+  - API endpoints
+  - Tax and delivery fees
+  - Currency formatting
+  - Security requirements
+- ✅ Ensures consistency across all frontend modules
+
+### 11. Legal & Compliance
+- ✅ Created `pages/terms.html` - Terms and Conditions
+- ✅ Created `pages/privacy.html` - Privacy Policy
+- ✅ Linked in registration flow and footer
+
+
 ## 🔧 Configuration Required
 
 ### 1. EmailJS Setup

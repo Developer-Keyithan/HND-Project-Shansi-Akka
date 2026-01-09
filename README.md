@@ -38,50 +38,47 @@ A comprehensive online platform for HealthyBite (PVT) Ltd that enables owners to
 - **Hosting**: Vercel
 - **Routing**: Client-side routing (vanilla JavaScript)
 
+### For All Users
+- **Modern UI/UX**: Premium design with smooth animations and responsive layout
+- **Popover System**: Custom modal and notification system (Success, Error, Info, Warning, Confirm)
+- **Centralized Config**: Easily manage tax, delivery fees, and app settings via `app.config.js`
+- **Legal Compliance**: Dedicated Terms and Conditions and Privacy Policy pages
+
 ## 📁 Project Structure
 
 ```
-healthybite-platform/
-├── api/                    # Vercel serverless functions
-│   ├── auth/              # Authentication endpoints
-│   ├── products/          # Product management endpoints
-│   ├── orders/            # Order management endpoints
-│   ├── payments/          # Stripe payment endpoints
-│   └── config/            # Configuration endpoints
-├── assets/                # Images and static assets
-├── auth/                  # Authentication pages
-│   ├── login.html
-│   ├── register.html
-│   └── forgot-password.html
-├── dashboard/             # Dashboard pages for different user roles
-│   ├── admin.html
-│   ├── consumer.html
-│   ├── seller.html
-│   └── delivery-partner.html
-├── pages/                 # Main application pages
-│   ├── menu.html
-│   ├── cart.html
-│   ├── payment.html
-│   ├── product-view.html
-│   ├── profile.html
-│   ├── about.html
-│   ├── contact.html
-│   ├── faqs.html
-│   ├── diet-planning.html
-│   └── delivery-tracking.html
-├── shared/                # Shared utilities and modules
-│   ├── router.js          # Client-side routing
-│   ├── auth.js            # Authentication utilities
-│   ├── utils.js           # Utility functions
-│   └── data.js            # Mock data (for development)
-├── plugins/                # Third-party plugins
-│   └── Toast/             # Toast notification system
-├── index.html             # Homepage
-├── style.css              # Main stylesheet
-├── script.js              # Main JavaScript file
-├── package.json           # Dependencies
-├── vercel.json            # Vercel configuration
-└── README.md              # This file
+shansi-akka-hnd-project/
+├── api/                    # Vercel serverless functions (Backend)
+│   ├── auth/              # Authentication (Login, Register, Social)
+│   ├── logs/              # Logging system
+│   ├── orders/            # Order management
+│   ├── payments/          # Stripe payments
+│   ├── products/          # Product management
+│   └── users/             # User management
+├── client/                 # Frontend application
+│   ├── assets/            # Images and static assets
+│   ├── auth/              # Auth pages (Login, Register)
+│   ├── components/        # Reusable UI components
+│   ├── dashboard/         # Role-specific dashboards
+│   ├── pages/             # Main application pages
+│   │   ├── errors/        # Error pages (401, 404, etc.)
+│   │   ├── menu.html
+│   │   ├── cart.html
+│   │   ├── payment.html
+│   │   ├── product-view.html
+│   │   ├── terms.html
+│   │   └── privacy.html
+│   ├── plugins/           # Custom plugins (Modal/Popover, Toast)
+│   ├── shared/            # Shared JS (Router, Utils, Auth, Config)
+│   ├── app.config.js      # Central application configuration
+│   ├── index.html         # Entry point
+│   └── script.js          # Core application logic
+├── controllers/            # Backend controllers
+├── models/                 # Mongoose models
+├── middlewares/            # Express middlewares
+├── scripts/                # Maintenance scripts (Routing fixes)
+├── vercel.json            # Vercel deployment configuration
+└── package.json           # Project dependencies
 ```
 
 ## 🚀 Getting Started

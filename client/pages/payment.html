@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - healthybite</title>
     <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="/pages/pages.css">
+    <link rel="stylesheet" href="/pages/CSS/pages.css">
     <link rel="stylesheet" href="/plugins/fontawesome-free-7.1.0-web/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
@@ -17,7 +17,8 @@
             emailjs.init("YOUR_PUBLIC_KEY");
         })();
     </script>
-    <script src="https://js.stripe.com/v3/"></script>
+    <!-- Stripe JS (Uncomment when connecting to real backend) -->
+    <!-- <script src="https://js.stripe.com/v3/"></script> -->
 </head>
 
 <body>
@@ -53,10 +54,10 @@
                             <span>Delivery Fee</span>
                             <span>LKR 200.00</span>
                         </div>
-                        <div class="total-row">
+                        <!-- <div class="total-row">
                             <span>Tax (5%)</span>
                             <span id="order-tax">LKR 0.00</span>
-                        </div>
+                        </div> -->
                         <div class="total-divider"></div>
                         <div class="total-row total">
                             <span>Total</span>
@@ -110,11 +111,11 @@
 
                     <div class="payment-security">
                         <p><i class="fas fa-lock"></i> <span>Your payment is secured by
-                                Stripe</span></p>
+                                Stripe</span> <i class="fas fa-info-circle" id="security-info-btn"
+                                style="cursor: pointer; color: var(--primary-green); margin-left: 5px;"></i></p>
                         <div class="payment-icons">
                             <i class="fab fa-cc-visa"></i>
                             <i class="fab fa-cc-mastercard"></i>
-                            <i class="fab fa-cc-amex"></i>
                         </div>
                     </div>
                 </div>
@@ -126,7 +127,7 @@
     <footer id="footer-placeholder" class="footer"></footer>
 
     <script src="/load-scripts.js"></script>
-    <script type="module" src="payment.js"></script>
+    <script type="module" src="JS/payment.js"></script>
 
 
 </body>

@@ -23,6 +23,7 @@
 
 ### 4. Pages Created/Updated
 - ✅ contact.html - Complete contact page with form
+- ✅ terms.html & privacy.html - Legal compliance pages
 - ✅ All pages use absolute paths for CSS and JS
 
 ## 🔧 To Fix All Files
