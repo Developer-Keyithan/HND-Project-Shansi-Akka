@@ -3,8 +3,8 @@ export const AppConfig = {
     app: {
         version: "1.4.2",
         name: "Healthybite",
-        url: "http://localhost:5500",
-        logo: "http://localhost:5500/logo.png",
+        url: "http://localhost:3000",
+        logo: "http://localhost:3000/logo.png",
         description: "Healthy meals for a healthy body",
         keywords: "healthy meals, healthy body, healthy food, healthy eating",
         author: "Healthybite (PVT) LTD",
@@ -19,7 +19,7 @@ export const AppConfig = {
     api: {
         version: "1.0.0",
         prefix: "/api",
-        url: "http://localhost:5500/api"
+        url: "http://localhost:3000/api"
     },
     currency: {
         decimalSeparator: ".",
