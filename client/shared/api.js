@@ -1,158 +1,269 @@
 /**
  * API Service for HealthyBite
- * Simulates backend database calls using local data.
- * This abstraction allows for easy migration to a real backend later.
+ * Connects to the backend via /api/* endpoints.
  */
 
-import { products, users, orders, dietPlans, ctaOffer, termsOfService, privacyPolicy, teamMembers } from "./data.js";
+const BASE_URL = (window.location.port === '5500' || window.location.port === '5501')
+    ? `http://${window.location.hostname}:3000/api`
+    : '/api';
 
 export const API = {
-    _delay: (ms = 800) => new Promise(resolve => setTimeout(resolve, ms)),
+    // Helper for requests
+    _fetch: async (endpoint, options = {}) => {
+        try {
+            const url = `${BASE_URL}${endpoint}`;
+            const res = await fetch(url, {
+                headers: { 'Content-Type': 'application/json' },
+                ...options
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'API Request Failed');
+            return data;
+        } catch (error) {
+            console.error(`API Error (${endpoint}):`, error);
+            throw error;
+        }
+    },
 
-    // Products
-    getProducts: async () => {
-        await API._delay(500);
-        return products ? [...products] : [];
+    // --- Configuration ---
+    getConfig: async () => {
+        const res = await API._fetch('/config');
+        return res.config;
+    },
+
+    getStripeKey: async () => {
+        const res = await API._fetch('/config/stripe-key');
+        return res.publishableKey;
+    },
+
+    getSocialKeys: async () => {
+        return await API._fetch('/config/social-keys');
+    },
+
+    getCTAOffer: async () => {
+        const res = await API._fetch('/config/cta-offer');
+        return res.offer;
+    },
+
+    // --- Products ---
+    getProducts: async (params = {}) => {
+        const query = new URLSearchParams();
+        if (params.category) query.append('category', params.category);
+        if (params.search) query.append('search', params.search);
+        if (params.limit) query.append('limit', params.limit);
+
+        const url = `/products?${query.toString()}`;
+        const res = await API._fetch(url);
+        return res.products || [];
     },
 
     getProductById: async (id) => {
-        await API._delay(300);
-        // id might be string or number in data
-        return products.find(p => p.id == id);
+        const res = await API._fetch(`/products/${id}`);
+        return res.product;
     },
 
     getProductsByCategory: async (category) => {
-        await API._delay(500);
-        if (category === 'all') return [...products];
-        return products.filter(p => p.category === category);
+        const endpoint = category === 'all' ? '/products' : `/products?category=${category}`;
+        const res = await API._fetch(endpoint);
+        return res.products || [];
     },
 
-    // Users
-    login: async (email, password) => {
-        await API._delay(1000);
-        const user = users.find(u => u.email === email && u.password === password);
-        if (user) {
-            // Return user without password
-            const { password, ...userWithoutPassword } = user;
-            return {
-                success: true,
-                user: userWithoutPassword,
-                token: 'dummy-jwt-token-' + Date.now()
-            };
-        }
-        return { success: false, message: 'Invalid email or password' };
+    addProduct: async (productData) => {
+        return await API._fetch('/products', {
+            method: 'POST',
+            body: JSON.stringify(productData)
+        });
+    },
+
+    updateProduct: async (id, productData) => {
+        return await API._fetch(`/products?id=${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(productData)
+        });
+    },
+
+    deleteProduct: async (id) => {
+        return await API._fetch(`/products?id=${id}`, {
+            method: 'DELETE'
+        });
+    },
+
+    getCategories: async () => {
+        const res = await API._fetch('/categories');
+        return res.categories || [];
+    },
+
+    // --- Users (Auth) ---
+    login: async (email, password, cart = []) => {
+        // Assuming api/auth/login exists or created
+        // If not, I need to create it. I check 'api/auth' exists.
+        return await API._fetch('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password, cart })
+        });
     },
 
     register: async (userData) => {
-        await API._delay(1000);
-        if (users.find(u => u.email === userData.email)) {
-            return { success: false, message: 'Email already exists' };
-        }
-        const newUser = { ...userData, role: 'consumer', id: Date.now() };
-        users.push(newUser);
-        const { password, ...userWithoutPassword } = newUser;
-        return { success: true, user: userWithoutPassword, token: 'dummy-jwt-token-' + Date.now() };
+        // Ensure cart is included if present in localStorage
+        const cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
+        return await API._fetch('/auth/register', {
+            method: 'POST',
+            body: JSON.stringify({ ...userData, cart })
+        });
+    },
+
+    updateCart: async (userId, cart) => {
+        return await API._fetch('/users/cart', {
+            method: 'POST',
+            body: JSON.stringify({ userId, cart })
+        });
+    },
+
+    updateUserProfile: async (profileData) => {
+        return await API._fetch('/users/profile/update', {
+            method: 'POST',
+            body: JSON.stringify(profileData)
+        });
     },
 
     getUsers: async () => {
-        await API._delay(500);
-        return [...users];
+        return await API._fetch('/users');
     },
 
     saveUser: async (userData) => {
-        await API._delay(800);
-        const index = users.findIndex(u => u.email === userData.email || u.id === userData.id);
-        if (index !== -1) {
-            // Update
-            users[index] = { ...users[index], ...userData };
-            return { success: true, user: users[index] };
-        } else {
-            // Create
-            const newUser = { ...userData, id: Date.now() };
-            users.push(newUser);
-            return { success: true, user: newUser };
-        }
+        return await API._fetch('/users', {
+            method: 'POST',
+            body: JSON.stringify(userData)
+        });
     },
 
-    deleteUser: async (userId) => {
-        await API._delay(800);
-        const index = users.findIndex(u => u.id == userId || u.email === userId);
-        if (index !== -1) {
-            users.splice(index, 1);
-            return { success: true };
-        }
-        return { success: false, message: 'User not found' };
+    deleteUser: async (id) => {
+        return await API._fetch(`/users?id=${id}`, {
+            method: 'DELETE'
+        });
     },
 
-    // Orders
-    getUserOrders: async (email) => { // Using email as user ID for now
-        await API._delay(600);
-        // Combine mock data and local storage data
-        const localOrders = JSON.parse(localStorage.getItem('healthybite-orders') || '[]');
-        const mockOrders = orders || [];
-        // Filter by user email if available in order data, otherwise return all for demo
-        return [...localOrders, ...mockOrders].sort((a, b) => new Date(b.date) - new Date(a.date));
+    // --- Orders ---
+    getUserOrders: async (userId) => {
+        const res = await API._fetch(`/orders?userId=${userId}`);
+        return res.orders || [];
+    },
+
+    createOrder: async (orderData) => {
+        return await API._fetch('/orders', {
+            method: 'POST',
+            body: JSON.stringify(orderData)
+        });
     },
 
     getOrderById: async (orderId) => {
-        await API._delay(300);
-        const localOrders = JSON.parse(localStorage.getItem('healthybite-orders') || '[]');
-        const mockOrders = orders || [];
-        const allOrders = [...localOrders, ...mockOrders];
-        return allOrders.find(o => (o.orderId === orderId || o.id === orderId));
+        const res = await API._fetch(`/orders/${orderId}`);
+        return res.order;
     },
 
-    // Diet Plans
+    // --- Diet Plans ---
     getDietPlans: async () => {
-        await API._delay(400);
-        return dietPlans ? [...dietPlans] : [];
+        const res = await API._fetch('/diet-plans');
+        return res.plans || [];
     },
 
-    // Offers
-    getCTAOffer: async () => {
-        await API._delay(400);
-        return ctaOffer ? { ...ctaOffer } : null;
-    },
-
-    // Legal Content (Simulating DB Fetch)
-    getTermsOfService: async () => {
-        await API._delay(300);
-        return termsOfService ? { ...termsOfService } : null;
-    },
-
-    getPrivacyPolicy: async () => {
-        await API._delay(300);
-        return privacyPolicy ? { ...privacyPolicy } : null;
-    },
-
-    // Reviews (Mock)
-    getReviews: async (productId) => {
-        await API._delay(600);
-        // Returning empty array to showcase the "No reviews" empty state
+    getSubscriptions: async () => {
+        // Return mock or empty if not implemented in backend yet
         return [];
     },
 
-    // Subscriptions (Mock)
-    getSubscriptions: async () => {
-        await API._delay(500);
-        return [
-            { id: 1, name: "Weekly Basic", price: 1500, status: "active", nextDelivery: "2023-11-20" }
-        ];
+    // --- Legal ---
+    getTermsOfService: async () => {
+        const res = await API._fetch('/policies?type=terms');
+        return res.policy;
     },
 
-    // Team
+    getPrivacyPolicy: async () => {
+        const res = await API._fetch('/policies?type=privacy');
+        return res.policy;
+    },
+
+    // --- Translations ---
+    getTranslations: async (lang) => {
+        const res = await API._fetch(`/translations?lang=${lang}`);
+        return res.translations;
+    },
+
+    // --- FAQs ---
+    getFaqs: async () => {
+        const res = await API._fetch('/faqs');
+        return res.faqs || [];
+    },
+
+    // --- Team Members ---
     getTeamMembers: async () => {
-        await API._delay(400);
-        return teamMembers ? [...teamMembers] : [];
+        const res = await API._fetch('/team-members');
+        return res.members || [];
     },
 
-    // Payments (Mock)
-    createPaymentIntent: async (amount, currency, items) => {
-        await API._delay(1000);
-        return {
-            success: true,
-            clientSecret: 'mock_secret_' + Date.now(),
-            paymentIntentId: 'pi_mock_' + Date.now()
-        };
+    // --- Contact ---
+    submitContact: async (contactData) => {
+        return await API._fetch('/contact', {
+            method: 'POST',
+            body: JSON.stringify(contactData)
+        });
+    },
+
+    // --- Payments ---
+    createPaymentIntent: async (amount, currency, items, orderId) => {
+        return await API._fetch('/payments/create-intent', {
+            method: 'POST',
+            body: JSON.stringify({ amount, currency, items, orderId })
+        });
+    },
+
+    confirmPayment: async (paymentIntentId, orderId) => {
+        return await API._fetch('/payments/confirm', {
+            method: 'POST',
+            body: JSON.stringify({ paymentIntentId, orderId })
+        });
+    },
+
+    // --- Reviews ---
+    getReviews: async (params = {}) => {
+        const query = new URLSearchParams(params).toString();
+        const res = await API._fetch(`/reviews?${query}`);
+        return res.reviews || [];
+    },
+
+    addReview: async (reviewData) => {
+        return await API._fetch('/reviews', {
+            method: 'POST',
+            body: JSON.stringify(reviewData)
+        });
+    },
+
+    toggleFeaturedReview: async (reviewId, isFeatured) => {
+        return await API._fetch('/reviews', {
+            method: 'POST',
+            body: JSON.stringify({ reviewId, isFeatured })
+        });
+    },
+
+    // --- Social Auth ---
+    googleLogin: async (token) => {
+        return await API._fetch('/auth/google', {
+            method: 'POST',
+            body: JSON.stringify({ token })
+        });
+    },
+
+    facebookLogin: async (accessToken) => {
+        return await API._fetch('/auth/facebook', {
+            method: 'POST',
+            body: JSON.stringify({ accessToken })
+        });
+    },
+
+    // --- Stats ---
+    getStats: async () => {
+        const res = await API._fetch('/stats');
+        console.log(res);
+        return res.stats || null;
     }
 };

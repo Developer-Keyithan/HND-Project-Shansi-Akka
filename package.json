@@ -4,13 +4,15 @@
   "description": "Full stack deployment for HealthyBite",
   "type": "module",
   "scripts": {
-    "start": "echo \"Use 'npx vercel dev' to start locally\""
+    "start": "echo \"Use 'npx vercel dev' to start locally\"",
+    "dev": "nodemon server.js",
+    "seed": "node scripts/seed.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
     "emailjs": "^5.0.0",
-    "express": "^5.2.1",
     "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.3",
     "jwt-decode": "^4.0.0",
@@ -19,6 +21,8 @@
     "stripe": "^20.1.2"
   },
   "devDependencies": {
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.11"
   }
 }

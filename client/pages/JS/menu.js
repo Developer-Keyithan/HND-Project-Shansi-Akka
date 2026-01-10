@@ -1,7 +1,6 @@
 import { Toast } from "../../plugins/Toast/toast.js";
 import { API } from "../../shared/api.js";
 import { currentNav, formatCurrency, showLoading } from "../../shared/common.js";
-import { categories as categoriesData, products as productsData } from "../../shared/data.js";
 import { AppConfig } from "../../app.config.js";
 import { Navbar } from "../../components/navbar/navbar-functions.js";
 import { addToCart, updateCartCount } from "../../actions.js";
@@ -32,35 +31,49 @@ let maxPrice = 5000;
 let maxCalories = 1000;
 let visibleProducts = 6;
 let allProducts = [];
+let allCategories = [];
 
-function loadCategories() {
+async function loadCategories() {
     const container = document.getElementById('category-filters');
     if (!container) return;
 
-    container.innerHTML = categoriesData.map(category => `
-        <button class="category-filter-btn ${category.id === 'all' ? 'active' : ''}" 
-                data-category="${category.id}">
-            <i class="${category.icon}"></i>
-            <span>${category.name}</span>
-            <span class="category-count">${category.count}</span>
-        </button>
-    `).join('');
+    try {
+        const categories = await API.getCategories();
+        allCategories = categories;
 
-    // Add event listeners
-    container.querySelectorAll('.category-filter-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            // Update active button
-            container.querySelectorAll('.category-filter-btn').forEach(b => {
-                b.classList.remove('active');
+        // Ensure 'All' category exists if not returned by API or merge it
+        // Depending on seed, 'all' might be in DB or UI only.
+        // My seed script puts 'all' in DB.
+
+        container.innerHTML = categories.map(category => `
+            <button class="category-filter-btn ${category.id === 'all' || category.id === currentCategory ? 'active' : ''}" 
+                    data-category="${category.id}">
+                <i class="${category.icon}"></i>
+                <span>${category.name}</span>
+                <!-- Count is hard to dynamically get without aggregation, hiding or placeholder -->
+                <!-- <span class="category-count">${category.count || ''}</span> -->
+            </button>
+        `).join('');
+
+        // Add event listeners
+        container.querySelectorAll('.category-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                // Update active button
+                container.querySelectorAll('.category-filter-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+
+                // Update category and reload products
+                currentCategory = this.getAttribute('data-category');
+                visibleProducts = 6;
+                loadMenuProducts();
             });
-            this.classList.add('active');
-
-            // Update category and reload products
-            currentCategory = this.getAttribute('data-category');
-            visibleProducts = 6;
-            loadMenuProducts();
         });
-    });
+
+    } catch (err) {
+        console.error("Failed to load categories", err);
+    }
 }
 
 async function loadMenuProducts() {
@@ -118,7 +131,7 @@ async function loadMenuProducts() {
         if (currentCategory === 'all') {
             titleElement.textContent = 'All Healthy Meals';
         } else {
-            const category = categoriesData.find(c => c.id === currentCategory);
+            const category = allCategories.find(c => c.id === currentCategory);
             const catName = category ? category.name : 'Healthy Meals';
             titleElement.textContent = catName;
         }
@@ -126,10 +139,10 @@ async function loadMenuProducts() {
 
     // Render products
     container.innerHTML = displayProducts.map(product => `
-        <div class="product-card" data-id="${product.id}">
+        <div class="product-card" data-id="${product.id || product._id}">
             ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
             <div class="product-image">
-                <img src="../${product.image}" alt="${product.name}" loading="lazy">
+                <img src="../${product.image}" alt="${product.name}" loading="lazy" onerror="this.src='../assets/placeholder.jpg'">
             </div>
             <div class="product-info">
                 <h3 class="product-title">${product.name}</h3>
@@ -142,15 +155,15 @@ async function loadMenuProducts() {
                     </span>
                 </div>
                 <div class="product-nutrients">
-                    <span class="nutrient"><span>Protein</span>: ${product.nutrients.protein}g</span>
-                    <span class="nutrient"><span>Carbs</span>: ${product.nutrients.carbs}g</span>
-                    <span class="nutrient"><span>Fat</span>: ${product.nutrients.fat}g</span>
+                    <span class="nutrient"><span>Protein</span>: ${product.nutrients?.protein || 0}g</span>
+                    <span class="nutrient"><span>Carbs</span>: ${product.nutrients?.carbs || 0}g</span>
+                    <span class="nutrient"><span>Fat</span>: ${product.nutrients?.fat || 0}g</span>
                 </div>
                 <div class="product-actions">
-                    <button class="btn btn-add-to-cart" data-id="${product.id}">
+                    <button class="btn btn-add-to-cart" data-id="${product.id || product._id}">
                         <i class="fas fa-plus"></i> <span>Add to Cart</span>
                     </button>
-                    <button class="btn btn-view-details" data-id="${product.id}">
+                    <button class="btn btn-view-details" data-id="${product.id || product._id}">
                         <i class="fas fa-info-circle"></i> View Details
                     </button>
                 </div>
@@ -160,10 +173,17 @@ async function loadMenuProducts() {
 
     // Add event listeners
     container.querySelectorAll('.btn-add-to-cart').forEach(btn => {
-        btn.addEventListener('click', () => addToCart(parseInt(btn.getAttribute('data-id'))));
+        // Use correct ID access (likely _id from mongo, but maybe id field if preserved)
+        // My seed script didn't force _id to be number 1, 2. It lets Mongo generate ObjectId.
+        // But addToCart might expect number? No, JS is flexible.
+        // But addToCart in action.js might parseInt. I should check.
+        // For now, assume string IDs are fine.
+        const id = btn.getAttribute('data-id');
+        btn.addEventListener('click', () => addToCart(id));
     });
     container.querySelectorAll('.btn-view-details').forEach(btn => {
-        btn.addEventListener('click', () => viewProductDetails(parseInt(btn.getAttribute('data-id'))));
+        const id = btn.getAttribute('data-id');
+        btn.addEventListener('click', () => viewProductDetails(id));
     });
 
     // Show/hide load more button
@@ -273,12 +293,19 @@ async function performMenuSearch(queryOverride = null) {
         return;
     }
 
+    if (allProducts.length === 0) {
+        try {
+            allProducts = await API.getProducts();
+        } catch (e) { }
+    }
+
     // Filter products by search query
-    const filteredProducts = productsData.filter(product =>
+    // Update to check for nutrients safety
+    const filteredProducts = allProducts.filter(product =>
         product.name.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query) ||
-        product.category.toLowerCase().includes(query) ||
-        product.ingredients.some(ing => ing.toLowerCase().includes(query))
+        (product.category && product.category.toLowerCase().includes(query)) ||
+        (product.ingredients && product.ingredients.some(ing => ing.toLowerCase().includes(query)))
     );
 
     // Update UI
@@ -298,10 +325,11 @@ async function performMenuSearch(queryOverride = null) {
     }
 
     container.innerHTML = filteredProducts.map(product => `
-        <div class="product-card" data-id="${product.id}">
+        <div class="product-card" data-id="${product.id || product._id}">
             ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
             <div class="product-image">
-                <img src="../${product.image}" alt="${product.name}">
+                <img src="${product.image ? '../' + product.image : '../assets/placeholder.jpg'}" alt="${product.name}" 
+                     onerror="this.src='../assets/placeholder.jpg'">
             </div>
             <div class="product-info">
                 <h3 class="product-title">${product.name}</h3>
@@ -314,10 +342,10 @@ async function performMenuSearch(queryOverride = null) {
                     </span>
                 </div>
                 <div class="product-actions">
-                    <button class="btn btn-add-to-cart" data-id="${product.id}">
+                    <button class="btn btn-add-to-cart" data-id="${product.id || product._id}">
                         <i class="fas fa-plus"></i> Add to Cart
                     </button>
-                    <button class="btn btn-view-details" data-id="${product.id}">
+                    <button class="btn btn-view-details" data-id="${product.id || product._id}">
                         <i class="fas fa-info-circle"></i> View Details
                     </button>
                 </div>
@@ -327,10 +355,12 @@ async function performMenuSearch(queryOverride = null) {
 
     // Add event listeners
     container.querySelectorAll('.btn-add-to-cart').forEach(btn => {
-        btn.addEventListener('click', () => addToCart(parseInt(btn.getAttribute('data-id'))));
+        const id = btn.getAttribute('data-id');
+        btn.addEventListener('click', () => addToCart(id));
     });
     container.querySelectorAll('.btn-view-details').forEach(btn => {
-        btn.addEventListener('click', () => viewProductDetails(parseInt(btn.getAttribute('data-id'))));
+        const id = btn.getAttribute('data-id');
+        btn.addEventListener('click', () => viewProductDetails(id));
     });
 
     const loadMoreContainer = document.getElementById('load-more-container');

@@ -27,7 +27,8 @@ export async function registerUser(req, res) {
             name,
             role: role || 'consumer',
             phone,
-            address
+            address,
+            cart: req.body.cart || [] // Accept initial cart
         });
 
         await newUser.save();
@@ -46,7 +47,7 @@ export async function registerUser(req, res) {
             role: newUser.role,
             phone: newUser.phone,
             address: newUser.address,
-            password: newUser.password
+            cart: newUser.cart
         };
 
         res.status(201).json({
@@ -79,6 +80,29 @@ export async function login(req, res) {
             return res.status(400).json({ error: "Invalid password" });
         }
 
+        // Merge cart if provided
+        if (req.body.cart && Array.isArray(req.body.cart) && req.body.cart.length > 0) {
+            // Simple merge logic: for now let's just replace if it's there, 
+            // or we could append. User said "move the database", usually implies merge or replace.
+            // Let's replace the DB cart with local cart if local cart has items, 
+            // OR smarter: merge items by product ID.
+
+            const localCart = req.body.cart;
+            const dbCart = user.cart || [];
+
+            // Merge logic
+            localCart.forEach(localItem => {
+                const dbItemIndex = dbCart.findIndex(i => i.id == localItem.id);
+                if (dbItemIndex > -1) {
+                    dbCart[dbItemIndex].quantity += localItem.quantity;
+                } else {
+                    dbCart.push(localItem);
+                }
+            });
+            user.cart = dbCart;
+            await user.save();
+        }
+
         // Generate JWT token
         const token = jwt.sign(
             { id: user._id, role: user.role },
@@ -92,7 +116,8 @@ export async function login(req, res) {
                 id: user._id.toString(),
                 email: user.email,
                 name: user.name,
-                role: user.role
+                role: user.role,
+                cart: user.cart
             },
             token
         });

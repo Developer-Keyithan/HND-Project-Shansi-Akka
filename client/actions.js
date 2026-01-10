@@ -21,13 +21,13 @@ export async function addToCart(productId) {
     }
 
     // Check if product is already in cart
-    const existingItem = cart.find(item => item.id === productId);
+    const existingItem = cart.find(item => item.id == productId || item._id == productId);
 
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
         cart.push({
-            id: product.id,
+            id: product._id || product.id,
             name: product.name,
             price: product.price,
             image: product.image,
@@ -37,6 +37,16 @@ export async function addToCart(productId) {
 
     // Save to localStorage
     localStorage.setItem('healthybite-cart', JSON.stringify(cart));
+
+    // Sync with DB if logged in
+    const user = Auth.getCurrentUser();
+    if (user && user.id) {
+        try {
+            await API.updateCart(user.id, cart);
+        } catch (e) {
+            console.warn("Failed to sync cart with database", e);
+        }
+    }
 
     // Update cart count
     updateCartCount();

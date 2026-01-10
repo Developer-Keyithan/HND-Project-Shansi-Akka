@@ -87,22 +87,36 @@ async function saveProfile(e) {
     if (!currentUser) return;
 
     const formData = {
+        userId: currentUser.id || currentUser._id,
         name: document.getElementById('profile-name-input').value,
         email: document.getElementById('profile-email-input').value,
         phone: document.getElementById('profile-phone-input').value,
         address: document.getElementById('profile-address-input').value
     };
 
-    try {
-        // Update user in localStorage
-        const updatedUser = { ...currentUser, ...formData };
-        Auth.setCurrentUser(updatedUser);
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    submitBtn.disabled = true;
 
-        showNotification('Profile updated successfully!', 'success');
-        loadProfile();
-        Navbar.updateUserMenu();
+    try {
+        const result = await API.updateUserProfile(formData);
+
+        if (result.success) {
+            // Update user in localStorage
+            Auth.setCurrentUser(result.user);
+
+            showNotification('Profile updated successfully!', 'success');
+            loadProfile();
+            Navbar.updateUserMenu();
+        }
     } catch (error) {
-        showNotification('Failed to update profile', 'error');
+        console.error("Profile update error:", error);
+        showNotification(error.message || 'Failed to update profile', 'error');
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     }
 }
 
@@ -116,7 +130,7 @@ async function loadOrders() {
     showLoading(ordersContainer, 'Loading orders...');
 
     try {
-        const orders = await API.getUserOrders(currentUser.email);
+        const orders = await API.getUserOrders(currentUser.id);
         renderOrders(orders);
     } catch (error) {
         console.error('Failed to load orders:', error);

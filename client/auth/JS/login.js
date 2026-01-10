@@ -165,10 +165,11 @@ function initSocialLogin() {
         googleBtn.addEventListener('click', async () => {
             try {
                 Logger.info('Google login initiated');
-                const user = await SocialAuth.signInWithGoogle();
+                const result = await SocialAuth.signInWithGoogle();
 
-                if (user) {
-                    Auth.setCurrentUser(user);
+                if (result && result.success) {
+                    const user = result.user;
+                    Auth.setCurrentUser(user, result.token);
                     Logger.info('Google login successful', { userId: user.id });
 
                     // Send notification
@@ -178,7 +179,16 @@ function initSocialLogin() {
                     showNotification('Login successful!', 'success');
                     setTimeout(() => {
                         const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
-                        window.location.href = appUrl + '/dashboard/consumer.html';
+                        const redirectPaths = {
+                            'admin': '/dashboard/admin.html',
+                            'administrator': '/dashboard/admin.html',
+                            'seller': '/dashboard/seller.html',
+                            'delivery-partner': '/dashboard/delivery-partner.html',
+                            'delivery-man': '/dashboard/delivery-man.html',
+                            'technical-supporter': '/dashboard/technical.html'
+                        };
+                        const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
+                        window.location.href = appUrl + redirectPath;
                     }, 1000);
                 }
             } catch (error) {

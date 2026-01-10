@@ -1,5 +1,6 @@
 import Order from "../models/order.model.js";
 import connectDB from "../lib/db.js";
+import { updateStatsOnOrder } from "./stats.controller.js";
 
 // Get orders
 export async function getOrders(req, res) {
@@ -46,6 +47,10 @@ export async function updateOrder(req, res) {
             { status, updatedAt: new Date() },
             { new: true }
         );
+
+        if (order && status === 'delivered') {
+            updateStatsOnOrder(order._id).catch(console.error);
+        }
 
         res.status(200).json({ success: true, order });
     } catch (error) {

@@ -20,14 +20,18 @@ export function getCurrentUser() {
     }
 }
 
-// Set current user
-export function setCurrentUser(user) {
+// Set current user and token
+export function setCurrentUser(user, token) {
     localStorage.setItem('healthybite-user', JSON.stringify(user));
+    if (token) {
+        localStorage.setItem('healthybite-token', token);
+    }
 }
 
 // Remove current user (logout)
 export function removeCurrentUser() {
     localStorage.removeItem('healthybite-user');
+    localStorage.removeItem('healthybite-token');
     const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
     window.location.href = appUrl + '/index.html';
 }
@@ -75,16 +79,18 @@ export async function sendEmail(templateId, templateParams) {
 // Authenticate user (Mock)
 export async function loginUser(email, password) {
     try {
+        // Get local cart
+        const localCart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
+
         // Use API for validation
-        const result = await API.login(email, password);
+        const result = await API.login(email, password, localCart);
 
         if (result.success) {
-            // NOTE: We don't automatically set session here in pure API approach,
-            // but the caller expects it? 
-            // Previous code did set it. Let's keep consistency.
-            // Actually previous code:
-            // if (result.success) { setCurrentUser(result.user); return result; }
-            setCurrentUser(result.user);
+            // Clear local cart now that it's moved to DB
+            if (localCart.length > 0) {
+                localStorage.removeItem('healthybite-cart');
+            }
+            setCurrentUser(result.user, result.token);
             return result;
         } else {
             return { success: false, error: result.message };
@@ -101,7 +107,9 @@ export async function registerUser(userData) {
         const result = await API.register(userData);
 
         if (result.success) {
-            setCurrentUser(result.user);
+            // Clear local cart after registration moves it to DB
+            localStorage.removeItem('healthybite-cart');
+            setCurrentUser(result.user, result.token);
 
             // Send Welcome Email
             // We use the simpler method signature for generic emails or the specific one

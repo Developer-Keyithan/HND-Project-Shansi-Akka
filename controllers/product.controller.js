@@ -38,3 +38,35 @@ export async function createProduct(req, res) {
         res.status(500).json({ error: "Internal server error" });
     }
 }
+
+// Update product
+export async function updateProduct(req, res) {
+    try {
+        await connectDB();
+        const { id } = req.query;
+        const updatedProduct = await Product.findByIdAndUpdate(id, req.body, { new: true });
+        if (!updatedProduct) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+        res.status(200).json({ success: true, product: updatedProduct });
+    } catch (error) {
+        console.error("Update Product Error:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+// Delete product
+export async function deleteProduct(req, res) {
+    try {
+        await connectDB();
+        const { id } = req.query;
+        const deletedProduct = await Product.findByIdAndDelete(id);
+        if (!deletedProduct) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+        res.status(200).json({ success: true, message: "Product deleted" });
+    } catch (error) {
+        console.error("Delete Product Error:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
