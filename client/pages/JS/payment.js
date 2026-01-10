@@ -8,7 +8,7 @@ import { Common } from "../../shared/common.js";
 import { products as productsData } from "../../shared/data.js";
 import { showNotification, updateCartCount } from "../../actions.js";
 
-setEnv('production');
+// setEnv('production');
 
 let stripe;
 let elements;

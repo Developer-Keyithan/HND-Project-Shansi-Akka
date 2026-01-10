@@ -4,6 +4,12 @@ export const setEnv = (env) => {
     NODE_ENV = env;
 }
 
+if (window.location.origin.includes("localhost")) {
+    setEnv("development");
+} else {
+    setEnv("production");
+}
+
 export const isDev = () => NODE_ENV === "development";
 export const isProduction = () => NODE_ENV === "production"
 const path = window.location.pathname;
