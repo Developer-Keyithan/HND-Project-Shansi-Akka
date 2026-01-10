@@ -1,4 +1,5 @@
 // Client-side Router
+import { ClientRoot } from "./env.js";
 // Handles navigation without .html extensions matching the folder structure
 
 // API Check removed as it's not strictly needed for router interception logic.
@@ -63,8 +64,7 @@ async function handleLocation() {
         if (!response.ok) {
             // Handle 404
             console.warn(`Page not found: ${fetchPath}`);
-            const root = window.ClientRoot || '';
-            const errorPath = root + 'pages/errors/404.html';
+            const errorPath = ClientRoot + 'pages/errors/404.html';
 
             try {
                 const errorResponse = await fetch(errorPath);

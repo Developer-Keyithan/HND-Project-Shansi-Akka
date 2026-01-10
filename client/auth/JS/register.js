@@ -1,4 +1,7 @@
 import { Toast } from "../../plugins/Toast/toast.js";
+import { Auth } from "../../shared/auth.js";
+import { AppConfig } from "../../app.config.js";
+import { showNotification } from "../../actions.js";
 
 document.addEventListener('DOMContentLoaded', function () {
     // Check for existing session
@@ -8,27 +11,19 @@ document.addEventListener('DOMContentLoaded', function () {
             const user = JSON.parse(userStr);
             const redirectPaths = {
                 'admin': '/dashboard/admin.html',
+                'administrator': '/dashboard/admin.html',
                 'seller': '/dashboard/seller.html',
                 'delivery-partner': '/dashboard/delivery-partner.html',
-                'delivery-man': '/dashboard/delivery-man.html'
+                'delivery-man': '/dashboard/delivery-man.html',
+                'technical-supporter': '/dashboard/technical.html'
             };
             const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-            const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+            const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
             window.location.href = appUrl + redirectPath;
             return;
         } catch (e) {
             localStorage.removeItem('healthybite-user');
         }
-    }
-
-    // Helper function for notifications
-    function showNotification(message, type = 'info') {
-        const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
-        Toast({
-            icon: type,
-            title: capitalizedType,
-            message: message
-        });
     }
 
     // Toggle password visibility
@@ -40,65 +35,74 @@ document.addEventListener('DOMContentLoaded', function () {
     const strengthLevel = document.getElementById('strength-level');
     const passwordMatchIndicator = document.getElementById('password-match-indicator');
 
-    togglePassword.addEventListener('click', function () {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-    });
+    if (togglePassword) {
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+    }
 
-    toggleConfirmPassword.addEventListener('click', function () {
-        const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        confirmPasswordInput.setAttribute('type', type);
-        this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-    });
+    if (toggleConfirmPassword) {
+        toggleConfirmPassword.addEventListener('click', function () {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+    }
 
     // Password strength checker
-    passwordInput.addEventListener('input', function () {
-        const password = this.value;
-        let strength = 0;
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function () {
+            const password = this.value;
+            let strength = 0;
 
-        // Criteria checks
-        if (password.length >= 8) strength++;
-        if (/[A-Z]/.test(password)) strength++;
-        if (/[0-9]/.test(password)) strength++;
-        if (/[^A-Za-z0-9]/.test(password)) strength++;
+            // Criteria checks
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
 
-        // Update strength indicator
-        if (password.length === 0) {
-            resetPasswordStrength();
-        } else if (strength <= 1) {
-            strengthBar.className = 'strength-bar weak';
-            strengthLevel.textContent = 'Weak';
-            strengthLevel.style.color = '#dc3545';
-        } else if (strength <= 2) {
-            strengthBar.className = 'strength-bar fair';
-            strengthLevel.textContent = 'Fair';
-            strengthLevel.style.color = '#ffc107';
-        } else {
-            strengthBar.className = 'strength-bar good';
-            strengthLevel.textContent = 'Good';
-            strengthLevel.style.color = '#28a745';
-        }
-    });
+            // Update strength indicator
+            if (password.length === 0) {
+                resetPasswordStrength();
+            } else if (strength <= 1) {
+                strengthBar.className = 'strength-bar weak';
+                strengthLevel.textContent = 'Weak';
+                strengthLevel.style.color = '#dc3545';
+            } else if (strength <= 2) {
+                strengthBar.className = 'strength-bar fair';
+                strengthLevel.textContent = 'Fair';
+                strengthLevel.style.color = '#ffc107';
+            } else {
+                strengthBar.className = 'strength-bar good';
+                strengthLevel.textContent = 'Good';
+                strengthLevel.style.color = '#28a745';
+            }
+        });
+    }
 
     // Password match checker
-    confirmPasswordInput.addEventListener('input', function () {
-        const password = passwordInput.value;
-        const confirmPassword = this.value;
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', function () {
+            const password = passwordInput.value;
+            const confirmPassword = this.value;
 
-        if (confirmPassword.length === 0) {
-            resetPasswordMatch();
-        } else if (password === confirmPassword) {
-            passwordMatchIndicator.textContent = '✓ Passwords match';
-            passwordMatchIndicator.className = 'password-match match';
-        } else {
-            passwordMatchIndicator.textContent = '✗ Passwords do not match';
-            passwordMatchIndicator.className = 'password-match no-match';
-        }
-    });
+            if (confirmPassword.length === 0) {
+                resetPasswordMatch();
+            } else if (password === confirmPassword) {
+                passwordMatchIndicator.textContent = '✓ Passwords match';
+                passwordMatchIndicator.className = 'password-match match';
+            } else {
+                passwordMatchIndicator.textContent = '✗ Passwords do not match';
+                passwordMatchIndicator.className = 'password-match no-match';
+            }
+        });
+    }
 
     // Reset password strength indicator
     function resetPasswordStrength() {
+        if (!strengthBar) return;
         strengthBar.className = 'strength-bar';
         strengthBar.style.width = '0%';
         strengthLevel.textContent = 'Weak';
@@ -107,6 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Reset password match indicator
     function resetPasswordMatch() {
+        if (!passwordMatchIndicator) return;
         passwordMatchIndicator.textContent = '';
         passwordMatchIndicator.className = 'password-match';
     }
@@ -147,7 +152,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Form validation and submission
     const registerForm = document.getElementById('registerForm');
-    const submitBtn = registerForm.querySelector('button[type="submit"]');
+    const submitBtn = registerForm ? registerForm.querySelector('button[type="submit"]') : null;
+
+    if (!registerForm || !submitBtn) return;
 
     // Initial disable
     submitBtn.disabled = true;
@@ -158,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const phone = document.getElementById('phone').value.trim();
         const password = passwordInput.value;
         const confirmPassword = confirmPasswordInput.value;
-        const acceptTerms = document.getElementById('acceptTerms').checked;
+        const acceptTerms = document.getElementById('acceptTerms')?.checked;
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -212,9 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const password = passwordInput.value;
 
         try {
-            if (!window.Auth) throw new Error("Auth module missing");
-
-            const result = await window.Auth.registerUser({
+            const result = await Auth.registerUser({
                 name: fullName,
                 email: email,
                 phone: phone,
@@ -224,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (result.success) {
                 showNotification('Account created successfully! Welcome to healthybite.', 'success');
                 setTimeout(() => {
-                    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                    const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
                     window.location.href = appUrl + '/dashboard/consumer.html';
                 }, 1500);
             } else {
@@ -246,7 +251,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Google sign-in check
-    document.querySelector('.btn-google').addEventListener('click', function () {
-        showNotification('Google sign-in would be implemented here.', 'info');
-    });
+    const googleBtn = document.querySelector('.btn-google');
+    if (googleBtn) {
+        googleBtn.addEventListener('click', function () {
+            showNotification('Google sign-in would be implemented here.', 'info');
+        });
+    }
 });

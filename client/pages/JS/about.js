@@ -1,4 +1,6 @@
 // About Page JavaScript
+import { API } from '../../shared/api.js';
+import { showLoading } from '../../shared/common.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Other initializations if any (like animations) can go here
@@ -11,13 +13,10 @@ async function loadTeamMembers() {
     if (!container) return;
 
     // Show loading state
-    window.Common.showLoading(container, 'Loading team...');
+    showLoading(container, 'Loading team...');
 
     try {
-        // Wait for API to be ready
-        await waitForAPI();
-
-        const team = await window.API.getTeamMembers();
+        const team = await API.getTeamMembers();
 
         if (team && team.length > 0) {
             container.innerHTML = team.map(member => `
@@ -39,16 +38,4 @@ async function loadTeamMembers() {
         console.error('Error loading team:', error);
         container.innerHTML = '<p class="error-text text-center col-span-full">Failed to load team members.</p>';
     }
-}
-
-async function waitForAPI() {
-    return new Promise(resolve => {
-        if (window.API) return resolve();
-        const interval = setInterval(() => {
-            if (window.API) {
-                clearInterval(interval);
-                resolve();
-            }
-        }, 50);
-    });
 }

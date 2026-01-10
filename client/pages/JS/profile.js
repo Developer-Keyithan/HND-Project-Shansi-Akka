@@ -1,24 +1,14 @@
 // Profile Page JavaScript
-import { Toast } from "../../plugins/Toast/toast.js";
+import { Auth } from "../../shared/auth.js";
+import { showLoading, formatDate } from "../../shared/common.js";
+import { API } from "../../shared/api.js";
+import { AppConfig } from "../../app.config.js";
+import { Navbar } from "../../components/navbar/navbar-functions.js";
+import { showNotification, updateCartCount } from "../../actions.js";
 
-// Helper to wait for Auth to be loaded by load-scripts.js
-async function waitForAuth() {
-    return new Promise(resolve => {
-        if (window.Auth) return resolve();
-        const interval = setInterval(() => {
-            if (window.Auth) {
-                clearInterval(interval);
-                resolve();
-            }
-        }, 50);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', async function () {
-    await waitForAuth();
-
+document.addEventListener('DOMContentLoaded', function () {
     // Check authentication
-    if (!window.Auth?.requireAuth()) {
+    if (!Auth.requireAuth()) {
         return;
     }
 
@@ -42,63 +32,26 @@ function initEventListeners() {
     if (profileForm) {
         profileForm.addEventListener('submit', saveProfile);
     }
-
-    // Update user menu
-    updateUserMenu();
-}
-
-function updateUserMenu() {
-    const userMenu = document.querySelector('.user-menu');
-    if (!userMenu) return;
-
-    const currentUser = window.Auth?.getCurrentUser();
-
-    if (currentUser) {
-        userMenu.innerHTML = `
-            <div class="user-dropdown">
-                <button class="user-profile-btn">
-                    <i class="fas fa-user-circle"></i>
-                    <span>${currentUser.name.split(' ')[0]}</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a href="../dashboard/consumer.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
-                    <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </div>
-            </div>
-        `;
-
-        const logoutBtn = document.getElementById('logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await window.Auth?.logoutUser();
-                const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
-                window.location.href = appUrl + '/index.html';
-            });
-        }
-    }
 }
 
 function loadProfile() {
-    const currentUser = window.Auth?.getCurrentUser();
+    const currentUser = Auth.getCurrentUser();
 
     if (!currentUser) {
-        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+        const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
         window.location.href = appUrl + '/auth/login.html';
         return;
     }
 
     // Update profile display
-    document.getElementById('profile-name').textContent = currentUser.name || 'User';
-    document.getElementById('profile-email').textContent = currentUser.email || '';
+    if (document.getElementById('profile-name')) document.getElementById('profile-name').textContent = currentUser.name || 'User';
+    if (document.getElementById('profile-email')) document.getElementById('profile-email').textContent = currentUser.email || '';
 
     // Fill form
-    document.getElementById('profile-name-input').value = currentUser.name || '';
-    document.getElementById('profile-email-input').value = currentUser.email || '';
-    document.getElementById('profile-phone-input').value = currentUser.phone || '';
-    document.getElementById('profile-address-input').value = currentUser.address || '';
+    if (document.getElementById('profile-name-input')) document.getElementById('profile-name-input').value = currentUser.name || '';
+    if (document.getElementById('profile-email-input')) document.getElementById('profile-email-input').value = currentUser.email || '';
+    if (document.getElementById('profile-phone-input')) document.getElementById('profile-phone-input').value = currentUser.phone || '';
+    if (document.getElementById('profile-address-input')) document.getElementById('profile-address-input').value = currentUser.address || '';
 
     // Load orders
     loadOrders();
@@ -130,7 +83,7 @@ function showSection(sectionId) {
 async function saveProfile(e) {
     e.preventDefault();
 
-    const currentUser = window.Auth?.getCurrentUser();
+    const currentUser = Auth.getCurrentUser();
     if (!currentUser) return;
 
     const formData = {
@@ -143,39 +96,37 @@ async function saveProfile(e) {
     try {
         // Update user in localStorage
         const updatedUser = { ...currentUser, ...formData };
-        window.Auth?.setCurrentUser(updatedUser);
-
-        // In production, make API call to update user
-        // await fetch('/api/users/update', { ... });
+        Auth.setCurrentUser(updatedUser);
 
         showNotification('Profile updated successfully!', 'success');
         loadProfile();
+        Navbar.updateUserMenu();
     } catch (error) {
         showNotification('Failed to update profile', 'error');
     }
 }
 
 async function loadOrders() {
-    const currentUser = window.Auth?.getCurrentUser();
+    const currentUser = Auth.getCurrentUser();
     if (!currentUser) return;
 
     const ordersContainer = document.getElementById('orders-list');
+    if (!ordersContainer) return;
 
-    // Set loading state if needed
-    window.Common.showLoading(ordersContainer, 'Loading orders...');
+    showLoading(ordersContainer, 'Loading orders...');
 
     try {
-        const orders = await window.API.getUserOrders(currentUser.email);
+        const orders = await API.getUserOrders(currentUser.email);
         renderOrders(orders);
     } catch (error) {
         console.error('Failed to load orders:', error);
         ordersContainer.innerHTML = '<p class="error-text">Failed to load orders. Please try again.</p>';
-        // Fallback or empty state handled by renderOrders if needed
     }
 }
 
 function renderOrders(orders) {
     const ordersContainer = document.getElementById('orders-list');
+    if (!ordersContainer) return;
 
     if (!orders || orders.length === 0) {
         ordersContainer.innerHTML = `
@@ -194,7 +145,7 @@ function renderOrders(orders) {
             <div class="order-header">
                 <div>
                     <h3>Order #${order.orderId || order.id}</h3>
-                    <p class="order-date">${window.Utils?.formatDate(order.date || order.createdAt) || 'N/A'}</p>
+                    <p class="order-date">${formatDate(order.date || order.createdAt) || 'N/A'}</p>
                 </div>
                 <span class="order-status status-${order.status}">${order.status}</span>
             </div>
@@ -219,13 +170,13 @@ function renderOrders(orders) {
 
 async function loadDietPlans() {
     const plansContainer = document.getElementById('diet-plans-list');
+    if (!plansContainer) return;
 
-    // Set loading
-    window.Common.showLoading(plansContainer, 'Loading plans...');
+    showLoading(plansContainer, 'Loading plans...');
 
     try {
-        const plans = await window.API.getDietPlans();
-        renderDietPlans(plans); // Helper function or inline
+        const plans = await API.getDietPlans();
+        renderDietPlans(plans);
     } catch (err) {
         console.error(err);
         plansContainer.innerHTML = 'Failed to load plans.';
@@ -234,8 +185,9 @@ async function loadDietPlans() {
 
 function renderDietPlans(plans) {
     const plansContainer = document.getElementById('diet-plans-list');
+    if (!plansContainer) return;
 
-    if (plans.length === 0) {
+    if (!plans || plans.length === 0) {
         plansContainer.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-heart"></i>
@@ -258,23 +210,5 @@ function renderDietPlans(plans) {
             <a href="diet-planning.html?plan=${plan.id}" class="btn btn-outline">View Plan</a>
         </div>
     `).join('');
-}
-
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    const cartCount = document.querySelector('.cart-count');
-    if (cartCount) {
-        cartCount.textContent = totalItems;
-        cartCount.style.display = totalItems > 0 ? 'flex' : 'none';
-    }
-}
-
-function showNotification(message, type = 'info') {
-    Toast({
-        icon: type,
-        title: type.charAt(0).toUpperCase() + type.slice(1),
-        message: message
-    });
 }
 

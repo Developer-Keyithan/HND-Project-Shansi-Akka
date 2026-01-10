@@ -30,11 +30,11 @@
 
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="#overview" onclick="loadSection('overview')" class="active"><i class="fas fa-home"></i>
+                    <li><a href="#overview" class="active"><i class="fas fa-home"></i>
                             Dashboard</a></li>
-                    <li><a href="#products" onclick="loadSection('products')"><i class="fas fa-box"></i> My Products</a>
+                    <li><a href="#products"><i class="fas fa-box"></i> My Products</a>
                     </li>
-                    <li><a href="#orders" onclick="loadSection('orders')"><i class="fas fa-shopping-bag"></i> Orders</a>
+                    <li><a href="#orders"><i class="fas fa-shopping-bag"></i> Orders</a>
                     </li>
                     <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
@@ -111,9 +111,7 @@
         </main>
     </div>
 
-    <script src="/shared/data.js"></script>
-    <script src="/shared/auth.js"></script>
-    <script src="JS/seller.js"></script>
+    <script type="module" src="JS/seller.js"></script>
 </body>
 
 </html>

@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - healthybite</title>
     <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="/pages/CSS/pages.css">
-    <link rel="stylesheet" href="/plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link rel="stylesheet" href="../pages/CSS/pages.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
         rel="stylesheet">
@@ -68,6 +68,16 @@
 
                 <!-- Payment Form -->
                 <div class="payment-form-container">
+
+                    <!-- Saved Addresses -->
+                    <div id="saved-addresses-container" class="saved-section hidden">
+                        <div class="section-header">
+                            <h2>Saved Addresses</h2>
+                            <button class="btn-text" id="manage-addresses-btn">Manage</button>
+                        </div>
+                        <div id="saved-addresses-list" class="saved-list"></div>
+                    </div>
+
                     <h2>Delivery Information</h2>
                     <form id="delivery-form" class="delivery-form">
                         <div class="form-group">
@@ -83,8 +93,21 @@
                             <textarea id="delivery-address" rows="3" required></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="delivery-notes">Special Instructions
-                                (Optional)</label>
+                            <label for="address-type">Address Type</label>
+                            <select id="address-type" class="select-input">
+                                <option value="Home">Home</option>
+                                <option value="Office">Office</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <button type="button" id="save-address-btn" class="btn-toggle">
+                                <i class="far fa-square"></i> Save this address
+                            </button>
+                            <input type="hidden" id="save-address">
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-notes">Special Instructions (Optional)</label>
                             <textarea id="delivery-notes" rows="2"></textarea>
                         </div>
                     </form>
@@ -97,9 +120,25 @@
                         </div>
                     </div>
 
+                    <!-- Saved Cards -->
+                    <div id="saved-cards-container" class="saved-section hidden">
+                        <div class="section-header">
+                            <h3>Saved Cards</h3>
+                            <button class="btn-text" id="manage-cards-btn">Manage</button>
+                        </div>
+                        <div id="saved-cards-list" class="saved-list"></div>
+                    </div>
+
                     <!-- Stripe Payment Element -->
                     <div id="payment-element" class="stripe-payment-element">
                         <!-- Stripe Elements will create form elements here -->
+                    </div>
+
+                    <div class="form-group checkbox-group" style="margin-top: 15px;">
+                        <button type="button" id="save-card-btn" class="btn-toggle">
+                            <i class="far fa-square"></i> Save my card for future payments
+                        </button>
+                        <input type="hidden" id="save-card">
                     </div>
 
                     <div id="payment-errors" class="payment-errors"></div>
@@ -126,7 +165,7 @@
     <!-- Footer -->
     <footer id="footer-placeholder" class="footer"></footer>
 
-    <script src="/load-scripts.js"></script>
+    <script src="../load-scripts.js"></script>
     <script type="module" src="JS/payment.js"></script>
 
 

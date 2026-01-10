@@ -1,7 +1,11 @@
 // Navbar Component Loader
-// Uses window.ClientRoot set by load-scripts.js for correct path resolution
+import { Navbar } from './navbar-functions.js';
+import { initAttributes } from '../../shared/common.js';
+import { updateConfigElements } from '../../shared/app-settings.js';
+import { ClientRoot } from '../../shared/env.js';
+import { updateCartCount } from '../../actions.js';
 
-const prefix = window.ClientRoot || ''; // Fallback to empty if not set
+const prefix = ClientRoot || ''; // Fallback to empty if not set
 const navbarHTMLPath = prefix + 'components/navbar/navbar.html';
 
 fetch(navbarHTMLPath)
@@ -13,11 +17,11 @@ fetch(navbarHTMLPath)
 
             // Trigger initialization of custom attributes (data-config-key, etc.)
             const initCustomAttributes = () => {
-                if (window.Common && window.Common.initAttributes) {
-                    window.Common.initAttributes();
+                if (initAttributes) {
+                    initAttributes();
                 }
-                if (window.updateConfigElements) {
-                    window.updateConfigElements();
+                if (updateConfigElements) {
+                    updateConfigElements();
                 }
             };
 
@@ -27,26 +31,14 @@ fetch(navbarHTMLPath)
             setTimeout(initCustomAttributes, 500);
 
             // Initialize Navbar Logic
-            // We need to wait a tick for DOM or check if Navbar global is available
-            // navbar-functions.js should have been loaded by load-scripts.js
-
-            const checkNavbar = setInterval(() => {
-                if (window.Navbar) {
-                    clearInterval(checkNavbar);
-                    Navbar.initNavigation();
-                    Navbar.toggleSearchBar();
-                    Navbar.setActiveNav();
-                    Navbar.updateUserMenu();
-                    Navbar.initDropdowns();
-                    Navbar.handleCartIconDisplay();
-                    Navbar.initMenuSearch();
-                    Navbar.initSearch();
-                    Navbar.updateCartCount();
-                }
-            }, 100);
-
-            // Timeout to clear interval if something fails
-            setTimeout(() => clearInterval(checkNavbar), 5000);
+            Navbar.initNavigation();
+            Navbar.toggleSearchBar();
+            Navbar.setActiveNav();
+            Navbar.updateUserMenu();
+            Navbar.handleCartIconDisplay();
+            Navbar.initMenuSearch();
+            Navbar.initSearch();
+            updateCartCount();
         }
     })
     .catch(err => console.error('Navbar load failed:', err));

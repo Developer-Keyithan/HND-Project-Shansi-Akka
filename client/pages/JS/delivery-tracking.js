@@ -1,24 +1,17 @@
 // Delivery Tracking JavaScript
 import { Toast } from "../../plugins/Toast/toast.js";
-
-// Helper to wait for Auth to be loaded by load-scripts.js
-async function waitForAuth() {
-    return new Promise(resolve => {
-        if (window.Auth) return resolve();
-        const interval = setInterval(() => {
-            if (window.Auth) {
-                clearInterval(interval);
-                resolve();
-            }
-        }, 50);
-    });
-}
+import { Auth } from "../../shared/auth.js";
+import { API } from "../../shared/api.js";
+import { formatDate, showLoading } from "../../shared/common.js";
+import { AppConfig } from "../../app.config.js";
+import { showNotification } from "../../actions.js";
+// Utils is not used directly except for formatDate which is in Common or Utils
+// But we can check where formatDate is. Common usually has it.
+// Checking previous common.js view, it has formatDate.
 
 document.addEventListener('DOMContentLoaded', async function () {
-    await waitForAuth();
-
     // Check authentication
-    if (!window.Auth?.requireAuth()) {
+    if (!Auth.requireAuth()) {
         return;
     }
 
@@ -28,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (!orderId) {
         showNotification('Order ID not found', 'error');
         setTimeout(() => {
-            const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+            const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
             window.location.href = appUrl + '/dashboard/consumer.html';
         }, 1500);
         return;
@@ -42,16 +35,9 @@ async function loadOrderTracking(orderId) {
     const container = document.querySelector('.tracking-container');
 
     try {
-        // Wait for dependencies
-        let attempts = 0;
-        while ((!window.API || !window.Common) && attempts < 20) {
-            await new Promise(r => setTimeout(r, 100));
-            attempts++;
-        }
+        if (container) showLoading(container, 'Fetching real-time tracking data...');
 
-        if (container) window.Common.showLoading(container, 'Fetching real-time tracking data...');
-
-        const order = await window.API.getOrderById(orderId);
+        const order = await API.getOrderById(orderId);
 
         if (!order) {
             throw new Error('Order not found');
@@ -78,7 +64,7 @@ async function loadOrderTracking(orderId) {
 
 function renderOrderInfo(order) {
     document.getElementById('order-id-display').textContent = order.orderId || order.id;
-    document.getElementById('order-date-display').textContent = window.Utils?.formatDate(order.date || order.createdAt) || 'Just now';
+    document.getElementById('order-date-display').textContent = formatDate(order.date || order.createdAt) || 'Just now';
 
     // Calculate estimated delivery (e.g., +45 mins from order time)
     const orderTime = new Date(order.date || Date.now());
@@ -193,12 +179,4 @@ function initNavigation() {
             navMenu.classList.toggle('active');
         });
     }
-}
-
-function showNotification(message, type = 'info') {
-    Toast({
-        icon: type,
-        title: type.charAt(0).toUpperCase() + type.slice(1),
-        message: message
-    });
 }

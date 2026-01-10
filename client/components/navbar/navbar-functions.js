@@ -1,10 +1,9 @@
-import { Toast } from "../../plugins/Toast/toast.js";
-
-let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
-let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+import { AppConfig } from "../../app.config.js";
+import { currentNav, getParameterByName } from "../../shared/common.js";
+import { showNotification } from "../../actions.js";
 
 // Navigation Functions
-function initNavigation() {
+export function initNavigation() {
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
     if (hamburger) {
@@ -24,19 +23,16 @@ function initNavigation() {
 }
 
 // Search toggle
-function toggleSearchBar() {
+export function toggleSearchBar() {
     const toggleSearch = document.getElementById('toggle-search');
     const searchContainer = document.getElementById('foods-search');
 
     if (toggleSearch && searchContainer) {
         // Force show if on menu page with search param
-        if (window.Common && window.Common.currentNav() === 'menu.html' && window.Common.getParameterByName('search')) {
+        if (currentNav() === 'menu.html' && getParameterByName('search')) {
             searchContainer.style.display = 'flex';
         }
 
-        // Add click listener (ensure we don't duplicate if function called multiple times, though currently init only calls once)
-        // Ideally we should remove old listener or use a flag, but for now simple add is standard unless 'init' runs repeatedly.
-        // Given 'load-scripts' is idempotent, this is likely safe.
         toggleSearch.onclick = function () {
             searchContainer.style.display = (searchContainer.style.display === 'flex') ? 'none' : 'flex';
         };
@@ -44,7 +40,7 @@ function toggleSearchBar() {
 }
 
 // User Menu
-function updateUserMenu() {
+export function updateUserMenu() {
     const userMenu = document.querySelector('.user-menu');
     if (!userMenu) return;
 
@@ -97,8 +93,8 @@ function updateUserMenu() {
                     }
                 } else {
                     // Redirect on other pages
-                    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
-                    window.location.href = appUrl + '../auth/login.html';
+                    const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
+                    window.location.href = appUrl + '/auth/login.html';
                 }
             });
         }
@@ -107,22 +103,27 @@ function updateUserMenu() {
         if (newRegisterBtn) {
             newRegisterBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
-                window.location.href = appUrl + '../auth/register.html';
+                const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
+                window.location.href = appUrl + '/auth/register.html';
             });
         }
 
         if (closeModal) {
             closeModal.addEventListener('click', () => {
-                loginModal.style.display = 'none';
-                document.body.style.overflow = 'auto';
+                const loginModal = document.getElementById('loginModal');
+                if (loginModal) {
+                    loginModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
             });
         }
     }
+    // Re-initialize dropdowns after DOM update
+    initDropdowns();
 }
 
 // Dropdown Functions
-function initDropdowns() {
+export function initDropdowns() {
     const userDropdown = document.querySelector('.user-dropdown');
     if (!userDropdown) return;
 
@@ -130,10 +131,10 @@ function initDropdowns() {
     const dropdownMenu = userDropdown.querySelector('.dropdown-menu');
 
     if (userProfileBtn && dropdownMenu) {
-        userProfileBtn.addEventListener('click', function (e) {
+        userProfileBtn.onclick = function (e) {
             e.stopPropagation();
             userDropdown.classList.toggle('active');
-        });
+        };
 
         document.addEventListener('click', function (e) {
             if (!userDropdown.contains(e.target)) {
@@ -157,37 +158,33 @@ function initDropdowns() {
     }
 }
 
-function setActiveNav() {
+export function setActiveNav() {
     const links = document.querySelectorAll('.nav-menu a');
     if (!links.length) return;
 
-    const file = window.Common ? window.Common.currentNav() : (window.location.pathname.split('/').pop() || 'index.html');
-    const hash = window.location.hash; // 👈 IMPORTANT
+    const file = currentNav() || (window.location.pathname.split('/').pop() || 'index.html');
+    const hash = window.location.hash;
 
     links.forEach(link => {
         const href = link.getAttribute('href');
+        if (!href) return;
 
         link.classList.remove('active');
 
-        // Case 1: hash-based navigation (About)
         if (hash && href.includes(hash)) {
             link.classList.add('active');
             return;
         }
 
-        // Case 2: normal page navigation
         const linkFile = href.split('/').pop().split('#')[0];
 
-        if (
-            linkFile === file &&
-            !href.includes('#') // prevents Home staying active
-        ) {
+        if (linkFile === file && !href.includes('#')) {
             link.classList.add('active');
         }
     });
 }
 
-function handleCartIconDisplay() {
+export function handleCartIconDisplay() {
     const cartIcon = document.getElementById('cart-icon');
     if (!cartIcon) return;
 
@@ -199,44 +196,42 @@ function handleCartIconDisplay() {
 }
 
 // Logout
-function logout() {
+export function logout() {
     localStorage.removeItem('healthybite-user');
     currentUser = null;
     updateUserMenu();
     showNotification('Logged out successfully!', 'success');
-    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
-    window.location.href = appUrl + '/index.html'; // Add redirect for better flow
+    const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
+    window.location.href = appUrl + '/index.html';
 }
 
-async function initMenuSearch() {
-    // Check URL for search query
-    const searchQuery = window.Common ? window.Common.getParameterByName('search') : null;
+export async function initMenuSearch() {
+    const searchQuery = getParameterByName('search') || null;
 
     if (searchQuery) {
         const input = document.getElementById('search-input');
         if (input) {
             input.value = searchQuery;
-            // Delay slightly to ensure everything is initialized
-            setTimeout(() => performSearch(), 100);
+            setTimeout(() => performMenuSearch(), 100);
         }
     }
 }
 
 // Search Functionality
-function initSearch() {
+export function initSearch() {
     const searchBtn = document.getElementById('search-btn');
     const searchInput = document.getElementById('search-input');
     if (searchBtn && searchInput) {
-        searchBtn.addEventListener('click', performSearch);
+        searchBtn.addEventListener('click', performMenuSearch);
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                performSearch();
+                performMenuSearch();
             }
         });
     }
 }
 
-function performSearch() {
+export function performMenuSearch() {
     const searchInput = document.getElementById('search-input');
     if (!searchInput) return;
 
@@ -247,71 +242,22 @@ function performSearch() {
         return;
     }
 
-    // Redirect to menu page with search query
-    if (window.location.pathname.includes('/menu.html')) {
-        // If on menu page, trigger the local search logic
-        if (typeof window.performMenuSearch === 'function') {
-            window.performMenuSearch(query);
-        }
-        return;
+    if (currentNav() === 'menu.html') {
+        // Update URL without reload
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('search', query);
+        window.history.pushState({}, '', newUrl);
+
+        // Trigger search logic in menu.js
+        document.dispatchEvent(new CustomEvent('menu-search', { detail: { query } }));
     } else {
-        const target = window.location.pathname.includes('/pages/') ? 'menu.html' : 'pages/menu.html';
-        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
-        window.location.href = appUrl + `${target}?search=${encodeURIComponent(query)}`;
+        const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
+        window.location.href = appUrl + `/pages/menu.html?search=${encodeURIComponent(query)}`;
     }
 }
 
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-function updateCartCount() {
-    const cartCount = document.getElementById('cart-count');
-    if (!cartCount) return;
-
-    // Reload cart from localStorage to get fresh data
-    const currentCart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
-
-    // Update the module-level variable to stay in sync (optional but good practice)
-    cart = currentCart;
-
-    const totalItems = currentCart.reduce((total, item) => total + item.quantity, 0);
-
-    cartCount.textContent = totalItems;
-
-    // Hide cart count if zero
-    if (totalItems === 0) {
-        cartCount.style.display = 'none';
-    } else {
-        cartCount.style.display = 'flex';
-    }
-}
-// Notification System
-function showNotification(message, type = 'info') {
-    const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
-    try {
-        if (typeof Toast === 'function') {
-            Toast({
-                icon: type,
-                title: capitalizedType,
-                message: message
-            });
-        }
-    } catch (e) {
-        console.error("Toast error:", e);
-    }
-}
-
-// Export navbar functions if needed
-window.Navbar = {
+// Combined export object
+export const Navbar = {
     initNavigation,
     toggleSearchBar,
     updateUserMenu,
@@ -321,6 +267,5 @@ window.Navbar = {
     handleCartIconDisplay,
     initMenuSearch,
     initSearch,
-    showNotification,
-    updateCartCount
+    showNotification
 };

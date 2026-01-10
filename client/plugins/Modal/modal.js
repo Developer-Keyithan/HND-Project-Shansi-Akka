@@ -105,7 +105,7 @@ export function show(options = {}) {
     const createBtn = (opts, defType = 'confirm') => {
         const btn = document.createElement('button');
         const theme = opts.type || (defType === 'cancel' ? 'cancel' : (type === 'danger' || type === 'error' ? 'danger' : 'confirm'));
-        btn.className = `modal-btn modal-btn-${theme}`;
+        btn.className = `btn modal-btn modal-btn-${theme}`;
         btn.textContent = opts.text || (defType === 'cancel' ? 'Cancel' : 'Confirm');
         if (opts.color) btn.style.color = opts.color;
         if (opts.backgroundColor) btn.style.backgroundColor = opts.backgroundColor;
@@ -186,12 +186,4 @@ export const Popover = {
             return show({ title: 'Error', message: 'Failed to connect to the server.', type: 'error' });
         }
     }
-};
-
-// Global polyfills for non-module script compatibility
-window.Popover = Popover;
-window.CustomModal = {
-    show: (o) => Popover.content(o),
-    confirm: (t, m, f, tp = 'info') => Popover.confirm({ title: t, message: m, confirm: { onClick: f }, type: tp }),
-    alert: (t, m, tp = 'info') => Popover.alert({ title: t, message: m, type: tp })
 };

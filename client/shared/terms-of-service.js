@@ -1,10 +1,13 @@
+import { formatMobile } from "./common.js";
+import { AppConfig } from "../app.config.js";
+
 export const TermsOfService = {
     lastUpdated: "January 2026",
     get sections() {
-        const phone = (typeof window !== 'undefined' && window.Common && window.AppData && window.AppData.phone)
-            ? window.Common.formatMobile(window.AppData.phone)
-            : "N/a";
-        const email = (typeof window !== 'undefined' && window.AppData && window.AppData.leagal) ? window.AppData.leagal : 'N/A';
+        const phone = (AppConfig.app && AppConfig.app.phone)
+            ? formatMobile(AppConfig.app.phone)
+            : "N/A";
+        const email = (AppConfig.app && AppConfig.app.leagal) ? AppConfig.app.leagal : 'N/A';
 
         return [
             {

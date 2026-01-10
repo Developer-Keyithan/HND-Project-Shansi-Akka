@@ -1,22 +1,27 @@
+import { Auth } from "../../shared/auth.js";
+import { products as productsData } from "../../shared/data.js";
+
 document.addEventListener('DOMContentLoaded', function () {
+    // Auth Check
+    if (!Auth.requireRole('seller')) return;
+
     initDashboard();
     initEventListeners();
 });
 
 function initDashboard() {
-    // Auth Check
-    if (!window.Auth || !window.Auth.requireRole('seller')) return;
+    const user = Auth.getCurrentUser();
+    if (!user) return;
 
-    const user = window.Auth.getCurrentUser();
-    document.getElementById('user-name').textContent = user.name;
-    document.getElementById('dashboard-date').textContent = new Date().toDateString();
+    if (document.getElementById('user-name')) document.getElementById('user-name').textContent = user.name;
+    if (document.getElementById('dashboard-date')) document.getElementById('dashboard-date').textContent = new Date().toDateString();
 
     loadProducts();
 }
 
 function loadProducts() {
-    const products = window.products || [];
-    document.getElementById('total-products').textContent = products.length;
+    const products = productsData || [];
+    if (document.getElementById('total-products')) document.getElementById('total-products').textContent = products.length;
 
     const tbody = document.getElementById('products-table-body');
     if (!tbody) return;
@@ -36,13 +41,29 @@ function loadProducts() {
 }
 
 function initEventListeners() {
-    document.getElementById('logout-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.Auth.logoutUser();
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            Auth.logoutUser();
+        });
+    }
+
+    // Sidebar Navigation
+    document.querySelectorAll('.sidebar-nav a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sectionId = link.getAttribute('href').substring(1);
+            loadSection(sectionId);
+
+            // Highlight active link
+            document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+            link.classList.add('active');
+        });
     });
 }
 
-function loadSection(sectionId) {
+export function loadSection(sectionId) {
     document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
 
@@ -50,5 +71,4 @@ function loadSection(sectionId) {
     if (sec) sec.classList.add('active');
 }
 
-// Global scope
 window.loadSection = loadSection;

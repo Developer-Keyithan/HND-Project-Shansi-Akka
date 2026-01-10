@@ -1,4 +1,7 @@
 import { Toast } from "../../plugins/Toast/toast.js";
+import { Auth } from "../../shared/auth.js";
+import { AppConfig } from "../../app.config.js";
+import { showNotification } from "../../actions.js";
 
 document.addEventListener('DOMContentLoaded', function () {
     const resetPasswordForm = document.getElementById('resetPasswordForm');
@@ -15,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 'delivery-man': '/dashboard/delivery-man.html'
             };
             const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-            const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+            const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
             window.location.href = appUrl + redirectPath;
             return;
         } catch (e) {
@@ -29,15 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const passwordMatchIndicator = document.getElementById('password-match-indicator');
     const strengthBar = document.querySelector('.strength-bar');
     const strengthLevel = document.getElementById('strength-level');
-
-    function showNotification(message, type = 'info') {
-        const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
-        Toast({
-            icon: type,
-            title: capitalizedType,
-            message: message
-        });
-    }
 
     // Toggle Password Visibility
     document.querySelectorAll('.toggle-password').forEach(btn => {
@@ -157,9 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
         submitBtn.disabled = true;
 
         try {
-            if (!window.Auth) throw new Error("Auth module missing");
-
-            const result = await window.Auth.resetPassword(token, password);
+            const result = await Auth.resetPassword(token, password);
 
             if (result.success) {
                 showNotification('Password reset successfully!', 'success');

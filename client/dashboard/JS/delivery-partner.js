@@ -1,3 +1,5 @@
+import { Auth } from "../../shared/auth.js";
+
 document.addEventListener('DOMContentLoaded', function () {
     initDashboard();
     initEventListeners();
@@ -5,18 +7,51 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function initDashboard() {
     // Auth Check
-    if (!window.Auth || !window.Auth.requireRole('delivery-partner')) return;
+    if (!Auth || !Auth.requireRole('delivery-partner')) return;
 
-    const user = window.Auth.getCurrentUser();
-    document.getElementById('user-name').textContent = user.name;
-    document.getElementById('dashboard-date').textContent = new Date().toDateString();
+    const user = Auth.getCurrentUser();
+    if (user) {
+        const userNameElem = document.getElementById('user-name');
+        if (userNameElem) userNameElem.textContent = user.name;
+    }
+
+    const dateElem = document.getElementById('dashboard-date');
+    if (dateElem) dateElem.textContent = new Date().toDateString();
 }
 
 function initEventListeners() {
-    document.getElementById('logout-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.Auth.logoutUser();
-    });
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            Auth.logoutUser();
+        });
+    }
+
+    // Nav links
+    const overviewLink = document.getElementById('nav-overview');
+    if (overviewLink) {
+        overviewLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadSection('overview');
+        });
+    }
+
+    const availableLink = document.getElementById('nav-available');
+    if (availableLink) {
+        availableLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadSection('available');
+        });
+    }
+
+    const historyLink = document.getElementById('nav-history');
+    if (historyLink) {
+        historyLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadSection('history');
+        });
+    }
 }
 
 function loadSection(sectionId) {
@@ -25,7 +60,7 @@ function loadSection(sectionId) {
 
     const sec = document.getElementById(`${sectionId}-section`);
     if (sec) sec.classList.add('active');
-}
 
-// Global scope
-window.loadSection = loadSection;
+    const navLink = document.getElementById(`nav-${sectionId}`);
+    if (navLink) navLink.classList.add('active');
+}

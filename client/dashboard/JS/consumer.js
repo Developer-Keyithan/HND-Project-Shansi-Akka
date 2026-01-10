@@ -1,37 +1,32 @@
 // Consumer Dashboard JavaScript
+import { Auth } from "../../shared/auth.js";
+import { API } from "../../shared/api.js";
+import { showLoading, formatDate, formatCurrency } from "../../shared/common.js";
+import { Popover } from "../../plugins/Modal/modal.js";
+import { addToCart, showNotification, updateCartCount } from "../../actions.js";
+
 document.addEventListener('DOMContentLoaded', function () {
+    // Check for authorization
+    if (!Auth.requireRole('consumer')) return;
+
     // Initialize dashboard
     initDashboard();
-
-    // Load user data
     loadUserData();
-
-    // Load orders
     loadOrders();
-
-    // Load recommendations
     loadRecommendations();
-
-    // Load subscriptions
     loadSubscriptions();
-
-    // Initialize event listeners
     initEventListeners();
-
-    // Update dashboard date
     updateDashboardDate();
 });
 
 function initDashboard() {
-    // Check for authorization
-    if (!window.Auth || !window.Auth.requireRole('consumer')) return;
-
-    const user = window.Auth.getCurrentUser();
+    const user = Auth.getCurrentUser();
+    if (!user) return;
 
     // Set user data
-    document.getElementById('user-name').textContent = user.name;
-    document.getElementById('user-role').textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
-    document.getElementById('greeting').textContent = getGreeting() + ', ' + user.name.split(' ')[0] + '!';
+    if (document.getElementById('user-name')) document.getElementById('user-name').textContent = user.name;
+    if (document.getElementById('user-role')) document.getElementById('user-role').textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+    if (document.getElementById('greeting')) document.getElementById('greeting').textContent = getGreeting() + ', ' + user.name.split(' ')[0] + '!';
 
     // Update cart count
     updateCartCount();
@@ -47,11 +42,11 @@ function getGreeting() {
 function updateDashboardDate() {
     const now = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('dashboard-date').textContent = now.toLocaleDateString('en-US', options);
+    const dateEl = document.getElementById('dashboard-date');
+    if (dateEl) dateEl.textContent = now.toLocaleDateString('en-US', options);
 }
 
 function loadUserData() {
-    // Load user stats from localStorage or calculate from orders
     const orders = JSON.parse(localStorage.getItem('healthybite-orders')) || [];
     const currentMonth = new Date().getMonth();
 
@@ -60,25 +55,21 @@ function loadUserData() {
         return orderDate.getMonth() === currentMonth;
     });
 
-    document.getElementById('total-orders').textContent = monthlyOrders.length;
+    if (document.getElementById('total-orders')) document.getElementById('total-orders').textContent = monthlyOrders.length;
 
     // Calculate calories saved (mock calculation)
-    const caloriesSaved = monthlyOrders.length * 650; // Average calories saved per meal
-    document.getElementById('calories-saved').textContent = caloriesSaved.toLocaleString();
+    const caloriesSaved = monthlyOrders.length * 650;
+    if (document.getElementById('calories-saved')) document.getElementById('calories-saved').textContent = caloriesSaved.toLocaleString();
 
     // Calculate healthy days streak
-    const streak = calculateHealthyDaysStreak();
-    document.getElementById('healthy-days').textContent = streak;
+    const streak = Math.floor(Math.random() * 30) + 1;
+    if (document.getElementById('healthy-days')) document.getElementById('healthy-days').textContent = streak;
 
     // Calculate active deliveries
     const activeDeliveries = orders.filter(order =>
         order.status === 'preparing' || order.status === 'shipping'
     ).length;
-    document.getElementById('active-deliveries').textContent = activeDeliveries;
-}
-
-function calculateHealthyDaysStreak() {
-    return Math.floor(Math.random() * 30) + 1;
+    if (document.getElementById('active-deliveries')) document.getElementById('active-deliveries').textContent = activeDeliveries;
 }
 
 async function loadOrders() {
@@ -87,24 +78,17 @@ async function loadOrders() {
 
     // Show loading
     tableBody.innerHTML = `<tr><td colspan="6">
-        <div class="loading-container">
-            <div class="loading-spinner"></div>
+        <div class="loading-container" style="text-align: center; padding: 20px;">
+            <div class="loading-spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-green); border-radius: 50%; width: 30px; height: 30px; animation: spin 2s linear infinite; margin: 0 auto 10px;"></div>
             <div class="loading-text">Loading orders...</div>
         </div>
     </td></tr>`;
 
     try {
-        // Wait for dependencies
-        let attempts = 0;
-        while ((!window.API || !window.Common) && attempts < 20) {
-            await new Promise(r => setTimeout(r, 100));
-            attempts++;
-        }
-
-        const orders = await window.API.getUserOrders();
+        const orders = await API.getUserOrders();
 
         if (!orders || orders.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No orders found.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding: 20px;">No orders found.</td></tr>';
             return;
         }
 
@@ -115,7 +99,7 @@ async function loadOrders() {
                 <td>
                     ${(order.items || []).map(item => `${item.quantity}× ${item.name}`).join(', ')}
                 </td>
-                <td><strong>LKR ${(order.total || 0).toFixed(2)}</strong></td>
+                <td><strong>${formatCurrency(order.total || 0)}</strong></td>
                 <td>
                     <span class="order-status ${order.status}">
                         ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -123,14 +107,14 @@ async function loadOrders() {
                 </td>
                 <td>
                     <div class="table-actions">
-                        <button class="btn-icon" onclick="viewOrder('${order.id || order.orderId}')" title="View Order">
+                        <button class="btn-icon view-btn" data-id="${order.id || order.orderId}" title="View Order">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn-icon" onclick="reorder('${order.id || order.orderId}')" title="Reorder">
+                        <button class="btn-icon reorder-btn" data-id="${order.id || order.orderId}" title="Reorder">
                             <i class="fas fa-redo"></i>
                         </button>
                         ${order.status === 'delivered' ? `
-                        <button class="btn-icon" onclick="rateOrder('${order.id || order.orderId}')" title="Rate Order">
+                        <button class="btn-icon rate-btn" data-id="${order.id || order.orderId}" title="Rate Order">
                             <i class="fas fa-star"></i>
                         </button>
                         ` : ''}
@@ -138,33 +122,33 @@ async function loadOrders() {
                 </td>
             </tr>
         `).join('');
+
+        // Add event listeners
+        tableBody.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => viewOrder(btn.getAttribute('data-id')));
+        });
+        tableBody.querySelectorAll('.reorder-btn').forEach(btn => {
+            btn.addEventListener('click', () => reorder(btn.getAttribute('data-id')));
+        });
+        tableBody.querySelectorAll('.rate-btn').forEach(btn => {
+            btn.addEventListener('click', () => rateOrder(btn.getAttribute('data-id')));
+        });
     } catch (e) {
         console.error(e);
-        tableBody.innerHTML = '<tr><td colspan="6" class="error-text text-center">Failed to load orders.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="6" class="error-text text-center" style="padding: 20px;">Failed to load orders.</td></tr>';
     }
 }
 
-function formatDate(dateString) {
-    const options = { month: 'short', day: 'numeric', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-US', options);
-}
+
 
 async function loadRecommendations() {
     const container = document.getElementById('recommendations-container');
     if (!container) return;
 
-    // Show loading
-    window.Common.showLoading(container, 'Loading recommendations...');
+    showLoading(container, 'Loading recommendations...');
 
     try {
-        // Wait for API
-        let attempts = 0;
-        while (!window.API && attempts < 20) {
-            await new Promise(r => setTimeout(r, 100));
-            attempts++;
-        }
-
-        const products = await window.API.getProducts();
+        const products = await API.getProducts();
         const recommendations = products.slice(0, 4);
 
         container.innerHTML = recommendations.map(product => `
@@ -176,15 +160,19 @@ async function loadRecommendations() {
                     <h3>${product.name}</h3>
                     <p>${product.description}</p>
                     <div class="recommendation-meta">
-                        <span class="recommendation-price">LKR ${product.price.toFixed(2)}</span>
+                        <span class="recommendation-price">${formatCurrency(product.price)}</span>
                         <span class="recommendation-calories">${product.calories} cal</span>
                     </div>
-                    <button class="btn btn-primary btn-block" onclick="addToCart(${product.id})">
+                    <button class="btn btn-primary btn-block add-to-cart-btn" data-id="${product.id}">
                         <i class="fas fa-plus"></i> Add to Cart
                     </button>
                 </div>
             </div>
         `).join('');
+
+        container.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+            btn.addEventListener('click', () => addToCart(parseInt(btn.getAttribute('data-id'))));
+        });
     } catch (e) {
         console.error(e);
         container.innerHTML = '<p class="error-text">Failed to load recommendations.</p>';
@@ -195,20 +183,12 @@ async function loadSubscriptions() {
     const container = document.getElementById('subscriptions-container');
     if (!container) return;
 
-    // Show loading
-    window.Common.showLoading(container, 'Loading your subscriptions...');
+    showLoading(container, 'Loading your subscriptions...');
 
     try {
-        // Wait for API
-        let attempts = 0;
-        while (!window.API && attempts < 20) {
-            await new Promise(r => setTimeout(r, 100));
-            attempts++;
-        }
+        const subscriptions = await API.getSubscriptions();
 
-        const subscriptions = await window.API.getSubscriptions();
-
-        if (subscriptions.length === 0) {
+        if (!subscriptions || subscriptions.length === 0) {
             container.innerHTML = '<p class="text-center" style="grid-column: 1/-1; padding: 20px; color: #888;">You have no active subscriptions.</p>';
             return;
         }
@@ -237,26 +217,23 @@ async function loadSubscriptions() {
 }
 
 function initEventListeners() {
-    // Logout button
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function (e) {
+        logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
             logout();
         });
     }
 
-    // Section navigation
     const navLinks = document.querySelectorAll('.sidebar-nav a[href^="#"]');
     navLinks.forEach(link => {
-        link.addEventListener('click', function (e) {
+        link.addEventListener('click', (e) => {
             e.preventDefault();
-            const sectionId = this.getAttribute('href').substring(1);
+            const sectionId = link.getAttribute('href').substring(1);
             loadSection(sectionId);
         });
     });
 
-    // Initialize progress circles
     initProgressCircles();
 }
 
@@ -295,35 +272,11 @@ function initProgressCircles() {
     });
 }
 
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
-    const cartCounts = document.querySelectorAll('.cart-count-sidebar');
-    cartCounts.forEach(count => {
-        count.textContent = totalItems;
-        count.style.display = totalItems === 0 ? 'none' : 'flex';
-    });
-}
-
-function addToCart(productId) {
-    // This function can be imported or used from window.Common if available
-    showNotification('Product added to cart!', 'success');
-}
-
-function trackOrder(orderId) {
-    window.location.href = `/pages/delivery-tracking.html?order=${orderId}`;
-}
-
-function contactSupport() {
-    window.location.href = `/pages/contact.html`;
-}
 
 async function viewOrder(orderId) {
-    if (!window.API || !window.CustomModal) return;
-
     try {
-        const order = await window.API.getOrderById(orderId);
+        const order = await API.getOrderById(orderId);
         if (!order) return;
 
         const dateStr = new Date(order.date).toLocaleDateString('en-US', {
@@ -333,11 +286,11 @@ async function viewOrder(orderId) {
         const itemsHtml = (order.items || []).map(item => `
             <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
                 <span>${item.quantity}× ${item.name}</span>
-                <strong>LKR ${(item.price * item.quantity).toFixed(2)}</strong>
+                <strong>${formatCurrency(item.price * item.quantity)}</strong>
             </div>
         `).join('');
 
-        window.CustomModal.show({
+        Popover.content({
             title: `Order #${orderId}`,
             content: `
                 <div style="text-align: left; font-family: 'Poppins', sans-serif;">
@@ -351,34 +304,30 @@ async function viewOrder(orderId) {
                     </div>
                     <div style="margin-top: 20px; display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 700; color: var(--primary-green);">
                         <span>Total Amount</span>
-                        <span>LKR ${(order.total || 0).toFixed(2)}</span>
+                        <span>${formatCurrency(order.total || 0)}</span>
                     </div>
                 </div>
             `,
-            confirmText: 'Clone Order',
-            onConfirm: () => reorder(orderId)
+            confirm: {
+                text: 'Close'
+            }
         });
 
     } catch (e) {
         console.error(e);
-        window.Common.showNotification('Failed to load order details.', 'error');
+        showNotification('Failed to load order details.', 'error');
     }
 }
 
 function reorder(orderId) {
-    if (!window.CustomModal) {
-        window.Common.showNotification('Order added to cart!', 'success');
-        return;
-    }
-
-    window.CustomModal.confirm(
-        'Reorder Items',
-        `Do you want to add all items from order #${orderId} back to your cart?`,
-        () => {
-            window.Common.showNotification('Order items added to cart!', 'success');
-        },
-        'info'
-    );
+    Popover.confirm({
+        title: 'Reorder Items',
+        message: `Do you want to add all items from order #${orderId} back to your cart?`,
+        confirm: {
+            text: 'Reorder',
+            onClick: () => showNotification('Order items added to cart!', 'success')
+        }
+    });
 }
 
 function rateOrder(orderId) {
@@ -386,34 +335,21 @@ function rateOrder(orderId) {
 }
 
 function logout() {
-    if (!window.CustomModal) {
-        // Fallback if plugin fails
-        if (confirm('Are you sure you want to logout?')) {
-            performLogout();
-        }
-        return;
-    }
-
-    window.CustomModal.confirm(
-        'Logout Confirmation',
-        'Are you sure you want to log out of your HealthyBite account?',
-        () => performLogout(),
-        'warning'
-    );
+    Popover.confirm({
+        title: 'Logout Confirmation',
+        message: 'Are you sure you want to log out of your HealthyBite account?',
+        confirm: {
+            text: 'Logout',
+            onClick: () => performLogout()
+        },
+        type: 'warning'
+    });
 }
 
 function performLogout() {
-    localStorage.removeItem('healthybite-user');
-    window.Common.showNotification('Logged out successfully!', 'success');
+    Auth.logoutUser();
+    showNotification('Logged out successfully!', 'success');
     setTimeout(() => {
         window.location.href = '/index.html';
     }, 1500);
-}
-
-function showNotification(message, type = 'info') {
-    if (window.Common && window.Common.showNotification) {
-        window.Common.showNotification(message, type);
-    } else {
-        alert(message);
-    }
 }

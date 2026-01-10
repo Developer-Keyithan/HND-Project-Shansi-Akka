@@ -1,181 +1,52 @@
-// Logging System for Developers
 
-class Logger {
+// Logger Utility (Mock)
+export class LoggerService {
     constructor() {
-        this.config = window.Config?.logging || {};
         this.logs = [];
-        this.maxLogs = 1000;
     }
 
-    // Get device information
-    getDeviceInfo() {
-        return {
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            language: navigator.language,
-            screenWidth: window.screen.width,
-            screenHeight: window.screen.height,
-            viewportWidth: window.innerWidth,
-            viewportHeight: window.innerHeight,
-            timestamp: new Date().toISOString(),
-            url: window.location.href,
-            referrer: document.referrer
-        };
-    }
-
-    // Get user information
-    getUserInfo() {
-        const user = window.Auth?.getCurrentUser();
-        return user ? {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role
-        } : null;
-    }
-
-    // Create log entry
-    createLogEntry(level, message, data = {}) {
-        const logEntry = {
-            id: Date.now() + Math.random(),
+    log(level, message, data = null) {
+        const entry = {
+            timestamp: Date.now(),
             level,
             message,
-            data,
-            device: this.getDeviceInfo(),
-            user: this.getUserInfo(),
-            timestamp: new Date().toISOString()
+            data
         };
+        this.logs.push(entry);
+        console.log(`[${level.toUpperCase()}] ${message}`, data || '');
 
-        this.logs.push(logEntry);
-
-        // Keep only last maxLogs entries
-        if (this.logs.length > this.maxLogs) {
+        // Keep logs manageable
+        if (this.logs.length > 200) {
             this.logs.shift();
         }
 
-        return logEntry;
+        // Optional: Save to localStorage for persistence across reloads (dev convenience)
+        // localStorage.setItem('hb-logs', JSON.stringify(this.logs));
     }
 
-    // Log info
-    info(message, data = {}) {
-        const logEntry = this.createLogEntry('info', message, data);
-        console.log(`[INFO] ${message}`, data);
-        this.sendToServer(logEntry);
-        return logEntry;
+    info(message, data) {
+        this.log('info', message, data);
     }
 
-    // Log warning
-    warn(message, data = {}) {
-        const logEntry = this.createLogEntry('warn', message, data);
-        console.warn(`[WARN] ${message}`, data);
-        this.sendToServer(logEntry);
-        return logEntry;
+    warn(message, data) {
+        this.log('warn', message, data);
     }
 
-    // Log error
-    error(message, error = null, data = {}) {
-        const errorData = {
-            ...data,
-            error: error ? {
-                message: error.message,
-                stack: error.stack,
-                name: error.name
-            } : null
-        };
-
-        const logEntry = this.createLogEntry('error', message, errorData);
-        console.error(`[ERROR] ${message}`, errorData);
-        this.sendToServer(logEntry);
-        return logEntry;
+    error(message, error, data) {
+        this.log('error', message, { error, ...data });
     }
 
-    // Log debug
-    debug(message, data = {}) {
-        const logEntry = this.createLogEntry('debug', message, data);
-        console.debug(`[DEBUG] ${message}`, data);
-        this.sendToServer(logEntry);
-        return logEntry;
-    }
-
-    // Send log to server
-    async sendToServer(logEntry) {
-        if (!this.config.enabled) return;
-
-        try {
-            await fetch(this.config.apiEndpoint || '/api/logs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(logEntry)
-            });
-        } catch (error) {
-            console.error('Failed to send log to server:', error);
+    getLogs(filter = null, limit = 100) {
+        let filtered = this.logs;
+        if (filter) {
+            filtered = filtered.filter(l => l.level === filter || l.message.includes(filter));
         }
+        return filtered.slice(-limit);
     }
 
-    // Get logs
-    getLogs(level = null, limit = 100) {
-        let filteredLogs = this.logs;
-
-        if (level) {
-            filteredLogs = filteredLogs.filter(log => log.level === level);
-        }
-
-        return filteredLogs.slice(-limit);
-    }
-
-    // Clear logs
     clearLogs() {
         this.logs = [];
     }
-
-    // Export logs
-    exportLogs(format = 'json') {
-        const logs = this.getLogs();
-        
-        if (format === 'json') {
-            return JSON.stringify(logs, null, 2);
-        } else if (format === 'csv') {
-            const headers = ['Timestamp', 'Level', 'Message', 'User', 'URL'];
-            const rows = logs.map(log => [
-                log.timestamp,
-                log.level,
-                log.message,
-                log.user?.email || 'Anonymous',
-                log.device.url
-            ]);
-            
-            return [headers, ...rows].map(row => row.join(',')).join('\n');
-        }
-    }
 }
 
-// Initialize Logger
-window.Logger = new Logger();
-
-// Log page load
-window.addEventListener('load', () => {
-    window.Logger.info('Page loaded', {
-        page: window.location.pathname,
-        title: document.title
-    });
-});
-
-// Log errors
-window.addEventListener('error', (event) => {
-    window.Logger.error('JavaScript error', event.error, {
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno
-    });
-});
-
-// Log unhandled promise rejections
-window.addEventListener('unhandledrejection', (event) => {
-    window.Logger.error('Unhandled promise rejection', event.reason, {
-        promise: event.promise
-    });
-});
-
-
+export const Logger = new LoggerService();

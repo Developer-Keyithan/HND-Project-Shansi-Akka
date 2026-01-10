@@ -30,11 +30,11 @@
 
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="#overview" onclick="loadSection('overview')" class="active"><i
-                                class="fas fa-motorcycle"></i> Dashboard</a></li>
-                    <li><a href="#available" onclick="loadSection('available')"><i class="fas fa-map-marked-alt"></i>
+                    <li><a href="#overview" id="nav-overview" class="active"><i class="fas fa-motorcycle"></i>
+                            Dashboard</a></li>
+                    <li><a href="#available" id="nav-available"><i class="fas fa-map-marked-alt"></i>
                             Available Orders</a></li>
-                    <li><a href="#history" onclick="loadSection('history')"><i class="fas fa-history"></i> History</a>
+                    <li><a href="#history" id="nav-history"><i class="fas fa-history"></i> History</a>
                     </li>
                     <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
@@ -129,9 +129,7 @@
         </main>
     </div>
 
-    <script src="/shared/data.js"></script>
-    <script src="/shared/auth.js"></script>
-    <script src="JS/delivery-partner.js"></script>
+    <script type="module" src="JS/delivery-partner.js"></script>
 </body>
 
 </html>

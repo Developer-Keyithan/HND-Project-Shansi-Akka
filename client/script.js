@@ -1,6 +1,12 @@
 // Main JavaScript for healthybite
 
 import { Toast } from "./plugins/Toast/toast.js";
+import { API } from "./shared/api.js";
+import { Common } from "./shared/common.js";
+import { Auth } from "./shared/auth.js";
+import { Navbar } from "./components/navbar/navbar-functions.js";
+import { AppConfig } from "./app.config.js";
+import { addToCart, showNotification } from "./actions.js";
 
 // Global Variables
 let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
@@ -8,18 +14,9 @@ let currentUser = JSON.parse(localStorage.getItem('healthybite-user')) || null;
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function () {
-    const checkAPI = setInterval(() => {
-        if (window.API) {
-            clearInterval(checkAPI);
-            loadProducts();
-            loadReviews();
-            setCTADiscount();
-        }
-    }, 50);
-
-    // Stop checking after 10 seconds to avoid infinite loop (though critical if API missing)
-    setTimeout(() => clearInterval(checkAPI), 10000);
-
+    loadProducts();
+    loadReviews();
+    setCTADiscount();
     initCategoryFilters();
 });
 
@@ -28,21 +25,12 @@ async function loadProducts(category = 'all') {
     const productsContainer = document.getElementById('products-container');
     if (!productsContainer) return;
 
-    // Wait for dependencies
-    let attempts = 0;
-    while ((!window.API || !window.Common) && attempts < 20) {
-        await new Promise(r => setTimeout(r, 100));
-        attempts++;
-    }
-
-    if (!window.Common || !window.API) return;
-
     // Show loading
-    window.Common.showLoading(productsContainer, 'Loading recommendations...');
+    Common.showLoading(productsContainer, 'Loading recommendations...');
 
     let allProducts = [];
     try {
-        allProducts = await window.API.getProducts();
+        allProducts = await API.getProducts();
     } catch (e) {
         console.error(e);
         productsContainer.innerHTML = 'Failed to load products.';
@@ -75,20 +63,29 @@ async function loadProducts(category = 'all') {
                     </span>
                 </div>
                 <div class="product-actions">
-                    <button class="btn btn-add-to-cart" onclick="addToCart(${product.id})">
+                    <button class="btn btn-add-to-cart" data-id="${product.id}">
                         <i class="fas fa-plus"></i> Add to Cart
                     </button>
-                        <button class="btn btn-view-details" onclick="viewProductDetails(${product.id})">
+                        <button class="btn btn-view-details" data-id="${product.id}">
                         <i class="fas fa-info-circle"></i> View Details
                     </button>
                 </div>
             </div>
         </div>
     `).join('');
+
+    // Add event listeners instead of using inline onclick
+    productsContainer.querySelectorAll('.btn-add-to-cart').forEach(btn => {
+        btn.addEventListener('click', () => addToCart(parseInt(btn.getAttribute('data-id'))));
+    });
+
+    productsContainer.querySelectorAll('.btn-view-details').forEach(btn => {
+        btn.addEventListener('click', () => viewProductDetails(parseInt(btn.getAttribute('data-id'))));
+    });
 }
 
-window.viewProductDetails = function (productId) {
-    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+function viewProductDetails(productId) {
+    const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
     window.location.href = appUrl + `/pages/product-view.html?id=${productId}`;
 };
 
@@ -111,57 +108,13 @@ function initCategoryFilters() {
     });
 }
 
-// Cart Functions
-async function addToCart(productId) {
-    let product;
-    try {
-        product = await window.API.getProductById(productId);
-    } catch (e) {
-        console.error(e);
-    }
-
-    // Fallback
-    if (!product) {
-        product = window.products ? window.products.find(p => p.id === productId) : null;
-    }
-
-    if (!product) {
-        showNotification('Product not found!', 'error');
-        return;
-    }
-
-    // Check if product is already in cart
-    const existingItem = cart.find(item => item.id === productId);
-
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        cart.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.image,
-            quantity: 1
-        });
-    }
-
-    // Save to localStorage
-    await localStorage.setItem('healthybite-cart', JSON.stringify(cart));
-
-    // Update cart count
-    await window.Navbar.updateCartCount();
-
-    // Show notification
-    showNotification(`${product.name} added to cart!`, 'success');
-}
-
 async function setCTADiscount() {
     const discount = document.getElementById('cta-discount');
     if (!discount) return;
 
     let offers;
     try {
-        offers = await window.API.getCTAOffer();
+        offers = await API.getCTAOffer();
     } catch (e) {
         console.error(e);
         return;
@@ -172,23 +125,8 @@ async function setCTADiscount() {
     }
 }
 
-// Notification System
-function showNotification(message, type = 'info') {
-    const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
-    Toast({
-        icon: type,
-        title: capitalizedType,
-        message: message
-    })
-}
-
-// Utility Functions
-function formatPrice(price) {
-    return new Intl.NumberFormat('en-LK', {
-        style: 'currency',
-        currency: 'LKR',
-        maximumFractionDigits: 0
-    }).format(price);
+async function loadReviews() {
+    // Placeholder for review loading if needed on homepage
 }
 
 const loginForm = document.getElementById('loginForm');
@@ -213,36 +151,25 @@ if (loginForm) {
 
         // Real authentication
         try {
-            if (!window.Auth) {
-                showNotification('Authentication module not loaded', 'error');
-                return;
-            }
-
-            const result = await window.Auth.loginUser(email, password);
+            const result = await Auth.loginUser(email, password);
 
             if (result.success) {
                 currentUser = result.user;
                 showNotification('Login successful! Redirecting...', 'success');
 
                 // Close modal
-                const loginModal = document.getElementById('loginModal'); // Ensure we select the modal
+                const loginModal = document.getElementById('loginModal');
                 if (loginModal) {
                     loginModal.style.display = 'none';
                     document.body.style.overflow = 'auto';
                 }
 
                 // Update user menu
-                if (window.Navbar && typeof window.Navbar.updateUserMenu === 'function') {
-                    window.Navbar.updateUserMenu();
-                    // Re-init dropdowns after DOM update
-                    setTimeout(() => {
-                        if (typeof window.Navbar.initDropdowns === 'function') window.Navbar.initDropdowns();
-                    }, 100);
-                }
+                Navbar.updateUserMenu();
 
                 // Redirect based on role
                 setTimeout(() => {
-                    const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                    const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
                     switch (result.user.role) {
                         case 'admin':
                             window.location.href = appUrl + '/dashboard/admin.html';
@@ -271,16 +198,3 @@ if (loginForm) {
         }
     });
 }
-
-
-// Export functions for use in other modules
-window.healthybite = {
-    addToCart,
-    showNotification,
-    formatPrice,
-    currentUser,
-    cart,
-};
-
-window.addToCart = addToCart;
-window.setCTADiscount = setCTADiscount;

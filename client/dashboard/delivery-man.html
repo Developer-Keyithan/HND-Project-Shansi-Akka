@@ -42,7 +42,7 @@
                 <a href="#" class="nav-item" data-view="settings">
                     <i class="fas fa-cog"></i> Settings
                 </a>
-                <a href="#" class="nav-item logout" onclick="logout()">
+                <a href="#" class="nav-item logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </nav>
@@ -118,9 +118,7 @@
                             <span class="badge badge-pending">Pickup in 5 mins</span>
                         </div>
                         <div class="task-actions">
-                            <button class="btn btn-primary"
-                                onclick="window.location.href='/pages/delivery-tracking.html?orderId=HB9823'">View
-                                Route</button>
+                            <button class="btn btn-primary">View Route</button>
                         </div>
                     </div>
                 </div>
@@ -128,25 +126,7 @@
         </main>
     </div>
 
-    <script src="/load-scripts.js"></script>
-    <script type="module" src="/shared/app-settings.js"></script>
-    <script type="module" src="/shared/auth.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Basic Auth Check
-            if (window.Auth && typeof window.Auth.requireRole === 'function') {
-                // window.Auth.requireRole('delivery-partner'); // Or delivery-man
-            }
-            const user = JSON.parse(localStorage.getItem('healthybite-user'));
-            if (user) {
-                document.getElementById('user-name').textContent = user.name;
-            }
-        });
-
-        window.logout = function () {
-            if (window.Auth) window.Auth.logoutUser();
-        }
-    </script>
+    <script type="module" src="JS/delivery-man.js"></script>
 </body>
 
 </html>

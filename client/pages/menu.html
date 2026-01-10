@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Healthy Menu - healthybite</title>
     <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="/pages/CSS/pages.css">
+    <link rel="stylesheet" href="../pages/CSS/pages.css">
     <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
@@ -57,7 +57,7 @@
                 <div class="filter-group">
                     <h3>Filter By</h3>
                     <div class="filter-options">
-                        <select id="sort-by">
+                        <select id="sort-by" class="select-input">
                             <option value="popular">Most Popular</option>
                             <option value="price-low">Price: Low to High</option>
                             <option value="price-high">Price: High to Low</option>
@@ -67,13 +67,13 @@
                         </select>
 
                         <div class="price-range">
-                            <label><span>Price Range</span>: <span id="price-range-value">LKR 0 - LKR
+                            <label><span>Price Range</span><span id="price-range-value">LKR 0 - LKR
                                     5000</span></label>
                             <input type="range" id="price-range" min="0" max="5000" value="5000">
                         </div>
 
                         <div class="calorie-filter">
-                            <label><span>Max Calories</span>: <span id="calorie-value">1000</span></label>
+                            <label><span>Max Calories</span><span id="calorie-value">1000</span></label>
                             <input type="range" id="calorie-range" min="100" max="1000" value="1000" step="50">
                         </div>
                     </div>
@@ -137,7 +137,7 @@
     <footer id="footer-placeholder" class="footer"></footer>
 
     <!-- <script type="module" src="../script.js"></script> -->
-    <script src="/load-scripts.js"></script>
+    <script src="../load-scripts.js"></script>
     <script type="module" src="JS/menu.js"></script>
 
 

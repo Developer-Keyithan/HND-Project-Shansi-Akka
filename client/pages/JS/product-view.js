@@ -1,5 +1,7 @@
 // Product View Page JavaScript
-import { Toast } from "../../plugins/Toast/toast.js";
+import { API } from "../../shared/api.js";
+import { getParameterByName, showLoading, formatCurrency } from "../../shared/common.js";
+import { addToCart, updateCartCount, showNotification } from "../../actions.js";
 
 let currentProduct = null;
 
@@ -25,49 +27,36 @@ function initEventListeners() {
             const action = btn.dataset.action;
             const input = document.getElementById('product-quantity');
 
-            if (action === 'decrease' && input.value > 1) {
-                input.value = parseInt(input.value) - 1;
-            } else if (action === 'increase') {
-                input.value = parseInt(input.value) + 1;
+            if (input) {
+                if (action === 'decrease' && input.value > 1) {
+                    input.value = parseInt(input.value) - 1;
+                } else if (action === 'increase') {
+                    input.value = parseInt(input.value) + 1;
+                }
             }
         }
     });
-
 }
 
 async function loadProduct() {
-    // Wait for dependencies (Common and API) at the very start
-    let attempts = 0;
-    while ((!window.API || !window.Common) && attempts < 20) {
-        await new Promise(r => setTimeout(r, 100));
-        attempts++;
-    }
-
-    if (!window.API || !window.Common) {
-        console.error('Core modules (API/Common) failed to load.');
-        showError('System component error. Please refresh.');
-        return;
-    }
-
-    const productId = parseInt(window.Common.getParameterByName('id') || 0);
-    const container = document.querySelector('.product-view-section .container');
+    const productId = parseInt(getParameterByName('id') || 0);
+    const container = document.getElementById('product-container');
 
     if (!productId) {
-        showError('Product not found');
+        showError('Product ID is missing');
         loadRelatedProducts();
         loadReviews();
         return;
     }
 
     // Show loading
-    if (container) window.Common.showLoading(document.getElementById('product-container'), 'Fetching product details...');
+    if (container) showLoading(container, 'Fetching product details...');
 
     try {
-        currentProduct = await window.API.getProductById(productId);
+        currentProduct = await API.getProductById(productId);
 
         if (currentProduct) {
             renderProduct();
-            // Load additional sections
             loadRelatedProducts();
             loadReviews();
         } else {
@@ -79,28 +68,15 @@ async function loadProduct() {
     }
 }
 
-function loadFromLocalData(productId) {
-    const products = window.products || [];
-    currentProduct = products.find(p => p.id === productId);
-
-    if (!currentProduct) {
-        showError('Product not found');
-        return;
-    }
-
-    renderProduct();
-    loadRelatedProducts();
-}
-
 function renderProduct() {
     if (!currentProduct) return;
 
     const container = document.getElementById('product-container');
-    const quantity = parseInt(document.getElementById('product-quantity')?.value || 1);
+    if (!container) return;
 
     container.innerHTML = `
         <div class="product-view-image">
-            <img src="${currentProduct.image}" alt="${currentProduct.name}">
+            <img src="${currentProduct.image.startsWith('.') ? currentProduct.image : '../' + currentProduct.image}" alt="${currentProduct.name}">
             ${currentProduct.badge ? `<span class="product-badge">${currentProduct.badge}</span>` : ''}
         </div>
         <div class="product-view-details">
@@ -115,7 +91,7 @@ function renderProduct() {
             <p class="product-description">${currentProduct.description}</p>
             
             <div class="product-price-section">
-                <span class="product-price">LKR ${currentProduct.price.toFixed(2)}</span>
+                <span class="product-price">${formatCurrency(currentProduct.price)}</span>
                 <span class="product-calories"><i class="fas fa-fire"></i> ${currentProduct.calories} cal</span>
             </div>
 
@@ -193,18 +169,10 @@ async function loadRelatedProducts() {
     const container = document.getElementById('related-products');
     if (!container) return;
 
-    // Show loading
-    window.Common.showLoading(container, 'Searching for similar items...');
+    showLoading(container, 'Searching for similar items...');
 
     try {
-        // Wait for API
-        let attempts = 0;
-        while (!window.API && attempts < 20) {
-            await new Promise(r => setTimeout(r, 100));
-            attempts++;
-        }
-
-        const allProducts = await window.API.getProducts();
+        const allProducts = await API.getProducts();
         const related = allProducts
             .filter(p => p.id !== currentProduct.id && p.category === currentProduct.category)
             .slice(0, 4);
@@ -225,13 +193,13 @@ async function loadRelatedProducts() {
             <div class="product-card" data-id="${product.id}">
                 ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
                 <div class="product-image">
-                    <img src="${product.image}" alt="${product.name}" loading="lazy">
+                    <img src="${product.image.startsWith('.') ? product.image : '../' + product.image}" alt="${product.name}" loading="lazy">
                 </div>
                 <div class="product-info">
                     <h3 class="product-title">${product.name}</h3>
                     <p class="product-description">${product.description.substring(0, 80)}...</p>
                     <div class="product-meta">
-                        <span class="product-price">LKR ${product.price.toFixed(2)}</span>
+                        <span class="product-price">${formatCurrency(product.price)}</span>
                         <span class="product-calories">${product.calories} cal</span>
                     </div>
                     <div class="product-actions">
@@ -250,28 +218,24 @@ async function loadReviews() {
     const container = document.getElementById('reviews-container');
     if (!container) return;
 
-    // Show loading
-    window.Common.showLoading(container, 'Fetching customer reviews...');
+    showLoading(container, 'Fetching customer reviews...');
 
     try {
-        // Wait for API
-        let attempts = 0;
-        while (!window.API && attempts < 20) {
-            await new Promise(r => setTimeout(r, 100));
-            attempts++;
-        }
-
-        const reviews = await window.API.getReviews();
+        const reviews = await API.getReviews(currentProduct ? currentProduct.id : null);
 
         if (!reviews || reviews.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="far fa-comments"></i>
                     <h3>No Reviews Yet</h3>
-                    <p>Be the first to share your experience with the <strong>${currentProduct.name}</strong>. Your feedback helps others make healthy choices!</p>
-                    <button class="btn btn-primary" onclick="showNotification('Review system coming soon!', 'info')">Write a Review</button>
+                    <p>Be the first to share your experience with the <strong>${currentProduct ? currentProduct.name : 'this product'}</strong>. Your feedback helps others make healthy choices!</p>
+                    <button class="btn btn-primary btn-write-review">Write a Review</button>
                 </div>
             `;
+
+            container.querySelector('.btn-write-review')?.addEventListener('click', () => {
+                showNotification('Review system coming soon!', 'info');
+            });
             return;
         }
 
@@ -297,62 +261,15 @@ async function loadReviews() {
     }
 }
 
-function addToCart(productId) {
-    const quantity = parseInt(document.getElementById('product-quantity')?.value || 1);
-    const product = window.products?.find(p => p.id === productId) || currentProduct;
-
-    if (!product) {
-        showNotification('Product not found!', 'error');
-        return;
-    }
-
-    let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
-    const existingItem = cart.find(item => item.id === productId);
-
-    if (existingItem) {
-        existingItem.quantity += quantity;
-    } else {
-        cart.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.image,
-            quantity: quantity
-        });
-    }
-
-    localStorage.setItem('healthybite-cart', JSON.stringify(cart));
-    updateCartCount();
-    showNotification(`${product.name} added to cart!`, 'success');
-}
-
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    const cartCount = document.querySelector('.cart-count');
-    if (cartCount) {
-        cartCount.textContent = totalItems;
-        cartCount.style.display = totalItems > 0 ? 'flex' : 'none';
-    }
-}
-
 function showError(message) {
     const container = document.getElementById('product-container');
-    container.innerHTML = `
-        <div class="error-message">
-            <i class="fas fa-exclamation-circle"></i>
-            <h2>${message}</h2>
-            <a href="menu.html" class="btn btn-primary">Back to Menu</a>
-        </div>
-    `;
+    if (container) {
+        container.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <h2>${message}</h2>
+                <a href="menu.html" class="btn btn-primary">Back to Menu</a>
+            </div>
+        `;
+    }
 }
-
-function showNotification(message, type = 'info') {
-    Toast({
-        icon: type,
-        title: type.charAt(0).toUpperCase() + type.slice(1),
-        message: message
-    });
-}
-
-window.showNotification = showNotification;

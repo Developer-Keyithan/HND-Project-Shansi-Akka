@@ -1,10 +1,20 @@
+let NODE_ENV = "development";
+
+export const setEnv = (env) => {
+    NODE_ENV = env;
+}
+
+export const isDev = () => NODE_ENV === "development";
+const path = window.location.pathname;
+const baseUrl = (NODE_ENV === "development") ? path.includes("client") ? window.location.origin + "/client" : window.location.origin : "https://healthybite-three.vercel.app";
+
 export const AppConfig = {
     version: "1.4.2",
     app: {
         version: "1.4.2",
         name: "Healthybite",
-        url: "http://localhost:3000",
-        logo: "http://localhost:3000/logo.png",
+        url: baseUrl,
+        logo: baseUrl + "/logo.png",
         description: "Healthy meals for a healthy body",
         keywords: "healthy meals, healthy body, healthy food, healthy eating",
         author: "Healthybite (PVT) LTD",
@@ -19,7 +29,7 @@ export const AppConfig = {
     api: {
         version: "1.0.0",
         prefix: "/api",
-        url: "http://localhost:3000/api"
+        url: baseUrl
     },
     currency: {
         decimalSeparator: ".",
@@ -40,18 +50,18 @@ export const AppConfig = {
         supported: ["en", "ta", "sh", "es", "fr", "de", "it", "pt", "ru", "ja", "zh", "ko"]
     },
     security: {
-        requireAuth: false,
+        requireAuth: true,
         requireAdmin: false,
-        requireLogin: false,
-        requireLogout: false
+        requireLogin: true,
+        requireLogout: true
     },
     notifications: {
-        enabled: false,
+        enabled: true,
         default: "en",
         supported: ["en", "ta", "sh", "es", "fr", "de", "it", "pt", "ru", "ja", "zh", "ko"]
     },
     logging: {
-        enabled: false,
+        enabled: true,
         level: "info",
         file: "app.log"
     },

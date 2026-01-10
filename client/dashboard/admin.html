@@ -33,17 +33,12 @@
 
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="#overview" onclick="loadSection('overview')" class="active"><i
-                                class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a href="#users" onclick="loadSection('users')"><i class="fas fa-users"></i> Users</a></li>
-                    <li><a href="#products" onclick="loadSection('products')"><i class="fas fa-box"></i> All
-                            Products</a></li>
-                    <li><a href="#orders" onclick="loadSection('orders')"><i class="fas fa-shopping-bag"></i> Orders</a>
-                    </li>
-                    <li><a href="#analytics" onclick="loadSection('analytics')"><i class="fas fa-chart-pie"></i>
-                            Analytics</a></li>
-                    <li><a href="#settings" onclick="loadSection('settings')"><i class="fas fa-cog"></i> Settings</a>
-                    </li>
+                    <li><a href="#overview" class="active"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="#users"><i class="fas fa-users"></i> Users</a></li>
+                    <li><a href="#products"><i class="fas fa-box"></i> All Products</a></li>
+                    <li><a href="#orders"><i class="fas fa-shopping-bag"></i> Orders</a></li>
+                    <li><a href="#analytics"><i class="fas fa-chart-pie"></i> Analytics</a></li>
+                    <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
                     <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </nav>
@@ -151,9 +146,7 @@
         </main>
     </div>
 
-    <script src="/shared/data.js"></script>
-    <script src="/shared/auth.js"></script>
-    <script src="JS/admin.js"></script>
+    <script type="module" src="JS/admin.js"></script>
 </body>
 
 </html>

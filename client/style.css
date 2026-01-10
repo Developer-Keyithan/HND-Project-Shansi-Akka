@@ -102,6 +102,12 @@ a {
     transition: color 0.3s ease;
 }
 
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
 .btn::before {
     content: '';
     position: absolute;
@@ -257,9 +263,7 @@ input[type=number],
     border: none;
     box-shadow: none;
     opacity: 1;
-    visibility: visible;
     transform: none;
-    pointer-events: auto;
 }
 
 .custom-options::-webkit-scrollbar {

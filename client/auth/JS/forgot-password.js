@@ -1,4 +1,7 @@
 import { Toast } from "../../plugins/Toast/toast.js";
+import { Auth } from "../../shared/auth.js";
+import { AppConfig } from "../../app.config.js";
+import { showNotification } from "../../actions.js";
 
 document.addEventListener('DOMContentLoaded', function () {
     const forgotPasswordForm = document.getElementById('forgotPasswordForm');
@@ -15,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 'delivery-man': '/dashboard/delivery-man.html'
             };
             const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-            const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+            const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
             window.location.href = appUrl + redirectPath;
             return;
         } catch (e) {
@@ -25,15 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]');
     const emailInput = document.getElementById('email');
-
-    function showNotification(message, type = 'info') {
-        const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
-        Toast({
-            icon: type,
-            title: capitalizedType,
-            message: message
-        });
-    }
 
     // Helper to show errors
     function showError(inputId, message) {
@@ -81,10 +75,8 @@ document.addEventListener('DOMContentLoaded', function () {
         submitBtn.disabled = true;
 
         try {
-            if (!window.Auth) throw new Error("Auth module missing");
-
             // Call the forgotPassword function from auth.js
-            const result = await window.Auth.forgotPassword(email);
+            const result = await Auth.forgotPassword(email);
 
             if (result.success) {
                 // Show success message and hide form or redirect

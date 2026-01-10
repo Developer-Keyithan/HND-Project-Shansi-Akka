@@ -1,23 +1,25 @@
 // Dummy Data for healthybite 
 // Translations
-// This file relies on window.dictionary from dictionary.js which must be loaded before this.
 import { Dictionary } from "./dictionary.js";
 import { CurrencyRates } from "./currency-rate.js";
 import { PrivacyPolicy } from "./privacy-policy.js";
 import { TermsOfService } from "./terms-of-service.js";
+
 // User Data
-window.users = [
+export const users = [
     { email: 'user@example.com', password: 'password123', name: 'John Doe', role: 'consumer' },
     { email: 'admin@healthybite.com', password: 'admin123', name: 'Admin User', role: 'admin' },
+    { email: 'super@healthybite.com', password: 'super', name: 'Super Administrator', role: 'administrator' },
+    { email: 'tech@healthybite.com', password: 'tech', name: 'Tech Support', role: 'technical-supporter' },
     { email: 'seller@healthybite.com', password: 'seller123', name: 'Healthy Seller', role: 'seller' },
     { email: 'delivery@healthybite.com', password: 'delivery123', name: 'Delivery Partner', role: 'delivery-partner' }
 ];
 
 // Currency Rates (Base: LKR)
-window.currencyRates = CurrencyRates;
+export const currencyRates = CurrencyRates;
 
 // Supported Languages
-window.supportedLanguages = [
+export const supportedLanguages = [
     { code: 'ta', name: 'Tamil', flag: '🇮🇳' },
     { code: 'si', name: 'Sinhala', flag: '🇱🇰' },
     { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -32,16 +34,16 @@ window.supportedLanguages = [
 ];
 
 // Dictionary
-window.dictionary = Dictionary;
+export const dictionary = Dictionary;
 
 // Privacy Policy
-window.privacyPolicy = PrivacyPolicy;
+export const privacyPolicy = PrivacyPolicy;
 
 // Terms of Service
-window.termsOfService = TermsOfService;
+export const termsOfService = TermsOfService;
 
 // Data Exports
-window.products = [
+export const products = [
     {
         id: 1, name: "Superfood Salad", description: "A nutrient-packed salad with kale, quinoa, avocado, berries, and lemon vinaigrette.",
         price: 1850, calories: 320, category: "salads", rating: 4.8, image: "./assets/superfood-salad.avif",
@@ -94,7 +96,7 @@ window.products = [
     }
 ];
 
-window.categories = [
+export const categories = [
     { id: 'all', name: 'All', icon: 'fas fa-utensils', count: 10 },
     { id: 'salads', name: 'Salads', icon: 'fas fa-seedling', count: 2 },
     { id: 'smoothies', name: 'Smoothies', icon: 'fas fa-blender', count: 3 },
@@ -103,23 +105,23 @@ window.categories = [
     { id: 'snacks', name: 'Snacks', icon: 'fas fa-apple-alt', count: 1 }
 ];
 
-window.dietPlans = [
+export const dietPlans = [
     { id: 1, name: "Weight Loss Plan", description: "A balanced plan focusing on calorie deficit and nutrient density.", calories: 1500, duration: "4 weeks", price: 499.99, features: ["Custom meal plans", "Weekly grocery list", "Nutritionist support"] },
     { id: 2, name: "Muscle Gain Plan", description: "High-protein plan for muscle building.", calories: 2500, duration: "8 weeks", price: 1499.99, features: ["High-protein meals", "Workout recommendations", "Supplement guide"] },
     { id: 3, name: "Vegan Lifestyle", description: "Plant-based nutrition for optimal health.", calories: 1800, duration: "6 weeks", price: 999.99, features: ["100% plant-based", "Protein balancing", "Recipe ebook"] }
 ];
 
-window.orders = [
+export const orders = [
     { id: "HB78241", date: "2023-11-15", items: [{ id: 1, name: "Superfood Salad", quantity: 1, price: 12.99 }], total: 21.98, status: "delivered", deliveryAddress: "123 Main St, Apt 4B" },
     { id: "HB78239", date: "2023-11-14", items: [{ id: 3, name: "Vegan Buddha Bowl", quantity: 1, price: 14.99 }], total: 14.99, status: "delivered", deliveryAddress: "123 Main St, Apt 4B" }
 ];
 
-window.deliveryPartners = [
+export const deliveryPartners = [
     { id: 1, name: "John Delivery", email: "john@healthybite.com", status: "active", deliveries: 124, rating: 4.8 },
     { id: 2, name: "Sarah Courier", email: "sarah@healthybite.com", status: "active", deliveries: 89, rating: 4.9 }
 ];
 
-window.teamMembers = [
+export const teamMembers = [
     {
         id: 1,
         name: "Dr. Sarah Johnson",
@@ -154,5 +156,5 @@ window.teamMembers = [
     }
 ];
 
-window.adminStats = { totalOrders: 1247, totalRevenue: 45678.90, activeUsers: 892, pendingDeliveries: 12, monthlyGrowth: 23.5, popularProducts: [1, 5, 3] };
-window.ctaOffer = { discountRate: 80, validTill: "2026-12-31T23:59:59+05:30.000Z", minimumOrderValue: 50, maxDiscount: 100 };
+export const adminStats = { totalOrders: 1247, totalRevenue: 45678.90, activeUsers: 892, pendingDeliveries: 12, monthlyGrowth: 23.5, popularProducts: [1, 5, 3] };
+export const ctaOffer = { discountRate: 80, validTill: "2026-12-31T23:59:59+05:30.000Z", minimumOrderValue: 50, maxDiscount: 100 };

@@ -101,7 +101,7 @@
 .modal-header h3 {
     margin: 0;
     font-size: 1.6rem;
-    color: #333;
+    color: var(--primary-green);
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
 }

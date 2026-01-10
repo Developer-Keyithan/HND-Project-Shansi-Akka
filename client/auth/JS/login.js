@@ -1,5 +1,14 @@
 // Login Page JavaScript with EmailJS, Social Auth, and Logging
 import { Toast } from "../../plugins/Toast/toast.js";
+import { Auth } from "../../shared/auth.js";
+import { SocialAuth } from "../../shared/socialauth.js";
+import { EmailServiceImpl } from "../../shared/emailjs.js";
+import { Logger } from "../../shared/logger.js";
+import { AppConfig } from "../../app.config.js";
+import { Utils } from "../../shared/utils.js";
+import { showNotification } from "../../actions.js";
+
+const EmailService = EmailServiceImpl; // Alias
 
 document.addEventListener('DOMContentLoaded', function () {
     // Check for existing session
@@ -7,17 +16,21 @@ document.addEventListener('DOMContentLoaded', function () {
     if (userStr) {
         try {
             const user = JSON.parse(userStr);
+            console.log('User found in localStorage:', user);
             const redirectPaths = {
                 'admin': '/dashboard/admin.html',
+                'administrator': '/dashboard/admin.html',
                 'seller': '/dashboard/seller.html',
                 'delivery-partner': '/dashboard/delivery-partner.html',
-                'delivery-man': '/dashboard/delivery-man.html'
+                'delivery-man': '/dashboard/delivery-man.html',
+                'technical-supporter': '/dashboard/technical.html'
             };
             const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-            const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+            const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
             window.location.href = appUrl + redirectPath;
             return;
         } catch (e) {
+            console.warn('Failed to parse user session, clearing.', e);
             localStorage.removeItem('healthybite-user');
         }
     }
@@ -25,9 +38,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('loginForm');
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('password');
-
-    // Initialize services
-    initServices();
 
     // Toggle password visibility
     if (togglePassword && passwordInput) {
@@ -56,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            if (!window.Utils?.validateEmail(email)) {
+            if (!Utils.validateEmail(email)) {
                 showNotification('Please enter a valid email address', 'error');
                 return;
             }
@@ -69,25 +79,6 @@ document.addEventListener('DOMContentLoaded', function () {
     initSocialLogin();
 });
 
-function initServices() {
-    // Load required scripts
-    const scripts = [
-        '../shared/config.js',
-        '../shared/utils.js',
-        '../shared/auth.js',
-        '../shared/emailjs.js',
-        '../shared/socialauth.js',
-        '../shared/logger.js'
-    ];
-
-    scripts.forEach(src => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.type = 'text/javascript';
-        document.head.appendChild(script);
-    });
-}
-
 async function handleLogin(email, password, rememberMe) {
     const submitBtn = document.querySelector('#loginForm .btn-primary');
     const originalText = submitBtn.textContent;
@@ -96,20 +87,24 @@ async function handleLogin(email, password, rememberMe) {
 
     try {
         // Log login attempt
-        window.Logger?.info('Login attempt', { email });
+        Logger.info('Login attempt', { email });
 
         // Get device info
+        constDeviceInfo(); // Just internal helper usage or rename
         const deviceInfo = getDeviceInfo();
         const ipAddress = await getIPAddress();
 
         // Attempt login via API
-        const result = await window.Auth?.loginUser(email, password);
+        const result = await Auth.loginUser(email, password);
 
         if (result && result.success) {
             const user = result.user;
 
-            // Store user session
-            window.Auth?.setCurrentUser({
+            // Store user session is handled inside Auth.loginUser usually, but let's confirm.
+            // Auth.loginUser in shared/auth.js does NOT set current user, it returns result.
+            // Assuming Auth.setCurrentUser is needed.
+
+            Auth.setCurrentUser({
                 ...user,
                 rememberMe,
                 loginTime: new Date().toISOString()
@@ -117,13 +112,13 @@ async function handleLogin(email, password, rememberMe) {
 
             // Send login notification email
             try {
-                await window.EmailService?.notifyLogin(user.email, deviceInfo, ipAddress);
+                await EmailService.notifyLogin(user.email, deviceInfo, ipAddress);
             } catch (emailError) {
                 console.warn('Failed to send login email:', emailError);
             }
 
             // Log successful login
-            window.Logger?.info('Login successful', {
+            Logger.info('Login successful', {
                 email: user.email,
                 userId: user.id,
                 role: user.role
@@ -135,26 +130,28 @@ async function handleLogin(email, password, rememberMe) {
             setTimeout(() => {
                 const redirectPaths = {
                     'admin': '/dashboard/admin.html',
+                    'administrator': '/dashboard/admin.html',
                     'seller': '/dashboard/seller.html',
                     'delivery-partner': '/dashboard/delivery-partner.html',
-                    'delivery-man': '/dashboard/delivery-man.html'
+                    'delivery-man': '/dashboard/delivery-man.html',
+                    'technical-supporter': '/dashboard/technical.html'
                 };
 
                 const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-                const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
                 window.location.href = appUrl + redirectPath;
-            }, 1500);
+            }, 1000);
 
         } else {
             // Log failed login
-            window.Logger?.warn('Login failed', { email, error: result?.error });
+            Logger.warn('Login failed', { email, error: result?.error });
             showNotification(result?.error || 'Invalid email or password', 'error');
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
         }
 
     } catch (error) {
-        window.Logger?.error('Login error', error, { email });
+        Logger.error('Login error', error, { email });
         showNotification('An error occurred. Please try again.', 'error');
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
@@ -167,25 +164,25 @@ function initSocialLogin() {
     if (googleBtn) {
         googleBtn.addEventListener('click', async () => {
             try {
-                window.Logger?.info('Google login initiated');
-                const user = await window.SocialAuth?.signInWithGoogle();
+                Logger.info('Google login initiated');
+                const user = await SocialAuth.signInWithGoogle();
 
                 if (user) {
-                    window.Auth?.setCurrentUser(user);
-                    window.Logger?.info('Google login successful', { userId: user.id });
+                    Auth.setCurrentUser(user);
+                    Logger.info('Google login successful', { userId: user.id });
 
                     // Send notification
                     const deviceInfo = getDeviceInfo();
-                    await window.EmailService?.notifyLogin(user.email, deviceInfo, await getIPAddress());
+                    await EmailService.notifyLogin(user.email, deviceInfo, await getIPAddress());
 
                     showNotification('Login successful!', 'success');
                     setTimeout(() => {
-                        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                        const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
                         window.location.href = appUrl + '/dashboard/consumer.html';
-                    }, 1500);
+                    }, 1000);
                 }
             } catch (error) {
-                window.Logger?.error('Google login failed', error);
+                Logger.error('Google login failed', error);
                 showNotification('Google login failed', 'error');
             }
         });
@@ -196,24 +193,24 @@ function initSocialLogin() {
     if (facebookBtn) {
         facebookBtn.addEventListener('click', async () => {
             try {
-                window.Logger?.info('Facebook login initiated');
-                const user = await window.SocialAuth?.signInWithFacebook();
+                Logger.info('Facebook login initiated');
+                const user = await SocialAuth.signInWithFacebook();
 
                 if (user) {
-                    window.Auth?.setCurrentUser(user);
-                    window.Logger?.info('Facebook login successful', { userId: user.id });
+                    Auth.setCurrentUser(user);
+                    Logger.info('Facebook login successful', { userId: user.id });
 
                     const deviceInfo = getDeviceInfo();
-                    await window.EmailService?.notifyLogin(user.email, deviceInfo, await getIPAddress());
+                    await EmailService.notifyLogin(user.email, deviceInfo, await getIPAddress());
 
                     showNotification('Login successful!', 'success');
                     setTimeout(() => {
-                        const appUrl = (window.AppConfig?.app?.url || window.AppConfig?.appUrl || '').replace(/\/$/, '');
+                        const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
                         window.location.href = appUrl + '/dashboard/consumer.html';
-                    }, 1500);
+                    }, 1000);
                 }
             } catch (error) {
-                window.Logger?.error('Facebook login failed', error);
+                Logger.error('Facebook login failed', error);
                 showNotification('Facebook login failed', 'error');
             }
         });
@@ -257,12 +254,4 @@ async function getIPAddress() {
     } catch (error) {
         return 'Unknown';
     }
-}
-
-function showNotification(message, type = 'info') {
-    Toast({
-        icon: type,
-        title: type.charAt(0).toUpperCase() + type.slice(1),
-        message: message
-    });
 }

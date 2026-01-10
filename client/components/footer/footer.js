@@ -1,7 +1,9 @@
 // Footer Component Loader
-// Uses window.ClientRoot set by load-scripts.js for correct path resolution
+import { initAttributes } from '../../shared/common.js';
+import { updateConfigElements } from '../../shared/app-settings.js';
+import { ClientRoot } from '../../shared/env.js';
 
-const prefix = window.ClientRoot || ''; // Fallback to empty if not set
+const prefix = ClientRoot || ''; // Fallback to empty if not set
 const footerHTMLPath = prefix + 'components/footer/footer.html';
 
 fetch(footerHTMLPath)
@@ -13,11 +15,11 @@ fetch(footerHTMLPath)
 
             // Trigger initialization of custom attributes (data-config-key, etc.)
             const initCustomAttributes = () => {
-                if (window.Common && window.Common.initAttributes) {
-                    window.Common.initAttributes();
+                if (initAttributes) {
+                    initAttributes();
                 }
-                if (window.updateConfigElements) {
-                    window.updateConfigElements();
+                if (updateConfigElements) {
+                    updateConfigElements();
                 }
             };
 
