@@ -5,6 +5,7 @@ export const setEnv = (env) => {
 }
 
 export const isDev = () => NODE_ENV === "development";
+export const isProduction = () => NODE_ENV === "production"
 const path = window.location.pathname;
 const baseUrl = (NODE_ENV === "development") ? path.includes("client") ? window.location.origin + "/client" : window.location.origin : "https://healthybite-three.vercel.app";
 

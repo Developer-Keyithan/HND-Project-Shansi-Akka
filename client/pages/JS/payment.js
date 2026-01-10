@@ -1,6 +1,6 @@
 // Payment Page JavaScript with Stripe Integration
 import { Popover } from "../../plugins/Modal/modal.js";
-import { AppConfig, isDev, setEnv } from "../../app.config.js";
+import { AppConfig, isProduction, setEnv } from "../../app.config.js";
 import { Auth } from "../../shared/auth.js";
 import { API } from "../../shared/api.js";
 import { Utils } from "../../shared/utils.js";
@@ -195,7 +195,7 @@ window.selectCard = function (id) {
     if (el) el.classList.add('selected');
 
     // For Mock: Fill inputs
-    if (isMockPayment || isDev()) {
+    if (isMockPayment || isProduction()) {
         const cardInput = document.getElementById('card-number');
         const expiryInput = document.getElementById('card-expiry');
         const cvcInput = document.getElementById('card-cvc');
@@ -602,7 +602,7 @@ function renderMockPaymentElement() {
     if (container) {
         container.innerHTML = `
             <div class="card-form">
-            ${isDev() ?
+            ${isProduction() ?
                 `<div class="notice">
                     <i class="fas fa-info-circle"></i> <strong>Demo Mode:</strong> No real payment will be processed.
                 </div>`
@@ -610,7 +610,7 @@ function renderMockPaymentElement() {
                 <div class="form-group">
                     <label>Card Number</label>
                     <div class="input-wrapper">
-                        <input type="text" id="card-number" class="num-type-input" style="padding-left: 2.8rem;" placeholder="${isDev() ? "4242 4242 4242 4242" : 'Card Number'}" ${isDev() ? 'value="4242 4242 4242 4242"' : ''} ${isDev() ? 'disabled' : ''} inputmode="numeric">
+                        <input type="text" id="card-number" class="num-type-input" style="padding-left: 2.8rem;" placeholder="${isProduction() ? "4242 4242 4242 4242" : 'Card Number'}" ${isProduction() ? 'value="4242 4242 4242 4242"' : ''} ${isProduction() ? 'disabled' : ''} inputmode="numeric">
                         <i class="far fa-credit-card"></i>
                     </div>
                 </div>
@@ -618,13 +618,13 @@ function renderMockPaymentElement() {
                     <div class="col">
                         <div class="form-group">
                             <label>Expiration</label>
-                            <input type="text" id="card-expiry" class="num-type-input" placeholder="MM/YY" value="${isDev() ? "12/30" : ''}" ${isDev() ? 'disabled' : ''} inputmode="numeric">
+                            <input type="text" id="card-expiry" class="num-type-input" placeholder="MM/YY" value="${isProduction() ? "12/30" : ''}" ${isProduction() ? 'disabled' : ''} inputmode="numeric">
                         </div>
                     </div>
                     <div class="col">
                         <div class="form-group">
                             <label>CVC</label>
-                            <input type="text" id="card-cvc" class="num-type-input" placeholder="CVC" value="${isDev() ? "123" : ''}" ${isDev() ? 'disabled' : ''} inputmode="numeric">
+                            <input type="text" id="card-cvc" class="num-type-input" placeholder="CVC" value="${isProduction() ? "123" : ''}" ${isProduction() ? 'disabled' : ''} inputmode="numeric">
                         </div>
                     </div>
                 </div>
