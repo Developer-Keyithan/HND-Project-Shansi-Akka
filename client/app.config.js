@@ -4,7 +4,7 @@ export const setEnv = (env) => {
     NODE_ENV = env;
 }
 
-if (window.location.origin.includes("localhost")) {
+if (window.location.origin.includes("localhost") || window.location.origin.includes("127.0.") || window.location.origin.includes("192.168.") || window.location.origin.includes("10.0.")) {
     setEnv("development");
 } else {
     setEnv("production");
