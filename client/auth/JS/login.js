@@ -1,5 +1,4 @@
 // Login Page JavaScript with EmailJS, Social Auth, and Logging
-import { Toast } from "../../plugins/Toast/toast.js";
 import { Auth } from "../../shared/auth.js";
 import { SocialAuth } from "../../shared/socialauth.js";
 import { EmailServiceImpl } from "../../shared/emailjs.js";
@@ -11,28 +10,129 @@ import { showNotification } from "../../actions.js";
 const EmailService = EmailServiceImpl; // Alias
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Check for existing session
-    const userStr = localStorage.getItem('healthybite-user');
-    if (userStr) {
+    // --- Method 1: Official Google Render Button (Robust but Fixed Design) ---
+    /*
+    // Initialize Social Auth immediately
+    // We call renderGoogleButton directly. It has internal logic to wait/init.
+    const googleBtnContainer = document.querySelector('.btn-google');
+    if (googleBtnContainer) {
+        // Clear for cleaner render
+        googleBtnContainer.innerHTML = '';
+        googleBtnContainer.style.padding = '0';
+        googleBtnContainer.style.border = 'none';
+
+        // Use a unique ID for the button
+        googleBtnContainer.id = 'google-btn-official-container';
+
+        SocialAuth.renderGoogleButton('google-btn-official-container');
+    }
+
+    // Global handler for Google Button Callback
+    window.handleGoogleLoginResponse = async (response) => {
+        console.log('Google login response:', response);
         try {
-            const user = JSON.parse(userStr);
-            console.log('User found in localStorage:', user);
-            const redirectPaths = {
-                'admin': '/dashboard/admin.html',
-                'administrator': '/dashboard/admin.html',
-                'seller': '/dashboard/seller.html',
-                'delivery-partner': '/dashboard/delivery-partner.html',
-                'delivery-man': '/dashboard/delivery-man.html',
-                'technical-supporter': '/dashboard/technical.html'
-            };
-            const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-            const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
-            window.location.href = appUrl + redirectPath;
-            return;
-        } catch (e) {
-            console.warn('Failed to parse user session, clearing.', e);
-            localStorage.removeItem('healthybite-user');
+            const result = await API.googleLogin(response.credential);
+            if (result && result.success) {
+                const user = result.user;
+                Auth.setCurrentUser(user, result.token); // Assuming token is what we got
+                
+                // Notification
+                const deviceInfo = getDeviceInfo();
+                const ip = await getIPAddress();
+                // Send mail silently
+                EmailService.notifyLogin(user.email, deviceInfo, ip).catch(console.warn);
+
+                showNotification('Login successful!', 'success');
+                setTimeout(() => {
+                    const redirectPaths = {
+                        'admin': '/dashboard/admin.html',
+                        'administrator': '/dashboard/admin.html',
+                        'seller': '/dashboard/seller.html',
+                        'delivery-partner': '/dashboard/delivery-partner.html',
+                        'delivery-man': '/dashboard/delivery-man.html',
+                        'technical-supporter': '/dashboard/technical.html'
+                    };
+                    const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
+                    const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
+                    window.location.href = appUrl + redirectPath;
+                }, 1000);
+            } else {
+                showNotification('Google login failed: ' + (result.error || 'Unknown'), 'error');
+            }
+        } catch (error) {
+            console.error('Google login error', error);
+            showNotification('Google login error', 'error');
         }
+    };
+    */
+
+    // --- Method 2: Custom Google Button (Better Design, uses Popup) ---
+    // Initialize Social Auth for One Tap / Popup
+    SocialAuth.init();
+
+    const googleBtn = document.querySelector('.btn-google');
+    if (googleBtn) {
+        googleBtn.addEventListener('click', async function () {
+            try {
+                // Prevent multiple clicks
+                if (this.disabled) return;
+                this.disabled = true;
+
+                showNotification('Connecting to Google...', 'info');
+                const result = await SocialAuth.signInWithGoogle();
+
+                if (result && result.success) {
+                    const user = result.user;
+                    Auth.setCurrentUser(user, result.token);
+
+                    // Notification
+                    const deviceInfo = getDeviceInfo();
+                    // Send mail silently
+                    try {
+                        const ip = await getIPAddress();
+                        EmailService.notifyLogin(user.email, deviceInfo, ip).catch(console.warn);
+                    } catch (e) { }
+
+                    showNotification('Login successful!', 'success');
+                    setTimeout(() => {
+                        const redirectPaths = {
+                            'admin': '/dashboard/admin.html',
+                            'administrator': '/dashboard/admin.html',
+                            'seller': '/dashboard/seller.html',
+                            'delivery-partner': '/dashboard/delivery-partner.html',
+                            'delivery-man': '/dashboard/delivery-man.html',
+                            'technical-supporter': '/dashboard/technical.html'
+                        };
+                        const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
+                        const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
+                        window.location.href = appUrl + redirectPath;
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('Google login failed', error);
+                showNotification('Google login failed: ' + (error.message || 'Unknown error'), 'error');
+            } finally {
+                if (googleBtn) googleBtn.disabled = false;
+            }
+        });
+    }
+
+    // Check for existing session
+    // Check for existing session
+    const currentUser = Auth.getCurrentUser();
+    if (currentUser) {
+        const redirectPaths = {
+            'admin': '/dashboard/admin.html',
+            'administrator': '/dashboard/admin.html',
+            'seller': '/dashboard/seller.html',
+            'delivery-partner': '/dashboard/delivery-partner.html',
+            'delivery-man': '/dashboard/delivery-man.html',
+            'technical-supporter': '/dashboard/technical.html'
+        };
+        const redirectPath = redirectPaths[currentUser.role] || '/dashboard/consumer.html';
+        const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
+        window.location.href = appUrl + redirectPath;
+        return;
     }
 
     const loginForm = document.getElementById('loginForm');
@@ -90,7 +190,6 @@ async function handleLogin(email, password, rememberMe) {
         Logger.info('Login attempt', { email });
 
         // Get device info
-        constDeviceInfo(); // Just internal helper usage or rename
         const deviceInfo = getDeviceInfo();
         const ipAddress = await getIPAddress();
 
@@ -98,11 +197,20 @@ async function handleLogin(email, password, rememberMe) {
         const result = await Auth.loginUser(email, password);
 
         if (result && result.success) {
-            const user = result.user;
 
-            // Store user session is handled inside Auth.loginUser usually, but let's confirm.
-            // Auth.loginUser in shared/auth.js does NOT set current user, it returns result.
-            // Assuming Auth.setCurrentUser is needed.
+            // --- Verification Check ---
+            if (result.verificationRequired) {
+                showNotification('Verification code sent to your email.', 'info');
+                setTimeout(() => {
+                    const appUrl = (AppConfig.app?.url || '').replace(/\/$/, ''); // Ensure no trailing slash
+                    // Redirect to verification page with mode=login
+                    window.location.href = `${appUrl}/auth/verification.html?email=${encodeURIComponent(result.email)}&mode=login&new=true`;
+                    // Note: Check if path logic is correct relative to deployment
+                }, 1000);
+                return;
+            }
+
+            const user = result.user;
 
             Auth.setCurrentUser({
                 ...user,
@@ -116,31 +224,6 @@ async function handleLogin(email, password, rememberMe) {
             } catch (emailError) {
                 console.warn('Failed to send login email:', emailError);
             }
-
-            // Log successful login
-            Logger.info('Login successful', {
-                email: user.email,
-                userId: user.id,
-                role: user.role
-            });
-
-            showNotification('Login successful! Redirecting...', 'success');
-
-            // Redirect based on role
-            setTimeout(() => {
-                const redirectPaths = {
-                    'admin': '/dashboard/admin.html',
-                    'administrator': '/dashboard/admin.html',
-                    'seller': '/dashboard/seller.html',
-                    'delivery-partner': '/dashboard/delivery-partner.html',
-                    'delivery-man': '/dashboard/delivery-man.html',
-                    'technical-supporter': '/dashboard/technical.html'
-                };
-
-                const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-                const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
-                window.location.href = appUrl + redirectPath;
-            }, 1000);
 
         } else {
             // Log failed login
@@ -159,44 +242,11 @@ async function handleLogin(email, password, rememberMe) {
 }
 
 function initSocialLogin() {
-    // Google login
-    const googleBtn = document.querySelector('.btn-google');
-    if (googleBtn) {
-        googleBtn.addEventListener('click', async () => {
-            try {
-                Logger.info('Google login initiated');
-                const result = await SocialAuth.signInWithGoogle();
-
-                if (result && result.success) {
-                    const user = result.user;
-                    Auth.setCurrentUser(user, result.token);
-                    Logger.info('Google login successful', { userId: user.id });
-
-                    // Send notification
-                    const deviceInfo = getDeviceInfo();
-                    await EmailService.notifyLogin(user.email, deviceInfo, await getIPAddress());
-
-                    showNotification('Login successful!', 'success');
-                    setTimeout(() => {
-                        const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
-                        const redirectPaths = {
-                            'admin': '/dashboard/admin.html',
-                            'administrator': '/dashboard/admin.html',
-                            'seller': '/dashboard/seller.html',
-                            'delivery-partner': '/dashboard/delivery-partner.html',
-                            'delivery-man': '/dashboard/delivery-man.html',
-                            'technical-supporter': '/dashboard/technical.html'
-                        };
-                        const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-                        window.location.href = appUrl + redirectPath;
-                    }, 1000);
-                }
-            } catch (error) {
-                Logger.error('Google login failed', error);
-                showNotification('Google login failed', 'error');
-            }
-        });
-    }
+    // Google login - Handled by renderGoogleButton above
+    // const googleBtn = document.querySelector('.btn-google');
+    // if (googleBtn) {
+    //     googleBtn.addEventListener('click', async () => { ... });
+    // }
 
     // Facebook login
     const facebookBtn = document.querySelector('.btn-facebook');

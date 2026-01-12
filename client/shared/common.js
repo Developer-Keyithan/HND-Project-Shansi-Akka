@@ -237,11 +237,7 @@ export function translate(key) {
 
 function saveSettings() {
     localStorage.setItem('healthybite-settings', JSON.stringify(userSettings));
-    const user = JSON.parse(localStorage.getItem('healthybite-user'));
-    if (user) {
-        user.preferences = userSettings;
-        localStorage.setItem('healthybite-user', JSON.stringify(user));
-    }
+    // User preferences syncing should handle via API separately if needed
 }
 
 export function setLanguage(langCode) {

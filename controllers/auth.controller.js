@@ -3,7 +3,7 @@ import User from '../models/user.model.js';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+
 let tokenBlacklist = [];
 
 export async function registerUser(req, res) {
@@ -33,10 +33,13 @@ export async function registerUser(req, res) {
 
         await newUser.save();
 
+        // Send Welcome Email (Non-blocking)
+        sendWelcomeEmail(email, name).catch(console.error);
+
         // Generate JWT token
         const token = jwt.sign(
             { id: newUser._id, role: newUser.role },
-            JWT_SECRET_KEY,
+            process.env.JWT_SECRET_KEY,
             { expiresIn: "7d" }
         );
 
@@ -60,6 +63,9 @@ export async function registerUser(req, res) {
     }
 }
 
+import { storeLoginOTP, sendVerificationEmail } from "./verification.controller.js";
+import crypto from 'crypto';
+
 export async function login(req, res) {
     try {
         await connectDB();
@@ -70,56 +76,60 @@ export async function login(req, res) {
             return res.status(400).json({ error: "Email and password are required" });
         }
 
+        console.log('Login Attempt for:', email);
         const user = await User.findOne({ email: email.toLowerCase() });
 
         if (!user) {
+            console.log('User not found');
             return res.status(404).json({ error: "User not found" });
         }
 
-        if (user.password !== password) {
+        console.log('User found. Comparing passwords...');
+        const isMatch = await user.comparePassword(password);
+        console.log('Password match result:', isMatch);
+
+        if (!isMatch) {
+            console.log('Password mismatch');
             return res.status(400).json({ error: "Invalid password" });
         }
 
-        // Merge cart if provided
-        if (req.body.cart && Array.isArray(req.body.cart) && req.body.cart.length > 0) {
-            // Simple merge logic: for now let's just replace if it's there, 
-            // or we could append. User said "move the database", usually implies merge or replace.
-            // Let's replace the DB cart with local cart if local cart has items, 
-            // OR smarter: merge items by product ID.
+        // --- NEW LOGIC: Trigger Verification ---
 
-            const localCart = req.body.cart;
-            const dbCart = user.cart || [];
+        // Generate Code
+        const token = crypto.randomBytes(3).toString('hex').toUpperCase();
 
-            // Merge logic
-            localCart.forEach(localItem => {
-                const dbItemIndex = dbCart.findIndex(i => i.id == localItem.id);
-                if (dbItemIndex > -1) {
-                    dbCart[dbItemIndex].quantity += localItem.quantity;
-                } else {
-                    dbCart.push(localItem);
-                }
-            });
-            user.cart = dbCart;
-            await user.save();
-        }
+        // Store Code
+        await storeLoginOTP(user.email, token);
+
+        // Send Email
+        await sendVerificationEmail(user.email, token, 'login');
 
         // Generate JWT token
-        const token = jwt.sign(
+        const loginToken = jwt.sign(
             { id: user._id, role: user.role },
-            JWT_SECRET_KEY,
+            process.env.JWT_SECRET_KEY,
             { expiresIn: "7d" }
         );
 
+        const userData = {
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            cart: user.cart.length
+        };
+
+        res.status(201).json({
+            success: true,
+            user: userData,
+            token: loginToken
+        });
+
+        // Return status telling frontend to redirect
         res.status(200).json({
             success: true,
-            user: {
-                id: user._id.toString(),
-                email: user.email,
-                name: user.name,
-                role: user.role,
-                cart: user.cart
-            },
-            token
+            verificationRequired: true,
+            email: user.email,
+            message: "Verification code sent to email"
         });
 
     } catch (error) {
@@ -265,6 +275,10 @@ export async function googleLogin(req, res) {
             authProvider: user.authProvider
         };
 
+        // Send login notification
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        sendLoginNotification(user.email, { device: 'Unknown', os: 'Unknown', browser: 'Unknown' }, ip).catch(console.error);
+
         res.status(200).json({
             success: true,
             user: userData
@@ -273,5 +287,28 @@ export async function googleLogin(req, res) {
     } catch (error) {
         console.error('Google auth error:', error);
         res.status(500).json({ error: 'Authentication failed' });
+    }
+}
+
+export async function getCurrentUser(req, res) {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const userData = {
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            cart: user.cart,
+            avatar: user.avatar,
+            permissions: user.permissions || [],
+        };
+
+        res.status(200).json({ success: true, user: userData });
+    } catch (error) {
+        console.error('Get Current User Error:', error);
+        res.status(500).json({ error: 'Failed to get current user' });
     }
 }

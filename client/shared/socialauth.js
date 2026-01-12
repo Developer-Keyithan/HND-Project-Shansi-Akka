@@ -65,11 +65,16 @@ export class SocialAuthService {
         await this.init();
 
         if (!this.googleSDKLoaded || !this.googleClientId) {
-            throw new Error('Google SocialAuth not properly initialized');
+            console.warn('Google SocialAuth not properly initialized, retrying init...');
+            await this.init();
+            if (!this.googleSDKLoaded) throw new Error('Google SocialAuth not properly initialized');
         }
 
         return new Promise((resolve, reject) => {
             try {
+                // If it's a retry or button click, we need to re-initialize to attach callback?
+                // Actually google.accounts.id.prompt() can be called if initialized.
+                // We re-initialize to be safe with the new callback promise.
                 google.accounts.id.initialize({
                     client_id: this.googleClientId,
                     callback: async (response) => {
@@ -83,9 +88,22 @@ export class SocialAuthService {
                         } catch (error) {
                             reject(error);
                         }
+                    },
+                    auto_select: false, // Don't auto select to allow account switching
+                    cancel_on_tap_outside: true
+                });
+
+                // Show the prompt (One Tap)
+                google.accounts.id.prompt((notification) => {
+                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                        console.warn("Google One Tap suppressed:", notification.getNotDisplayedReason());
+                        // If suppressed, we might want to tell user or fallback.
+                        // For custom button, we can't do much else with 'prompt'.
+                        // Ideally we should renderButton into a hidden div and click it, 
+                        // but that's blocked by browsers.
+                        // The user should have the real button visible if this fails.
                     }
                 });
-                google.accounts.id.prompt();
             } catch (error) {
                 reject(error);
             }
@@ -121,12 +139,46 @@ export class SocialAuthService {
         });
     }
 
-    renderGoogleButton(containerId) {
-        if (!this.googleSDKLoaded) return;
-        google.accounts.id.renderButton(
-            document.getElementById(containerId),
-            { theme: "outline", size: "large", width: "100%" }
-        );
+    async renderGoogleButton(containerId) {
+        console.log(`[SocialAuth] Attempting to render Google button in #${containerId}`);
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error(`[SocialAuth] Container #${containerId} NOT FOUND in DOM.`);
+            return;
+        }
+
+        if (!this.googleSDKLoaded) {
+            console.log('[SocialAuth] Google SDK not loaded, initializing...');
+            await this.init();
+        }
+
+        if (!this.googleSDKLoaded) {
+            console.error('[SocialAuth] Failed to load Google SDK.');
+            return;
+        }
+
+        // We must Initialize first to set the callback
+        try {
+            google.accounts.id.initialize({
+                client_id: this.googleClientId,
+                callback: async (response) => {
+                    console.log('[SocialAuth] Google Button Callback Triggered', response);
+                    if (window.handleGoogleLoginResponse) {
+                        window.handleGoogleLoginResponse(response);
+                    } else {
+                        console.error('[SocialAuth] window.handleGoogleLoginResponse is undefined');
+                    }
+                }
+            });
+
+            google.accounts.id.renderButton(
+                container,
+                { theme: "outline", size: "large", width: "100%" }
+            );
+            console.log(`[SocialAuth] Google button rendered successfully in #${containerId}`);
+        } catch (err) {
+            console.error('[SocialAuth] Error rendering Google button:', err);
+        }
     }
 }
 

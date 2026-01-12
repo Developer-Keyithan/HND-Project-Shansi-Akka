@@ -3,26 +3,25 @@ import { API } from "./api.js";
 import { AppConfig } from "../app.config.js";
 import { users } from "./data.js";
 import { EmailServiceImpl } from "./emailjs.js";
+import { jwtDecode } from "../../node_modules/jwt-decode/build/esm/index.js";
 
-// Initialize EmailJS (Replace 'YOUR_PUBLIC_KEY' with actual key in production)
-const EMAILJS_SERVICE_ID = 'service_healthybite';
-const EMAILJS_TEMPLATE_ID_WELCOME = 'template_welcome';
-const EMAILJS_TEMPLATE_ID_RESET = 'template_reset';
 
-// Get current user from localStorage
+// Get current user from token (limited info: id, role)
 export function getCurrentUser() {
-    const userStr = localStorage.getItem('healthybite-user');
-    if (!userStr) return null;
+    const token = localStorage.getItem('healthybite-token');
+    if (!token) return null;
     try {
-        return JSON.parse(userStr);
+        const decoded = jwtDecode(token);
+        // Return a partial user object that satisfies basic checks like hasRole
+        return decoded ? { id: decoded.id, role: decoded.role, ...decoded } : null;
     } catch (e) {
+        console.error("Invalid Token", e);
         return null;
     }
 }
 
-// Set current user and token
+// Set token only (or user context if implemented later)
 export function setCurrentUser(user, token) {
-    localStorage.setItem('healthybite-user', JSON.stringify(user));
     if (token) {
         localStorage.setItem('healthybite-token', token);
     }
@@ -30,7 +29,6 @@ export function setCurrentUser(user, token) {
 
 // Remove current user (logout)
 export function removeCurrentUser() {
-    localStorage.removeItem('healthybite-user');
     localStorage.removeItem('healthybite-token');
     const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
     window.location.href = appUrl + '/index.html';
@@ -38,7 +36,9 @@ export function removeCurrentUser() {
 
 // Check if user is authenticated
 export function isAuthenticated() {
-    return getCurrentUser() !== null;
+    const token = localStorage.getItem('healthybite-token');
+    // Optionally check expiry here
+    return !!token;
 }
 
 // Check if user has specific role

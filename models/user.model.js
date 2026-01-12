@@ -23,6 +23,15 @@ const userSchema = new mongoose.Schema({
     phone: String,
     address: String,
     cart: [cartItemSchema], // Persistent cart
+    wishlist: [String], // Array of product IDs
+    viewHistory: [{
+        productId: String,
+        date: { type: Date, default: Date.now }
+    }],
+    searchHistory: [{
+        query: String,
+        date: { type: Date, default: Date.now }
+    }],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

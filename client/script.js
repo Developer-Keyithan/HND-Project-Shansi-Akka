@@ -4,6 +4,7 @@ import { Toast } from "./plugins/Toast/toast.js";
 import { API } from "./shared/api.js";
 import { Common } from "./shared/common.js";
 import { Auth } from "./shared/auth.js";
+import { SocialAuth } from "./shared/socialauth.js";
 import { Navbar } from "./components/navbar/navbar-functions.js";
 import { AppConfig } from "./app.config.js";
 import { addToCart, showNotification } from "./actions.js";
@@ -56,7 +57,12 @@ async function loadProducts(category = 'all') {
     try {
         // Fetch all products if not already loaded
         if (allProducts.length === 0) {
-            allProducts = await API.getProducts();
+            const user = Auth.getCurrentUser();
+            const params = { sort: 'popular' };
+            if (user && (user.id || user._id)) {
+                params.userId = user.id || user._id;
+            }
+            allProducts = await API.getProducts(params);
         }
 
         // Initialize Categories if not done
@@ -165,7 +171,7 @@ async function loadReviews() {
 
         // Hide section if fewer than 2 reviews
         if (!reviews || reviews.length < 2) {
-            const section = document.querySelector('.testimonials');
+            const section = document.getElementById('testimonials');
             if (section) section.style.display = 'none';
             return;
         }
@@ -220,13 +226,17 @@ async function setCTADiscount() {
     }
 }
 
-const loginForm = document.getElementById('loginForm');
-if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
+// Event Delegation for Login Modal (Static or Popover)
+document.addEventListener('submit', async function (e) {
+    if (e.target && e.target.id === 'loginForm') {
         e.preventDefault();
+        const form = e.target;
 
-        const email = document.getElementById('modal-email').value;
-        const password = document.getElementById('modal-password').value;
+        const emailInput = form.querySelector('#modal-email') || form.querySelector('#email');
+        const passwordInput = form.querySelector('#modal-password') || form.querySelector('#password');
+
+        const email = emailInput ? emailInput.value : '';
+        const password = passwordInput ? passwordInput.value : '';
 
         // Simple validation
         if (!email || !password) {
@@ -235,57 +245,111 @@ if (loginForm) {
         }
 
         // Show loading state
-        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const submitBtn = form.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
         submitBtn.disabled = true;
 
         // Real authentication
         try {
-            const result = await Auth.loginUser(email, password);
+            // const result = await API.getCurrentUser();
+            const result = await API.login(email, password);
 
             if (result.success) {
-                currentUser = result.user;
-                showNotification('Login successful! Redirecting...', 'success');
+                // currentUser = result.user; // Managed by Auth internally or refreshed via navbar
+                showNotification('Login successful!', 'success');
+                localStorage.setItem('healthybite-token', result.token);
+                Navbar.setGlobalUser(result.user);
 
-                // Close modal
+                // Close modal (Handle both static and Popover)
                 const loginModal = document.getElementById('loginModal');
                 if (loginModal) {
                     loginModal.style.display = 'none';
                     document.body.style.overflow = 'auto';
                 }
 
+                // If using Popover, we might need to close it differently
+                // But Popover usually removes the element or hides it.
+                // If checking for .modal-overlay.active, we can close that too.
+                const popoverOverlay = document.querySelector('.modal-overlay.active');
+                if (popoverOverlay) {
+                    const closeBtn = popoverOverlay.querySelector('.modal-close-x');
+                    if (closeBtn) closeBtn.click();
+                }
+
                 // Update user menu
                 Navbar.updateUserMenu();
 
                 // Redirect based on role
-                setTimeout(() => {
-                    const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
-                    switch (result.user.role) {
-                        case 'admin':
-                            window.location.href = appUrl + '/dashboard/admin.html';
-                            break;
-                        case 'seller':
-                            window.location.href = appUrl + '/dashboard/seller.html';
-                            break;
-                        case 'delivery-partner':
-                            window.location.href = appUrl + '/dashboard/delivery.html';
-                            break;
-                        default:
-                            window.location.href = appUrl + '/dashboard/consumer.html';
-                    }
-                }, 1500);
+                // setTimeout(() => {
+                //     const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
+                //     switch (role) {
+                //         case 'admin':
+                //             window.location.href = appUrl + '/dashboard/admin.html';
+                //             break;
+                //         case 'seller':
+                //             window.location.href = appUrl + '/dashboard/seller.html';
+                //             break;
+                //         case 'delivery-partner':
+                //             window.location.href = appUrl + '/dashboard/delivery.html'; // Adjust validation if needed
+                //             break;
+                //         default:
+                //             window.location.href = appUrl + '/dashboard/consumer.html';
+                //     }
+                // }, 1500);
 
             } else {
                 showNotification(result.error || 'Invalid email or password', 'error');
             }
         } catch (error) {
             console.error("Login logic error:", error);
-            showNotification('An unexpected error occurred', 'error');
+            showNotification(error.message || 'An unexpected error occurred', 'error');
         } finally {
             // Restore button state
-            submitBtn.innerHTML = originalBtnText;
-            submitBtn.disabled = false;
+            if (submitBtn) {
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
         }
-    });
-}
+    }
+});
+
+// Event Delegation for Google Login in Modal
+document.addEventListener('click', async function (e) {
+    const btn = e.target.closest('.btn-google');
+    if (btn && document.getElementById('loginModal')?.contains(btn) || btn?.closest('.modal-overlay')) {
+        try {
+            // Prevent multiple clicks
+            if (btn.disabled) return;
+            btn.disabled = true;
+
+            showNotification('Connecting to Google...', 'info');
+            const result = await SocialAuth.signInWithGoogle();
+
+            if (result && result.success) {
+                const user = result.user;
+                Auth.setCurrentUser(user, result.token);
+
+                showNotification('Login successful!', 'success');
+
+                // Close modals
+                const loginModal = document.getElementById('loginModal');
+                if (loginModal) loginModal.style.display = 'none';
+                const popoverOverlay = document.querySelector('.modal-overlay.active');
+                if (popoverOverlay) popoverOverlay.querySelector('.modal-close-x')?.click();
+
+                Navbar.updateUserMenu();
+
+                setTimeout(() => {
+                    const appUrl = (AppConfig?.app?.url || '').replace(/\/$/, '');
+                    window.location.href = appUrl + '/dashboard/consumer.html';
+                }, 1000);
+            }
+        } catch (error) {
+            console.error('Google login failed', error);
+            showNotification('Google login failed: ' + (error.message || 'Unknown error'), 'error');
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    }
+});

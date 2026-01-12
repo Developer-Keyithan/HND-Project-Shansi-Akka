@@ -3,25 +3,59 @@
  * Connects to the backend via /api/* endpoints.
  */
 
+import axios from "../../node_modules/axios/dist/esm/axios.js";
+
 const BASE_URL = (window.location.port === '5500' || window.location.port === '5501')
     ? `http://${window.location.hostname}:3000/api`
     : '/api';
 
 export const API = {
-    // Helper for requests
+    // Helper for requests using Axios
     _fetch: async (endpoint, options = {}) => {
         try {
             const url = `${BASE_URL}${endpoint}`;
-            const res = await fetch(url, {
-                headers: { 'Content-Type': 'application/json' },
-                ...options
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'API Request Failed');
-            return data;
+            const method = (options.method || 'GET').toLowerCase();
+
+            // Get token
+            const token = localStorage.getItem('healthybite-token');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            let res;
+            const data = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body || {});
+
+            // Handle different axios signatures
+            if (['get', 'delete', 'head', 'options'].includes(method)) {
+                // axios.get(url, config)
+                // We assume 'data' was intended as config or empty object in original code
+                res = await axios[method](url, {
+                    ...data,
+                    headers: {
+                        ...(data.headers || {}),
+                        ...headers
+                    }
+                });
+            } else {
+                // axios.post(url, data, config)
+                res = await axios[method](url, data, { headers });
+            }
+
+            console.log(`[API] ${method.toUpperCase()} ${endpoint}`, res.data);
+            return res.data;
+
         } catch (error) {
             console.error(`API Error (${endpoint}):`, error);
-            throw error;
+            // Normalize error format to match what app expects (data.error)
+            const errMsg = error.response?.data?.error || error.message || 'API Request Failed';
+            const err = new Error(errMsg);
+            err.status = error.response?.status;
+            throw err;
         }
     },
 
@@ -51,6 +85,8 @@ export const API = {
         if (params.category) query.append('category', params.category);
         if (params.search) query.append('search', params.search);
         if (params.limit) query.append('limit', params.limit);
+        if (params.sort) query.append('sort', params.sort);
+        if (params.userId) query.append('userId', params.userId);
 
         const url = `/products?${query.toString()}`;
         const res = await API._fetch(url);
@@ -128,6 +164,10 @@ export const API = {
 
     getUsers: async () => {
         return await API._fetch('/users');
+    },
+
+    getCurrentUser: async () => {
+        return await API._fetch('/auth/me');
     },
 
     saveUser: async (userData) => {

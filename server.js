@@ -2,13 +2,12 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import connectDB from './lib/db.js';
-import mongoose from 'mongoose';
-import Product from './models/product.model.js';
 import Order from './models/order.model.js';
 
 // Controllers
-import { login, logout, googleLogin, facebookLogin, registerUser } from './controllers/auth.controller.js';
-import { getProducts, createProduct, updateProduct, deleteProduct } from './controllers/product.controller.js';
+import { initiateRegistration, verifyRegistration, verifyLogin, resendVerification } from './controllers/verification.controller.js';
+import { login, logout, googleLogin, facebookLogin, registerUser, getCurrentUser } from './controllers/auth.controller.js';
+import { getProducts, createProduct, updateProduct, deleteProduct, getProductById } from './controllers/product.controller.js';
 import { getCategories } from './controllers/category.controller.js';
 import { getConfig, getStripeKey, getSocialKeys, getCTAOffer } from './controllers/config.controller.js';
 import { getUsers, saveUser, deleteUser, getUserById, updateUserCart, updateUserProfile } from './controllers/user.controller.js';
@@ -22,6 +21,7 @@ import { getPolicy } from './controllers/policy.controller.js';
 import { getTranslations } from './controllers/translation.controller.js';
 import { handleLogs } from './controllers/log.controller.js';
 import { getStats } from './controllers/stats.controller.js';
+import { Auth } from './middlewares/auth.middleware.js';
 
 import cors from 'cors';
 
@@ -49,22 +49,20 @@ r.post('/auth/register', registerUser);
 r.post('/auth/logout', logout);
 r.post('/auth/google', googleLogin);
 r.post('/auth/facebook', facebookLogin);
+r.get('/auth/me', new Auth().middleware(), getCurrentUser);
+
+// Verification Flow
+r.post('/auth/register-init', initiateRegistration);
+r.post('/auth/verify', verifyRegistration);
+r.post('/auth/verify-login', verifyLogin);
+r.post('/auth/resend-verify', resendVerification);
 
 // Products
 r.get('/products', getProducts);
 r.post('/products', createProduct);
 r.put('/products', updateProduct);
 r.delete('/products', deleteProduct);
-r.get('/products/:id', async (req, res) => {
-    try {
-        await connectDB();
-        const product = await Product.findById(req.params.id);
-        if (!product) return res.status(404).json({ error: "Product not found" });
-        res.status(200).json({ success: true, product });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+r.get('/products/:id', getProductById);
 
 // Categories
 r.get('/categories', getCategories);
@@ -139,7 +137,6 @@ r.get('/stats', getStats);
 
 app.use('/api', r);
 
-// Start
 // Start
 connectDB().then(() => {
     app.listen(PORT, '0.0.0.0', () => {

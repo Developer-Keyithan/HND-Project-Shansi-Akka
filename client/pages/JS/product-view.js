@@ -1,5 +1,6 @@
 // Product View Page JavaScript
 import { API } from "../../shared/api.js";
+import { Auth } from "../../shared/auth.js";
 import { getParameterByName, showLoading, formatCurrency } from "../../shared/common.js";
 import { addToCart, updateCartCount, showNotification } from "../../actions.js";
 
@@ -309,7 +310,7 @@ async function loadReviews() {
 }
 
 async function handleSubmitReview() {
-    const user = JSON.parse(localStorage.getItem('healthybite-user'));
+    const user = Auth.getCurrentUser();
     if (!user) {
         showNotification('Please login to leave a review', 'warning');
         return;

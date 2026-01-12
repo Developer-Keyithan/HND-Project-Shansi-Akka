@@ -7,23 +7,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const forgotPasswordForm = document.getElementById('forgotPasswordForm');
 
     // Check for existing session
-    const userStr = localStorage.getItem('healthybite-user');
-    if (userStr) {
-        try {
-            const user = JSON.parse(userStr);
-            const redirectPaths = {
-                'admin': '/dashboard/admin.html',
-                'seller': '/dashboard/seller.html',
-                'delivery-partner': '/dashboard/delivery-partner.html',
-                'delivery-man': '/dashboard/delivery-man.html'
-            };
-            const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-            const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
-            window.location.href = appUrl + redirectPath;
-            return;
-        } catch (e) {
-            localStorage.removeItem('healthybite-user');
-        }
+    const currentUser = Auth.getCurrentUser();
+    if (currentUser) {
+        const redirectPaths = {
+            'admin': '/dashboard/admin.html',
+            'administrator': '/dashboard/admin.html',
+            'seller': '/dashboard/seller.html',
+            'delivery-partner': '/dashboard/delivery-partner.html',
+            'delivery-man': '/dashboard/delivery-man.html',
+            'technical-supporter': '/dashboard/technical.html'
+        };
+        const redirectPath = redirectPaths[currentUser.role] || '/dashboard/consumer.html';
+        const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
+        window.location.href = appUrl + redirectPath;
+        return;
     }
 
     const submitBtn = forgotPasswordForm.querySelector('button[type="submit"]');

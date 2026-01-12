@@ -16,7 +16,7 @@ export function show(options = {}) {
         content = null,
         type = 'info', // info, warning, danger, success, error
         icon = null,
-        confirm = { text: 'Confirm', color: null, backgroundColor: null, onClick: () => { } },
+        confirm = options.type === 'content' ? null : { text: 'Confirm', color: null, backgroundColor: null, onClick: () => { } },
         cancel = null, // { text, color, backgroundColor, onClick }
         buttons = [], // [{ text, type, color, backgroundColor, onClick }]
         position = 'center', // center, top, bottom, left, right
@@ -80,8 +80,10 @@ export function show(options = {}) {
             <div class="modal-body">
                 ${content ? content : `<p>${message}</p>`}
             </div>
-            <div class="modal-footer" style="justify-content: ${buttonPositions === 'right' ? 'flex-end' : (buttonPositions === 'left' ? 'flex-start' : 'center')}">
-            </div>
+            ${type !== 'content' || (type === 'content' && (confirm || cancel || (buttons && buttons.length > 0))) ? `
+                <div class="modal-footer" style="justify-content: ${buttonPositions === 'right' ? 'flex-end' : (buttonPositions === 'left' ? 'flex-start' : 'center')}">
+                </div>
+            ` : ''}
         </div>
     `;
 
@@ -116,11 +118,14 @@ export function show(options = {}) {
         return btn;
     };
 
-    if (cancel) footer.appendChild(createBtn(cancel, 'cancel'));
-    if (buttons && buttons.length > 0) {
-        buttons.forEach(b => footer.appendChild(createBtn(b, 'confirm')));
-    } else if (confirm) {
-        footer.appendChild(createBtn(confirm, 'confirm'));
+    if (type !== 'content' || (type === 'content' && (confirm || cancel || (buttons && buttons.length > 0)))) {
+        console.log('Adding buttons to footer', confirm, cancel, buttons);
+        if (cancel) footer.appendChild(createBtn(cancel, 'cancel'));
+        if (buttons && buttons.length > 0) {
+            buttons.forEach(b => footer.appendChild(createBtn(b, 'confirm')));
+        } else if (confirm) {
+            footer.appendChild(createBtn(confirm, 'confirm'));
+        }
     }
 
     if (closeBtn) closeBtn.addEventListener('click', closeModal);

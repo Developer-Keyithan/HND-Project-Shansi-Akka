@@ -393,6 +393,10 @@ input[type=number],
     color: var(--gray-light);
 }
 
+#loginForm .form-footer {
+    margin-bottom: 0 !important;
+}
+
 /* Hero Section */
 .hero {
     padding: 100px 0;

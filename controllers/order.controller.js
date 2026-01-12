@@ -1,6 +1,7 @@
 import Order from "../models/order.model.js";
 import connectDB from "../lib/db.js";
 import { updateStatsOnOrder } from "./stats.controller.js";
+import Product from "../models/product.model.js";
 
 // Get orders
 export async function getOrders(req, res) {
@@ -29,6 +30,18 @@ export async function createOrder(req, res) {
         await connectDB();
         const newOrder = new Order(req.body);
         await newOrder.save();
+
+        // Update Product Sales counts
+        if (newOrder.items && newOrder.items.length > 0) {
+            for (const item of newOrder.items) {
+                if (item.productId) {
+                    await Product.findByIdAndUpdate(item.productId, {
+                        $inc: { sales: item.quantity || 1 }
+                    });
+                }
+            }
+        }
+
         res.status(201).json({ success: true, order: newOrder });
     } catch (error) {
         console.error("Create Order Error:", error);
