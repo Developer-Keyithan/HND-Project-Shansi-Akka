@@ -58,21 +58,21 @@ export const API = {
 
     // --- Configuration ---
     getConfig: async () => {
-        const res = await API._fetch('/config');
+        const res = await API._fetch('/common/config');
         return res.config;
     },
 
     getStripeKey: async () => {
-        const res = await API._fetch('/config/stripe-key');
+        const res = await API._fetch('/common/stripe-key');
         return res.publishableKey;
     },
 
     getSocialKeys: async () => {
-        return await API._fetch('/config/social-keys');
+        return await API._fetch('/common/social-keys');
     },
 
     getCTAOffer: async () => {
-        const res = await API._fetch('/config/cta-offer');
+        const res = await API._fetch('/common/cta-offer');
         return res.offer;
     },
 
@@ -122,7 +122,7 @@ export const API = {
     },
 
     getCategories: async () => {
-        const res = await API._fetch('/categories');
+        const res = await API._fetch('/common/categories');
         return res.categories || [];
     },
 
@@ -200,7 +200,7 @@ export const API = {
 
     // --- Diet Plans ---
     getDietPlans: async () => {
-        const res = await API._fetch('/diet-plans');
+        const res = await API._fetch('/common/diet-plans');
         return res.plans || [];
     },
 
@@ -211,36 +211,36 @@ export const API = {
 
     // --- Legal ---
     getTermsOfService: async () => {
-        const res = await API._fetch('/policies?type=terms');
+        const res = await API._fetch('/common/policies?type=terms');
         return res.policy;
     },
 
     getPrivacyPolicy: async () => {
-        const res = await API._fetch('/policies?type=privacy');
+        const res = await API._fetch('/common/policies?type=privacy');
         return res.policy;
     },
 
     // --- Translations ---
     getTranslations: async (lang) => {
-        const res = await API._fetch(`/translations?lang=${lang}`);
+        const res = await API._fetch(`/common/translations?lang=${lang}`);
         return res.translations;
     },
 
     // --- FAQs ---
     getFaqs: async () => {
-        const res = await API._fetch('/faqs');
+        const res = await API._fetch('/common/faqs');
         return res.faqs || [];
     },
 
     // --- Team Members ---
     getTeamMembers: async () => {
-        const res = await API._fetch('/team-members');
+        const res = await API._fetch('/common/team-members');
         return res.members || [];
     },
 
     // --- Contact ---
     submitContact: async (contactData) => {
-        return await API._fetch('/contact', {
+        return await API._fetch('/common/contact', {
             method: 'POST',
             body: JSON.stringify(contactData)
         });
@@ -264,19 +264,19 @@ export const API = {
     // --- Reviews ---
     getReviews: async (params = {}) => {
         const query = new URLSearchParams(params).toString();
-        const res = await API._fetch(`/reviews?${query}`);
+        const res = await API._fetch(`/common/reviews?${query}`);
         return res.reviews || [];
     },
 
     addReview: async (reviewData) => {
-        return await API._fetch('/reviews', {
+        return await API._fetch('/common/reviews', {
             method: 'POST',
             body: JSON.stringify(reviewData)
         });
     },
 
     toggleFeaturedReview: async (reviewId, isFeatured) => {
-        return await API._fetch('/reviews', {
+        return await API._fetch('/common/reviews', {
             method: 'POST',
             body: JSON.stringify({ reviewId, isFeatured })
         });
@@ -299,7 +299,7 @@ export const API = {
 
     // --- Stats ---
     getStats: async () => {
-        const res = await API._fetch('/stats');
+        const res = await API._fetch('/common/stats');
         console.log(res);
         return res.stats || null;
     }
