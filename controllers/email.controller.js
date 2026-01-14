@@ -16,9 +16,7 @@ transporter.verify(function (error, success) {
         console.error('Email Server Verification Error:', error);
         console.error('Make sure EMAIL_USER and EMAIL_PASS are correct in .env');
         console.error('For Gmail, use App Password, not login password.');
-    } else {
-        console.log('Email Server is ready to take our messages');
-    }
+    } 
 });
 
 export const sendWelcomeEmail = async (email, name) => {
@@ -40,7 +38,6 @@ export const sendWelcomeEmail = async (email, name) => {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('Welcome email sent: ' + info.response);
         return true;
     } catch (error) {
         console.error('Error sending welcome email:', error);

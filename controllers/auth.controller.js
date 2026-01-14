@@ -76,20 +76,15 @@ export async function login(req, res) {
             return res.status(400).json({ error: "Email and password are required" });
         }
 
-        console.log('Login Attempt for:', email);
         const user = await User.findOne({ email: email.toLowerCase() });
 
         if (!user) {
-            console.log('User not found');
             return res.status(404).json({ error: "User not found" });
         }
 
-        console.log('User found. Comparing passwords...');
         const isMatch = await user.comparePassword(password);
-        console.log('Password match result:', isMatch);
 
         if (!isMatch) {
-            console.log('Password mismatch');
             return res.status(400).json({ error: "Invalid password" });
         }
 
@@ -138,9 +133,7 @@ export async function login(req, res) {
 }
 
 export function logout(req, res) {
-    console.log(req.headers)
     const authHeader = req.headers["authorization"];
-    console.log(authHeader)
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.status(400).json({ error: "Token required" });
     }

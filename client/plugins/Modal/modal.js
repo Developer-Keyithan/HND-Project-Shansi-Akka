@@ -119,7 +119,6 @@ export function show(options = {}) {
     };
 
     if (type !== 'content' || (type === 'content' && (confirm || cancel || (buttons && buttons.length > 0)))) {
-        console.log('Adding buttons to footer', confirm, cancel, buttons);
         if (cancel) footer.appendChild(createBtn(cancel, 'cancel'));
         if (buttons && buttons.length > 0) {
             buttons.forEach(b => footer.appendChild(createBtn(b, 'confirm')));

@@ -119,8 +119,6 @@ export async function registerUser(userData) {
             // I'll skip email sending here to avoid breakage or assume misconfiguration.
             // Or better, just log it for now since email config might be empty.
 
-            console.log("Mock Welcome Email Sent to " + result.user.email);
-
             return result;
         } else {
             return { success: false, error: result.message };

@@ -1,12 +1,8 @@
 
 // Mock Email Service Implementation
 export class EmailService {
-    constructor() {
-        console.log('EmailService initialized (Mock)');
-    }
 
     async sendEmail(templateId, templateParams) {
-        console.log(`[Mock Email] Sending template ${templateId} with params:`, templateParams);
         return Promise.resolve({ status: 200, text: 'OK' });
     }
 
