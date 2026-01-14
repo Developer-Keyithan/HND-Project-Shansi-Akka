@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>401 Unauthorized - healthybite</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body
+    style="display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #f9f9f9; text-align: center;">
+
+    <div class="error-container">
+        <h1 style="font-size: 8rem; color: #f57f17; margin-bottom: 0;">401</h1>
+        <h2 style="font-size: 2rem; margin-top: 10px; color: #333;">Unauthorized</h2>
+        <p style="color: #666; margin: 20px 0;">You must be logged in to access this page.</p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <a href="/" class="btn btn-secondary">Home</a>
+            <button onclick="document.getElementById('loginModal').style.display='block'" class="btn btn-primary">Login
+                Now</button>
+        </div>
+    </div>
+
+    <!-- Login Modal Trigger Support -->
+    <!-- Ideally we would load the main layout, but for an error page, a simple link/button is safer -->
+
+</body>
+
+</html>

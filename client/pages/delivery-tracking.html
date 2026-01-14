@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - healthybite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../pages/CSS/pages.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="navbar-placeholder" class="header"></header>
+
+    <!-- Hero -->
+    <section class="page-hero" style="padding: 60px 0; background: var(--dark-green); color: #fff;">
+        <div class="container">
+            <h1 style="font-size: 2rem;">Track Your Order</h1>
+            <p style="opacity: 0.9;">Order ID: <span id="order-id-display">Loading...</span></p>
+        </div>
+    </section>
+
+    <!-- Tracking Content -->
+    <section class="section">
+        <div class="container">
+            <div class="tracking-container">
+                <!-- Left Column: Status & Map -->
+                <div class="tracking-main">
+                    <div class="tracking-card">
+                        <div class="tracking-header">
+                            <div>
+                                <h2 style="font-size: 1.5rem; margin-bottom: 5px;">Estimated Delivery</h2>
+                                <p id="estimated-delivery" style="color: var(--text-light);">Calculating...</p>
+                            </div>
+                            <div class="status-badge"
+                                style="background: #e8f5e9; color: var(--primary-green); padding: 5px 15px; border-radius: 20px; font-weight: 600;">
+                                <span id="current-status-text">Updating...</span>
+                            </div>
+                        </div>
+
+                        <!-- Timeline -->
+                        <div class="tracking-timeline clearfix">
+                            <div class="timeline-progress"></div>
+
+                            <div class="timeline-step completed">
+                                <div class="step-icon"><i class="fas fa-check"></i></div>
+                                <div class="step-label">Placed</div>
+                            </div>
+                            <div class="timeline-step active">
+                                <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
+                                <div class="step-label">Confirmed</div>
+                            </div>
+                            <div class="timeline-step">
+                                <div class="step-icon"><i class="fas fa-utensils"></i></div>
+                                <div class="step-label">Preparing</div>
+                            </div>
+                            <div class="timeline-step">
+                                <div class="step-icon"><i class="fas fa-motorcycle"></i></div>
+                                <div class="step-label">On Way</div>
+                            </div>
+                            <div class="timeline-step">
+                                <div class="step-icon"><i class="fas fa-home"></i></div>
+                                <div class="step-label">Delivered</div>
+                            </div>
+                        </div>
+
+                        <!-- Map -->
+                        <div class="tracking-map-placeholder">
+                            <div class="map-overlay">
+                                <i class="fas fa-map-marker-alt"></i> Live Tracking Demo
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Details -->
+                <div class="tracking-sidebar">
+                    <!-- Delivery Partner -->
+                    <div class="tracking-card" id="delivery-partner-card">
+                        <h3>Delivery Partner</h3>
+                        <p style="color: #999;">Assigning partner...</p>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="tracking-card">
+                        <h3>Order Summary</h3>
+                        <p style="font-size: 0.9rem; color: #999; margin-bottom: 15px;" id="order-date-display"></p>
+                        <div id="tracking-items-list">
+                            <!-- Items Injected Here -->
+                        </div>
+                        <div class="tracking-total">
+                            <span>Total</span>
+                            <span id="tracking-total">LKR 0.00</span>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <a href="/pages/contact.html" class="btn btn-outline" style="width: 100%;">Need Help?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer-placeholder" class="footer"></footer>
+
+    <script src="../load-scripts.js"></script>
+    <script type="module" src="JS/delivery-tracking.js"></script>
+
+</body>
+
+</html>

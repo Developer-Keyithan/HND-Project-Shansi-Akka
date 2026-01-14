@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard - healthybite</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/index.html" class="logo">
+                    <i class="fas fa-leaf"></i>
+                    <span>healthybite</span>
+                </a>
+            </div>
+
+            <div class="user-profile">
+                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Seller Profile" id="user-avatar">
+                <h3 id="user-name">Seller</h3>
+                <p id="user-role">Seller</p>
+                <span class="user-status active">● Active</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#overview" class="active"><i class="fas fa-home"></i>
+                            Dashboard</a></li>
+                    <li><a href="#products"><i class="fas fa-box"></i> My Products</a>
+                    </li>
+                    <li><a href="#orders"><i class="fas fa-shopping-bag"></i> Orders</a>
+                    </li>
+                    <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <h1 id="greeting">Hello, Partner!</h1>
+                    <p id="dashboard-date">Manage your healthy offerings</p>
+                </div>
+            </header>
+
+            <div class="dashboard-sections">
+                <!-- Overview -->
+                <section class="dashboard-section active" id="overview-section">
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: #e8f5e9;">
+                                <i class="fas fa-box" style="color: #2e7d32;"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="total-products">0</h3>
+                                <p>Active Products</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: #e3f2fd;">
+                                <i class="fas fa-star" style="color: #1565c0;"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>4.8</h3>
+                                <p>Average Rating</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Products -->
+                <section class="dashboard-section" id="products-section">
+                    <div class="section-header">
+                        <h2>My Products</h2>
+                        <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Product</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Name</th>
+                                    <th>Price</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table-body">
+                                <!-- JS Populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Orders Placeholder -->
+                <section class="dashboard-section" id="orders-section">
+                    <div class="section-header">
+                        <h2>Incoming Orders</h2>
+                    </div>
+                    <p>No new orders at the moment.</p>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="JS/seller.js"></script>
+</body>
+
+</html>

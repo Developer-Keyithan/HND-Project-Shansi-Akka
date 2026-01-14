@@ -1,0 +1,8 @@
+/* 2X Extra Large Devices (Larger Desktops, 1400px and up) */
+/* Currently placeholder for future specific styles */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1320px;
+        /* Bootstrap XXL standard usually */
+    }
+}

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - healthybite</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Additional styles for register page */
+        .password-strength {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .strength-text {
+            display: block;
+            margin-bottom: 3px;
+            color: #666;
+        }
+
+        #strength-level {
+            font-weight: 600;
+        }
+
+        .strength-meter {
+            height: 4px;
+            background-color: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #dc3545;
+            border-radius: 2px;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .strength-bar.weak {
+            width: 33%;
+            background-color: #dc3545;
+        }
+
+        .strength-bar.fair {
+            width: 66%;
+            background-color: #ffc107;
+        }
+
+        .strength-bar.good {
+            width: 100%;
+            background-color: #28a745;
+        }
+
+        .password-match {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            min-height: 16px;
+        }
+
+        .password-match.match {
+            color: #28a745;
+        }
+
+        .password-match.no-match {
+            color: #dc3545;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-options .checkbox {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .form-options .checkbox input {
+            margin-top: 3px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .form-options .checkbox a {
+            color: #4fA746;
+            text-decoration: none;
+        }
+
+        .form-options .checkbox a:hover {
+            text-decoration: underline;
+        }
+
+        /* Form validation styles */
+        .form-group.error input {
+            border-color: #dc3545;
+        }
+
+        .form-group.error .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .form-group.success input {
+            border-color: #28a745;
+        }
+
+        .checkbox.error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-hero">
+            <div class="auth-hero-content">
+                <h2>Why Join healthybite?</h2>
+                <p>Become a member and unlock exclusive benefits for your health journey.</p>
+                <div class="auth-features">
+                    <div class="feature">
+                        <i class="fas fa-gift"></i>
+                        <div>
+                            <strong>20% Off First Order</strong>
+                            <small>Get started with a special welcome discount</small>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-user-md"></i>
+                        <div>
+                            <strong>Free Diet Consultation</strong>
+                            <small>Personalized advice from nutrition experts</small>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <strong>Track Your Progress</strong>
+                            <small>Monitor your health goals and achievements</small>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-star"></i>
+                        <div>
+                            <strong>Member-Only Deals</strong>
+                            <small>Exclusive discounts and early access to offers</small>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-headset"></i>
+                        <div>
+                            <strong>Priority Support</strong>
+                            <small>Get help faster with dedicated customer service</small>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-calendar-check"></i>
+                        <div>
+                            <strong>Easy Meal Planning</strong>
+                            <small>Schedule and customize your weekly meals</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="testimonial">
+                    <p>"healthybite transformed my eating habits. The personalized meal plans made healthy living easy
+                        and enjoyable!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <strong>Sarah Johnson</strong>
+                            <small>Member since 2022</small>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+
+        <div class="auth-card">
+            <div class="auth-header">
+                <a href="/index.html" class="logo">
+                    <i class="fas fa-leaf"></i>
+                    <span>healthybite</span>
+                </a>
+                <h1>Join healthybite</h1>
+                <p>Create your account to start your healthy journey</p>
+            </div>
+
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input type="text" id="fullname" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="Enter your phone number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input">
+                        <input type="password" id="password" placeholder="Create a password" required>
+                        <button type="button" class="toggle-password" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <span class="strength-text">Password strength: <span id="strength-level">Weak</span></span>
+                        <div class="strength-meter">
+                            <div class="strength-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="password-input">
+                        <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+                        <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span class="password-match" id="password-match-indicator"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="referral">Referral Code (Optional)</label>
+                    <input type="text" id="referral" placeholder="Enter referral code if any">
+                </div>
+
+                <div class="form-options" style="flex-direction: column; align-items: flex-start;">
+                    <label class="checkbox">
+                        <input type="checkbox" id="acceptTerms" required>
+                        <span>I agree to the <a href="/pages/terms.html" target="_blank">Terms of Service</a> and <a
+                                href="/pages/privacy.html" target="_blank">Privacy Policy</a></span>
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" id="newsletter" checked>
+                        <span>Subscribe to our newsletter for health tips and offers</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+
+                <div class="divider">
+                    <span>or continue with</span>
+                </div>
+
+                <button type="button" class="btn btn-google">
+                    <i class="fab fa-google"></i> Google
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="/auth/login.html">Log in now</a></p>
+                <p><a href="/index.html"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function () {
+            emailjs.init("YOUR_PUBLIC_KEY");
+        })();
+    </script>
+    <script type="module" src="/shared/data.js"></script>
+    <script type="module" src="/shared/auth.js"></script>
+    <script type="module" src="JS/register.js"></script>
+
+
+</body>
+
+</html>

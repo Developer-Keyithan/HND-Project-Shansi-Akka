@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - healthybite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../pages/CSS/pages.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="navbar-placeholder" class="header"></header>
+    <!-- Cart Content -->
+    <section class="cart-section">
+        <div class="container">
+            <div class="cart-container">
+                <!-- Cart Items -->
+                <div class="cart-items-container">
+                    <div class="cart-header">
+                        <h2>Your Items</h2>
+                        <button class="btn-clear-cart" id="clear-cart-btn">Clear
+                            Cart</button>
+                    </div>
+                    <div id="cart-items" class="cart-items">
+                        <!-- Cart items loaded by JavaScript -->
+                        <div class="empty-cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>Your cart is empty</h3>
+                            <p>Add some healthy meals to get started!</p>
+                            <a href="/pages/menu.html" class="btn btn-primary">Browse
+                                Menu</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="cart-summary">
+                    <h2>Order Summary</h2>
+                    <div class="summary-details">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal">LKR 0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Delivery Fee</span>
+                            <span id="delivery-fee"></span>
+                        </div>
+                        <!-- <div class="summary-row">
+                            <span>Tax (5%)</span>
+                            <span id="cart-tax">LKR 0.00</span>
+                        </div> -->
+                        <!-- <div class="summary-divider"></div> -->
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span id="cart-total">LKR 0.00</span>
+                        </div>
+                    </div>
+                    <div class="summary-actions">
+                        <a href="/pages/menu.html" class="btn btn-outline">Continue
+                            Shopping</a>
+                        <button class="btn btn-primary btn-block" id="checkout-btn" disabled>Proceed to
+                            Checkout</button>
+                    </div>
+                    <div class="payment-methods">
+                        <p><i class="fas fa-lock"></i> <span>Secure checkout with
+                                Stripe</span></p>
+                        <div class="payment-icons">
+                            <i class="fab fa-cc-visa"></i>
+                            <i class="fab fa-cc-mastercard"></i>
+                            <!-- <i class="fab fa-cc-amex"></i>
+                            <i class="fab fa-cc-paypal"></i> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer-placeholder" class="footer"></footer>
+
+    <script src="../load-scripts.js"></script>
+    <script type="module" src="JS/cart.js"></script>
+</body>
+
+</html>

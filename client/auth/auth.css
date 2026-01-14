@@ -1,0 +1,151 @@
+/* Auth Pages Styles */
+.auth-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f7fa;
+}
+
+.auth-card {
+    flex: 1;
+    max-width: 500px;
+    background-color: var(--white);
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.auth-header .logo {
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.auth-header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    color: var(--dark-green);
+}
+
+.auth-header p {
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+.auth-form {
+    margin-bottom: 30px;
+}
+
+.password-input {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.toggle-password:hover {
+    color: var(--primary-green);
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--gray);
+}
+
+.auth-footer p {
+    margin-bottom: 10px;
+    color: var(--text-light);
+}
+
+.auth-footer a {
+    color: var(--primary-green);
+    font-weight: 500;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+.auth-hero {
+    flex: 1;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+    color: var(--white);
+    padding: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 100vh;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.auth-hero-content {
+    max-width: 500px;
+}
+
+.auth-hero-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: var(--white);
+}
+
+.auth-hero-content p {
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+    opacity: 0.9;
+    line-height: 1.7;
+}
+
+.auth-features {
+    display: grid;
+    gap: 20px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.feature i {
+    font-size: 1.5rem;
+    color: var(--accent-green);
+    width: 40px;
+}
+
+.feature span {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Responsive Auth */
+@media (max-width: 992px) {
+    .auth-container {
+        flex-direction: column;
+    }
+    
+    .auth-card {
+        max-width: 100%;
+        padding: 40px 20px;
+    }
+    
+    .auth-hero {
+        display: none;
+    }
+}

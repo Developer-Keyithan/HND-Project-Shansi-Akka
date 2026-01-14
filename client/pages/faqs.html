@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frequently Asked Questions - healthybite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../pages/CSS/pages.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        .accordion {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .accordion-item {
+            background-color: #fff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid #f0f0f0;
+        }
+
+        .accordion-header {
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        .accordion-header:hover {
+            background-color: #f9f9f9;
+        }
+
+        .accordion-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .accordion-icon {
+            font-size: 1.2rem;
+            color: var(--primary-green);
+            transition: transform 0.3s;
+        }
+
+        .accordion-content {
+            padding: 0 25px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease;
+            background-color: #fff;
+        }
+
+        .accordion-content p {
+            margin: 15px 0 25px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 500px;
+            /* Approximate max height */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="navbar-placeholder" class="header"></header>
+
+    <!-- Page Hero -->
+    <section class="page-hero faqs-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Frequently Asked Questions</h1>
+                <p>Find answers to common questions about our services and diet plans</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQs Section -->
+    <section class="faqs-section" style="padding: 80px 0;">
+        <div class="container">
+            <div class="accordion" id="faq-accordion">
+                <!-- FAQ Item 1 -->
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3>How does the diet planning work?</h3>
+                        <div class="accordion-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Our diet planning starts with a consultation or an online quiz to
+                            understand your health
+                            goals, dietary preferences, and lifestyle. Based on this, our nutritionists craft a
+                            personalized meal plan for you.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3>Do you offer delivery to my area?</h3>
+                        <div class="accordion-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="accordion-content">
+                        <p>We currently deliver to most major cities in Sri Lanka, including
+                            Colombo, Kandy, and Galle.
+                            Please check our delivery page or enter your zip code at checkout to confirm.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3>Are the meals fresh or frozen?</h3>
+                        <div class="accordion-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="accordion-content">
+                        <p>We pride ourselves on using fresh ingredients. Our meals are prepared
+                            daily and delivered
+                            fresh to your doorstep. They are never frozen.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3>Can I customize my meals?</h3>
+                        <div class="accordion-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Yes! Once you select a plan, you can swap out meals or ingredients
+                            based on allergies or
+                            preferences through your user dashboard.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3>What is your cancellation policy?</h3>
+                        <div class="accordion-icon"><i class="fas fa-chevron-down"></i></div>
+                    </div>
+                    <div class="accordion-content">
+                        <p>You can pause or cancel your subscription at any time. For immediate
+                            order cancellations,
+                            please do so within 1 hour of placing the order.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center" style="margin-top: 50px;">
+                <p>Can't find what you're looking for?</p>
+                <a href="/pages/contact.html" class="btn btn-primary">Contact
+                    Support</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer-placeholder" class="footer"></footer>
+
+    <script src="../load-scripts.js"></script>
+
+    <script>
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const item = header.parentElement;
+
+                // Close other items
+                document.querySelectorAll('.accordion-item').forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.classList.remove('active');
+                    }
+                });
+
+                // Toggle current item
+                item.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+
+</html>

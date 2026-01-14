@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - healthybite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../pages/CSS/pages.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function () {
+            emailjs.init("YOUR_PUBLIC_KEY");
+        })();
+    </script>
+    <!-- Stripe JS (Uncomment when connecting to real backend) -->
+    <!-- <script src="https://js.stripe.com/v3/"></script> -->
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="navbar-placeholder" class="header"></header>
+
+    <!-- Payment Section -->
+    <section class="page-hero payment-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Secure Checkout</h1>
+                <p>Complete your order with secure payment</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Content -->
+    <section class="payment-section">
+        <div class="container">
+            <div class="payment-container">
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <h2>Order Summary</h2>
+                    <div id="order-items" class="order-items">
+                        <!-- Order items loaded by JavaScript -->
+                    </div>
+                    <div class="order-totals">
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <span id="order-subtotal">LKR 0.00</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Delivery Fee</span>
+                            <span>LKR 200.00</span>
+                        </div>
+                        <!-- <div class="total-row">
+                            <span>Tax (5%)</span>
+                            <span id="order-tax">LKR 0.00</span>
+                        </div> -->
+                        <div class="total-divider"></div>
+                        <div class="total-row total">
+                            <span>Total</span>
+                            <span id="order-total">LKR 0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Form -->
+                <div class="payment-form-container">
+
+                    <!-- Saved Addresses -->
+                    <div id="saved-addresses-container" class="saved-section hidden">
+                        <div class="section-header">
+                            <h2>Saved Addresses</h2>
+                            <button class="btn-text" id="manage-addresses-btn">Manage</button>
+                        </div>
+                        <div id="saved-addresses-list" class="saved-list"></div>
+                    </div>
+
+                    <h2>Delivery Information</h2>
+                    <form id="delivery-form" class="delivery-form">
+                        <div class="form-group">
+                            <label for="delivery-name">Full Name</label>
+                            <input type="text" id="delivery-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-phone">Phone Number</label>
+                            <input type="tel" id="delivery-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-address">Delivery Address</label>
+                            <textarea id="delivery-address" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="address-type">Address Type</label>
+                            <select id="address-type" class="select-input">
+                                <option value="Home">Home</option>
+                                <option value="Office">Office</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <button type="button" id="save-address-btn" class="btn-toggle">
+                                <i class="far fa-square"></i> Save this address
+                            </button>
+                            <input type="hidden" id="save-address">
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-notes">Special Instructions (Optional)</label>
+                            <textarea id="delivery-notes" rows="2"></textarea>
+                        </div>
+                    </form>
+
+                    <h2>Payment Method</h2>
+                    <div class="payment-methods">
+                        <div class="payment-method active" data-method="card">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Credit/Debit Card</span>
+                        </div>
+                    </div>
+
+                    <!-- Saved Cards -->
+                    <div id="saved-cards-container" class="saved-section hidden">
+                        <div class="section-header">
+                            <h3>Saved Cards</h3>
+                            <button class="btn-text" id="manage-cards-btn">Manage</button>
+                        </div>
+                        <div id="saved-cards-list" class="saved-list"></div>
+                    </div>
+
+                    <!-- Stripe Payment Element -->
+                    <div id="payment-element" class="stripe-payment-element">
+                        <!-- Stripe Elements will create form elements here -->
+                    </div>
+
+                    <div class="form-group checkbox-group" style="margin-top: 15px;">
+                        <button type="button" id="save-card-btn" class="btn-toggle">
+                            <i class="far fa-square"></i> Save my card for future payments
+                        </button>
+                        <input type="hidden" id="save-card">
+                    </div>
+
+                    <div id="payment-errors" class="payment-errors"></div>
+
+                    <button id="submit-payment" class="btn btn-primary btn-block">
+                        <span id="button-text">Pay Now</span>
+                        <span id="spinner" class="spinner hidden"><i class="fas fa-spinner fa-spin"></i></span>
+                    </button>
+
+                    <div class="payment-security">
+                        <p><i class="fas fa-lock"></i> <span>Your payment is secured by
+                                Stripe</span> <i class="fas fa-info-circle" id="security-info-btn"
+                                style="cursor: pointer; color: var(--primary-green); margin-left: 5px;"></i></p>
+                        <div class="payment-icons">
+                            <i class="fab fa-cc-visa"></i>
+                            <i class="fab fa-cc-mastercard"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer-placeholder" class="footer"></footer>
+
+    <script src="../load-scripts.js"></script>
+    <script type="module" src="JS/payment.js"></script>
+
+
+</body>
+
+</html>

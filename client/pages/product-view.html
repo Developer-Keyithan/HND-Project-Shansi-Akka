@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - healthybite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../pages/CSS/pages.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="navbar-placeholder" class="header"></header>
+
+    <!-- Product View Section -->
+    <section class="product-view-section">
+        <div class="container">
+            <div id="product-container" class="product-view-container">
+                <!-- Product details loaded by JavaScript -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading product details...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Products -->
+    <section class="related-products">
+        <div class="container">
+            <h2 class="section-title">You May Also Like</h2>
+            <div id="related-products" class="products-grid">
+                <!-- Related products loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Reviews -->
+    <section class="product-reviews-section">
+        <div class="container">
+            <h2 class="section-title">Customer Reviews</h2>
+            <div id="reviews-container" class="reviews-grid">
+                <!-- Reviews loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer-placeholder" class="footer"></footer>
+
+    <script src="../load-scripts.js"></script>
+    <script type="module" src="JS/product-view.js"></script>
+
+
+</body>
+
+</html>

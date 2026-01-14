@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Dashboard - healthybite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-leaf logo-icon"></i>
+                <h2>healthybite</h2>
+            </div>
+            <div class="sidebar-user">
+                <div class="user-avatar">
+                    <i class="fas fa-motorcycle"></i>
+                </div>
+                <div class="user-info">
+                    <h3 id="user-name">Loading...</h3>
+                    <p>Delivery Partner</p>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-view="tasks">
+                    <i class="fas fa-tasks"></i> My Tasks
+                </a>
+                <a href="#" class="nav-item" data-view="history">
+                    <i class="fas fa-history"></i> Delivery History
+                </a>
+                <a href="#" class="nav-item" data-view="earnings">
+                    <i class="fas fa-wallet"></i> Earnings
+                </a>
+                <a href="#" class="nav-item" data-view="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <a href="#" class="nav-item logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-nav">
+                <div class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="page-title">
+                    <h1>Delivery Dashboard</h1>
+                </div>
+                <div class="top-nav-actions">
+                    <div class="status-toggle">
+                        <span>Available</span>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </header>
+
+            <div id="dashboard-view" class="dashboard-view">
+                <!-- Delivery Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="metric-info">
+                            <h3>12</h3>
+                            <p>Delivered Today</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon orange">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="metric-info">
+                            <h3>2</h3>
+                            <p>Pending</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon blue">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="metric-info">
+                            <h3>LKR 4,500</h3>
+                            <p>Today's Earnings</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create a placeholder for Current Delivery -->
+                <div class="recent-orders">
+                    <div class="section-header">
+                        <h2>Current Task</h2>
+                    </div>
+                    <div class="current-task-card"
+                        style="background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #eee; display: flex; gap: 20px; align-items: center;">
+                        <div class="task-map"
+                            style="width: 100px; height: 100px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-map-marked-alt fa-2x" style="color: #ccc;"></i>
+                        </div>
+                        <div class="task-details" style="flex: 1;">
+                            <h3 style="margin-bottom: 5px;">Order #HB9823</h3>
+                            <p style="color: #666; font-size: 0.9rem; margin-bottom: 5px;"><i
+                                    class="fas fa-map-marker-alt"></i> 123, Galle Road, Colombo 03</p>
+                            <span class="badge badge-pending">Pickup in 5 mins</span>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-primary">View Route</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="JS/delivery-man.js"></script>
+</body>
+
+</html>

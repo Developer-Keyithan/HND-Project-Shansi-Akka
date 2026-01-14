@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthy Menu - healthybite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../pages/CSS/pages.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="navbar-placeholder" class="header"></header>
+
+    <!-- Menu Hero -->
+    <section class="page-hero menu-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Our Healthy Menu</h1>
+                <p>Discover delicious, nutritious meals crafted with care. Every
+                    dish is designed to nourish your body
+                    and delight your taste buds.</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <i class="fas fa-leaf"></i>
+                        <span>100% Organic</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-heart"></i>
+                        <span>Nutrient-Rich</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-bolt"></i>
+                        <span>Energy Boosting</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Filters -->
+    <section class="menu-filters">
+        <div class="container">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <h3>Categories</h3>
+                    <div class="category-filters" id="category-filters">
+                        <!-- Categories loaded by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Filter By</h3>
+                    <div class="filter-options">
+                        <select id="sort-by" class="select-input">
+                            <option value="popular">Most Popular</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="calories-low">Calories: Low to High</option>
+                            <option value="calories-high">Calories: High to Low</option>
+                            <option value="rating">Highest Rated</option>
+                        </select>
+
+                        <div class="price-range">
+                            <label><span>Price Range</span><span id="price-range-value">LKR 0 - LKR
+                                    5000</span></label>
+                            <input type="range" id="price-range" min="0" max="5000" value="5000">
+                        </div>
+
+                        <div class="calorie-filter">
+                            <label><span>Max Calories</span><span id="calorie-value">1000</span></label>
+                            <input type="range" id="calorie-range" min="100" max="1000" value="1000" step="50">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Grid -->
+    <section class="menu-grid-section">
+        <div class="container">
+            <div class="menu-header">
+                <h2 id="menu-title">All Healthy Meals</h2>
+                <div class="menu-count">
+                    <span id="product-count">10</span> <span>meals available</span>
+                </div>
+            </div>
+
+            <div class="products-grid" id="menu-products">
+                <!-- Products loaded by JavaScript -->
+            </div>
+
+            <div class="load-more" id="load-more-container">
+                <button class="btn btn-outline" id="load-more-btn">
+                    <i class="fas fa-sync-alt"></i> Load More
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Diet Plans -->
+    <section class="featured-plans">
+        <div class="container">
+            <div class="section-header">
+                <h2>Personalized Diet Plans</h2>
+                <p>Take your health journey to the next level with our
+                    expert-designed diet plans</p>
+            </div>
+
+            <div class="plans-action text-center" style="margin-top: 30px;">
+                <a href="/pages/diet-planning.html" class="btn btn-primary btn-lg">View All Diet Plans</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Need Help Choosing?</h2>
+                <p>Our nutrition experts can help you create a personalized meal plan
+                    based on your goals and
+                    preferences.</p>
+                <a href="/pages/contact.html" class="btn btn-primary">Consult a
+                    Nutritionist</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer-placeholder" class="footer"></footer>
+
+    <!-- <script type="module" src="../script.js"></script> -->
+    <script src="../load-scripts.js"></script>
+    <script type="module" src="JS/menu.js"></script>
+
+
+</body>
+
+</html>

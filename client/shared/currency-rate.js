@@ -1,0 +1,27 @@
+// Currency Rates (Base: LKR)
+export const CurrencyRates = {
+    'LKR': { rate: 1, symbol: 'LKR', name: 'Sri Lankan Rupee', country: 'Sri Lanka' },
+    'USD': { rate: 0.0032, symbol: '$', name: 'US Dollar', country: 'United States' },
+    'EUR': { rate: 0.0029, symbol: '€', name: 'Euro', country: 'Europe' },
+    'GBP': { rate: 0.0025, symbol: '£', name: 'British Pound', country: 'United Kingdom' },
+    'JPY': { rate: 0.46, symbol: '¥', name: 'Japanese Yen', country: 'Japan' },
+    'CNY': { rate: 0.023, symbol: '¥', name: 'Chinese Yuan', country: 'China' },
+    'CHF': { rate: 0.0028, symbol: 'Fr', name: 'Swiss Franc', country: 'Switzerland' },
+    'INR': { rate: 0.27, symbol: '₹', name: 'Indian Rupee', country: 'India' },
+    'PKR': { rate: 0.90, symbol: '₨', name: 'Pakistani Rupee', country: 'Pakistan' },
+    'MVR': { rate: 0.049, symbol: 'Rf', name: 'Maldivian Rufiyaa', country: 'Maldives' },
+    'SAR': { rate: 0.012, symbol: '﷼', name: 'Saudi Riyal', country: 'Saudi Arabia' },
+    'QAR': { rate: 0.012, symbol: '﷼', name: 'Qatari Riyal', country: 'Qatar' },
+    'IRR': { rate: 135, symbol: '﷼', name: 'Iranian Rial', country: 'Iran' },
+    'AED': { rate: 0.011, symbol: 'dh', name: 'UAE Dirham', country: 'UAE' },
+    'KRW': { rate: 4.30, symbol: '₩', name: 'South Korean Won', country: 'South Korea' },
+    'MYR': { rate: 0.015, symbol: 'RM', name: 'Malaysian Ringgit', country: 'Malaysia' },
+    'IDR': { rate: 50.0, symbol: 'Rp', name: 'Indonesian Rupiah', country: 'Indonesia' },
+    'THB': { rate: 0.11, symbol: '฿', name: 'Thai Baht', country: 'Thailand' },
+    'SGD': { rate: 0.0043, symbol: 'S$', name: 'Singapore Dollar', country: 'Singapore' },
+    'HKD': { rate: 0.025, symbol: 'HK$', name: 'Hong Kong Dollar', country: 'Hong Kong' },
+    'TWD': { rate: 0.10, symbol: 'NT$', name: 'New Taiwan Dollar', country: 'Taiwan' },
+    'RUB': { rate: 0.30, symbol: '₽', name: 'Russian Ruble', country: 'Russia' },
+    'AUD': { rate: 0.0048, symbol: 'A$', name: 'Australian Dollar', country: 'Australia' },
+    'CAD': { rate: 0.0043, symbol: 'C$', name: 'Canadian Dollar', country: 'Canada' }
+};

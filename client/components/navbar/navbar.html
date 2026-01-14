@@ -1,0 +1,40 @@
+<div class="container navbar-container">
+    <div class="navbar">
+        <a href="/index.html" class="logo">
+            <i class="fas fa-leaf"></i>
+            <span class="brand-name" data-config-key="appName">Healthybite</span>
+        </a>
+
+        <ul class="nav-menu">
+            <li><a href="/index.html" class="active">Home</a></li>
+            <li><a href="/pages/menu.html">Menu</a></li>
+            <li><a href="/pages/about.html">About</a></li>
+            <li><a href="/pages/diet-planning.html">Diet Planning</a></li>
+            <li><a href="/pages/faqs.html">FAQs</a></li>
+            <li><a href="/pages/contact.html">Contact</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <button id="toggle-search" class="btn btn-search"><i class="fas fa-search"></i></button>
+            <a href="/pages/cart.html" class="cart-icon" id="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cart-count">0</span>
+            </a>
+            <div class="user-menu">
+                <button class="btn btn-login" id="login-btn">Login</button>
+                <button class="btn btn-register" id="register-btn">Sign Up</button>
+            </div>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </div>
+    <div id="foods-search" style="display: none; flex-wrap: wrap; align-items: center; justify-content: center;">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search healthy foods...">
+            <button id="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,142 @@
+/* Medium Devices (Tablets, 768px and up) */
+/* Targeted max-width: 992px */
+
+@media (max-width: 992px) {
+
+    /* --- General Layout --- */
+    h1 {
+        font-size: 2.8rem;
+    }
+
+    h2 {
+        font-size: 2.2rem;
+    }
+
+    /* --- Navbar --- */
+    .container.navbar-container {
+        padding: 10px 15px;
+    }
+
+    .dropdown-menu {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        transform: translateY(100%);
+        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .user-dropdown.active .dropdown-menu {
+        transform: translateY(0);
+    }
+
+    .brand-name {
+        display: none;
+    }
+
+    /* --- Pages Layout (Grids to Single Column) --- */
+    .cart-container,
+    .payment-container,
+    .product-view-container,
+    .profile-container,
+    .contact-container,
+    .filters-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .cart-summary,
+    .order-summary,
+    .profile-sidebar {
+        position: static;
+        margin-bottom: 30px;
+        /* Add spacing when stacked */
+    }
+
+    /* --- Menu & Products --- */
+    .category-filters {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .category-filter-btn {
+        flex: 1;
+        min-width: 150px;
+        justify-content: center;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(315px, 1fr));
+    }
+
+    /* --- Hero Section --- */
+    .hero .container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-content {
+        margin-bottom: 50px;
+        max-width: 100%;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero-stats {
+        justify-content: center;
+    }
+
+    .hero-image img {
+        transform: none;
+    }
+
+    /* --- About Section --- */
+    .about-content {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .about-text {
+        order: 2;
+    }
+
+    .about-image {
+        order: 1;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* --- CTA --- */
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cta-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    /* --- Navbar Actions --- */
+    .nav-actions .cart-icon {
+        display: inline-block;
+    }
+
+    /* --- Order Summary --- */
+    .order-summary {
+        padding: 20px;
+    }
+
+    /* --- Payment Form Container --- */
+    .payment-form-container {
+        padding: 20px;
+    }
+}

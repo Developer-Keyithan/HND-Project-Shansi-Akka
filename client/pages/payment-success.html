@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success - healthybite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../pages/CSS/pages.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="navbar-placeholder" class="header"></header>
+
+    <!-- Success Section -->
+    <section class="payment-success-section">
+        <div class="container">
+            <div class="success-container">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1>Payment Successful!</h1>
+                <p class="success-message">Thank you for your order. Your payment has been processed successfully.</p>
+
+                <div class="order-details" id="order-details">
+                    <h3>Order Details</h3>
+                    <div class="detail-row">
+                        <span>Order ID:</span>
+                        <span id="order-id">Loading...</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Payment Status:</span>
+                        <span class="status-paid">Paid</span>
+                    </div>
+                </div>
+
+                <div class="success-actions">
+                    <a href="/pages/delivery-tracking.html" class="btn btn-primary" id="track-order-btn">Track Order</a>
+                    <a href="/pages/menu.html" class="btn btn-outline">Continue Shopping</a>
+                    <a href="/dashboard/consumer.html" class="btn btn-outline">View Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="footer-placeholder"></footer>
+
+    <script src="../load-scripts.js"></script>
+    <script>
+        // Get order ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+
+        if (orderId) {
+            document.getElementById('order-id').textContent = orderId;
+            document.getElementById('track-order-btn').href = `delivery-tracking.html?orderId=${orderId}`;
+        } else {
+            document.getElementById('order-id').textContent = 'N/A';
+        }
+    </script>
+
+
+</body>
+
+</html>

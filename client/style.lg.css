@@ -1,0 +1,24 @@
+/* Large Devices (Desktops, 992px and up) */
+
+@media (min-width: 992px) {
+
+    /* --- Navbar Desktop Styles --- */
+    .container.navbar-container {
+        padding: 10px 15px;
+    }
+
+    .user-profile-btn {
+        border: 1px solid var(--gray);
+        border-radius: 50px;
+    }
+
+    .user-profile-btn>span,
+    .user-profile-btn>i:nth-child(3) {
+        display: inline-flex;
+    }
+
+    .btn-search {
+        height: 28px;
+        width: 28px;
+    }
+}

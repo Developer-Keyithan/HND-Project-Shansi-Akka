@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - healthybite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../pages/CSS/pages.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="navbar-placeholder" class="header"></header>
+
+    <!-- Profile Section -->
+    <section class="page-hero profile-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>My Profile</h1>
+                <p>Manage your account information and preferences</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile Content -->
+    <section class="profile-section">
+        <div class="container">
+            <div class="profile-container">
+                <!-- Profile Sidebar -->
+                <div class="profile-sidebar">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-circle"></i>
+                        <h3 id="profile-name">Loading...</h3>
+                        <p id="profile-email">Loading...</p>
+                    </div>
+                    <nav class="profile-nav">
+                        <a href="#personal-info" class="profile-nav-item active" data-section="personal-info">
+                            <i class="fas fa-user"></i> <span>Personal
+                                Information</span>
+                        </a>
+                        <a href="#orders" class="profile-nav-item" data-section="orders">
+                            <i class="fas fa-shopping-bag"></i> <span>My Orders</span>
+                        </a>
+                        <a href="#diet-plans" class="profile-nav-item" data-section="diet-plans">
+                            <i class="fas fa-heart"></i> <span>Diet Plans</span>
+                        </a>
+                        <a href="#settings" class="profile-nav-item" data-section="settings">
+                            <i class="fas fa-cog"></i> <span>Settings</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Profile Content -->
+                <div class="profile-content">
+                    <!-- Personal Information Section -->
+                    <div id="personal-info-section" class="profile-section-content active">
+                        <h2>Personal Information</h2>
+                        <form id="profile-form" class="profile-form">
+                            <div class="form-group">
+                                <label for="profile-name-input">Full Name</label>
+                                <input type="text" id="profile-name-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-email-input">Email</label>
+                                <input type="email" id="profile-email-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-phone-input">Phone Number</label>
+                                <input type="tel" id="profile-phone-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-address-input">Address</label>
+                                <textarea id="profile-address-input" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save
+                                Changes</button>
+                        </form>
+                    </div>
+
+                    <!-- Orders Section -->
+                    <div id="orders-section" class="profile-section-content">
+                        <h2>My Orders</h2>
+                        <div id="orders-list" class="orders-list">
+                            <!-- Orders loaded by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Diet Plans Section -->
+                    <div id="diet-plans-section" class="profile-section-content">
+                        <h2>My Diet Plans</h2>
+                        <div id="diet-plans-list" class="diet-plans-list">
+                            <!-- Diet plans loaded by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Settings Section -->
+                    <div id="settings-section" class="profile-section-content">
+                        <h2>Account Settings</h2>
+                        <div class="settings-list">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h3>Change Password</h3>
+                                    <p>Update your account password</p>
+                                </div>
+                                <button class="btn btn-outline" onclick="showChangePasswordModal()">Change
+                                    Password</button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h3>Notification Preferences</h3>
+                                    <p>Manage how you receive notifications
+                                    </p>
+                                </div>
+                                <button class="btn btn-outline">Manage</button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h3>Delete Account</h3>
+                                    <p>Permanently delete your account</p>
+                                </div>
+                                <button class="btn btn-danger">Delete
+                                    Account</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer-placeholder" class="footer"></footer>
+
+    <script src="../load-scripts.js"></script>
+    <script type="module" src="JS/profile.js"></script>
+
+</body>
+
+</html>
