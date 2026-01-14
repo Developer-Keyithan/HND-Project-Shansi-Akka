@@ -39,9 +39,11 @@ const userSchema = new mongoose.Schema({
 // Pre-save: hash password
 userSchema.pre("save", async function () {
     if (!this.isModified("password")) return;
+
     const salt = await bcrypt.genSalt(SALT_ROUNDS);
     this.password = await bcrypt.hash(this.password, salt);
 });
+
 
 // Compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {

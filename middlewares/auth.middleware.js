@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
-
-
+import connectDB from "../lib/db.js";
 
 export class Auth {
     constructor() { }
@@ -10,6 +9,9 @@ export class Auth {
     middleware(roles = [], permissions = []) {
         return async (req, res, next) => {
             try {
+                // Ensure DB connection
+                await connectDB();
+
                 const authHeader = req.headers["authorization"];
                 if (!authHeader || !authHeader.startsWith("Bearer ")) {
                     return res.status(401).json({ error: "Unauthorized: No token" });

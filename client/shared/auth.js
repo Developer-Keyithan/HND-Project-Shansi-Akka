@@ -3,22 +3,6 @@ import { API } from "./api.js";
 import { AppConfig } from "../app.config.js";
 import { users } from "./data.js";
 import { EmailServiceImpl } from "./emailjs.js";
-import { jwtDecode } from "../../node_modules/jwt-decode/build/esm/index.js";
-
-
-// Get current user from token (limited info: id, role)
-export function getCurrentUser() {
-    const token = localStorage.getItem('healthybite-token');
-    if (!token) return null;
-    try {
-        const decoded = jwtDecode(token);
-        // Return a partial user object that satisfies basic checks like hasRole
-        return decoded ? { id: decoded.id, role: decoded.role, ...decoded } : null;
-    } catch (e) {
-        console.error("Invalid Token", e);
-        return null;
-    }
-}
 
 // Set token only (or user context if implemented later)
 export function setCurrentUser(user, token) {
@@ -190,7 +174,6 @@ export async function logoutUser() {
 
 // Combined export object for backward compatibility if needed within modules
 export const Auth = {
-    getCurrentUser,
     setCurrentUser,
     removeCurrentUser,
     isAuthenticated,

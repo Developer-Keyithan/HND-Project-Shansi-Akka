@@ -301,7 +301,7 @@ export async function getCurrentUser(req, res) {
             name: user.name,
             email: user.email,
             role: user.role,
-            cart: user.cart,
+            cart: user.cart.length,
             avatar: user.avatar,
             permissions: user.permissions || [],
         };

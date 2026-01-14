@@ -191,6 +191,7 @@ export async function verifyLogin(req, res) {
 
 export async function resendVerification(req, res) {
     try {
+        await connectDB();
         const { email, type } = req.body; // type: 'registration' or 'login'
 
         let record;
@@ -202,7 +203,7 @@ export async function resendVerification(req, res) {
 
             // Robustness check
             if (!record) {
-                await connectDB();
+                // DB connection already ensured above
                 const user = await User.findOne({ email });
                 if (user) {
                     record = {

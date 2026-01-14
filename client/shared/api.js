@@ -3,18 +3,18 @@
  * Connects to the backend via /api/* endpoints.
  */
 
-import axios from "../../node_modules/axios/dist/esm/axios.js";
+
 
 const BASE_URL = (window.location.port === '5500' || window.location.port === '5501')
     ? `http://${window.location.hostname}:3000/api`
     : '/api';
 
 export const API = {
-    // Helper for requests using Axios
+    // Helper for requests using native fetch
     _fetch: async (endpoint, options = {}) => {
         try {
             const url = `${BASE_URL}${endpoint}`;
-            const method = (options.method || 'GET').toLowerCase();
+            const method = (options.method || 'GET').toUpperCase();
 
             // Get token
             const token = localStorage.getItem('healthybite-token');
@@ -27,35 +27,32 @@ export const API = {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            let res;
-            const data = typeof options.body === 'string' ? JSON.parse(options.body) : (options.body || {});
+            const config = {
+                method,
+                headers
+            };
 
-            // Handle different axios signatures
-            if (['get', 'delete', 'head', 'options'].includes(method)) {
-                // axios.get(url, config)
-                // We assume 'data' was intended as config or empty object in original code
-                res = await axios[method](url, {
-                    ...data,
-                    headers: {
-                        ...(data.headers || {}),
-                        ...headers
-                    }
-                });
-            } else {
-                // axios.post(url, data, config)
-                res = await axios[method](url, data, { headers });
+            if (options.body) {
+                config.body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
             }
 
-            console.log(`[API] ${method.toUpperCase()} ${endpoint}`, res.data);
-            return res.data;
+            const response = await fetch(url, config);
+            const data = await response.json().catch(() => ({})); // Handle empty responses gracefully
+
+            if (!response.ok) {
+                const error = new Error(data.error || data.message || `Request failed with status ${response.status}`);
+                error.status = response.status;
+                error.response = { data }; // Backward compatibility
+                throw error;
+            }
+
+            console.log(`[API] ${method} ${endpoint}`, data);
+            return data;
 
         } catch (error) {
             console.error(`API Error (${endpoint}):`, error);
-            // Normalize error format to match what app expects (data.error)
-            const errMsg = error.response?.data?.error || error.message || 'API Request Failed';
-            const err = new Error(errMsg);
-            err.status = error.response?.status;
-            throw err;
+            const errMsg = error.message || 'API Request Failed';
+            throw error; // Rethrow to be caught by caller
         }
     },
 

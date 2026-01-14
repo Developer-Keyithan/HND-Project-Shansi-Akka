@@ -1,10 +1,10 @@
 {
-  "name": "shansi-akka-hnd-project",
-  "version": "1.0.0",
+  "name": "healthyBite",
+  "version": "1.6.0",
   "description": "Full stack deployment for HealthyBite",
   "type": "module",
   "scripts": {
-    "start": "echo \"Use 'npx vercel dev' to start locally\"",
+    "start": "npx vercel dev",
     "dev": "nodemon server.js",
     "seed": "node scripts/seed.js"
   },

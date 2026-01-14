@@ -1,8 +1,5 @@
 // Main JavaScript for healthybite
-
-import { Toast } from "./plugins/Toast/toast.js";
 import { API } from "./shared/api.js";
-import { Common } from "./shared/common.js";
 import { Auth } from "./shared/auth.js";
 import { SocialAuth } from "./shared/socialauth.js";
 import { Navbar } from "./components/navbar/navbar-functions.js";
@@ -57,7 +54,7 @@ async function loadProducts(category = 'all') {
     try {
         // Fetch all products if not already loaded
         if (allProducts.length === 0) {
-            const user = Auth.getCurrentUser();
+            const user = API.getCurrentUser();
             const params = { sort: 'popular' };
             if (user && (user.id || user._id)) {
                 params.userId = user.id || user._id;
@@ -130,6 +127,7 @@ async function loadProducts(category = 'all') {
                         </button>
                     </div>
                 </div>
+                <i class="whishlist-icon fa-regular fa-heart"></i>
             </div>
         `).join('');
 

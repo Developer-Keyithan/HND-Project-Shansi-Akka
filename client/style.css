@@ -609,6 +609,14 @@ input[type=number],
     transition: var(--transition);
 }
 
+.product-card .whishlist-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: var(--primary-green);
+    
+}
+
 /* --- Global Preloader --- */
 #global-preloader {
     position: fixed;

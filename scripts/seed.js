@@ -347,7 +347,7 @@ async function seed() {
         console.log('Inserted Stats');
 
         // Insert Users
-        await User.insertMany(users);
+        await User.create(users);
         console.log('Inserted Users');
 
         // Insert Diet Plans
