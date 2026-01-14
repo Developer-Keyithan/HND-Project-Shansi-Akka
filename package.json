@@ -1,6 +1,6 @@
 {
   "name": "healthyBite",
-  "version": "1.6.0",
+  "version": "1.2.0",
   "description": "Full stack deployment for HealthyBite",
   "type": "module",
   "scripts": {
