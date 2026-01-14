@@ -1,11 +1,10 @@
 // Payment Page JavaScript with Stripe Integration
 import { Popover } from "../../plugins/Modal/modal.js";
-import { AppConfig, isProduction, setEnv } from "../../app.config.js";
+import { AppConfig, isProduction, isDev, setEnv } from "../../app.config.js";
 import { Auth } from "../../shared/auth.js";
 import { API } from "../../shared/api.js";
 import { Utils } from "../../shared/utils.js";
 import { Common } from "../../shared/common.js";
-import { products as productsData } from "../../shared/data.js";
 import { showNotification, updateCartCount } from "../../actions.js";
 
 // setEnv('production');
@@ -18,6 +17,7 @@ let orderData = {};
 let isMockPayment = false;
 let taxRate = (AppConfig.tax || 0) / 100;
 let deliveryFee = AppConfig.deliveryFee || 200;
+let productsData = [];
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Check authentication
@@ -29,6 +29,22 @@ document.addEventListener('DOMContentLoaded', async function () {
             window.location.href = appUrl + '/auth/login.html?redirect=payment.html';
         }, 1500);
         return;
+    }
+
+    // Fetch Products and Config (fresh data)
+    try {
+        const [products, config] = await Promise.all([
+            API.getProducts(),
+            API.getConfig()
+        ]);
+        productsData = products || [];
+
+        if (config) {
+            taxRate = (config.tax || AppConfig.tax || 0) / 100;
+            deliveryFee = config.deliveryFee || AppConfig.deliveryFee || 200;
+        }
+    } catch (e) {
+        console.error("Failed to fetch initial data", e);
     }
 
     // Load order data from session
@@ -201,10 +217,7 @@ window.selectCard = function (id) {
         const cvcInput = document.getElementById('card-cvc');
 
         if (cardInput) {
-            cardInput.value = `**** **** **** ${card.last4}`; // Or fill full mock data if we had it, but we only store last4 safe. 
-            // Actually for mock functionality we might want to allow re-submission without re-typing 
-            // but here let's just indicate selection.
-            // Simulating "full" fill for demo if we had safe mock data
+            // Visualize selection only, or fill if safe
             if (card.last4 === '4242') cardInput.value = '4242 4242 4242 4242';
         }
         if (expiryInput) expiryInput.value = `${card.exp_month}/${card.exp_year}`;
@@ -220,7 +233,6 @@ window.selectCard = function (id) {
         }
     } else {
         // Real Stripe: We would set a hidden field with payment_method_id
-        // For now, visual selection only
         console.log('Selected card for next payment:', id);
     }
 };
@@ -325,24 +337,19 @@ async function handlePayment(event) {
             });
 
             if (error) throw error;
-            if (paymentIntent.status === 'succeeded') paymentSuccess = true;
-
-            // Real Stripe Card Saving would happen here via setup_future_usage: 'off_session' in payment intent creation
-            // Since we don't control the CreateIntent call fully here (it's in initial load), we assume backend handles it.
-            // But for this client-side demo, we can't easily "save" the real card details safely.
+            if (paymentIntent && paymentIntent.status === 'succeeded') paymentSuccess = true;
         }
 
         if (paymentSuccess) {
-            // ... (rest of success logic)
             const orderId = Utils.generateOrderId();
             const totalText = document.getElementById('order-total')?.textContent || '0';
             const total = parseFloat(totalText.replace('LKR ', '').replace(',', '')) || 0;
 
             const orderDataToSave = {
                 orderId,
-                userId: orderData.user.id,
+                userId: orderData.user.id || orderData.user._id,
                 items: orderData.cart.map(item => {
-                    const product = productsData.find(p => p.id === item.id) || item;
+                    const product = productsData.find(p => p.id === item.id || p._id === item.id) || item;
                     return {
                         productId: item.id,
                         name: product.name || item.name,
@@ -359,9 +366,8 @@ async function handlePayment(event) {
                 date: new Date().toISOString()
             };
 
-            const existingOrders = JSON.parse(localStorage.getItem('healthybite-orders') || '[]');
-            existingOrders.push(orderDataToSave);
-            localStorage.setItem('healthybite-orders', JSON.stringify(existingOrders));
+            // Save to Backend
+            await API.createOrder(orderDataToSave);
 
             // Send Bill via EmailJS
             if (Auth.sendEmail) {
@@ -401,87 +407,74 @@ async function handlePayment(event) {
 
 
 function initValidation() {
-    const cardInput = document.getElementById('card-number');
-    const expiryInput = document.getElementById('card-expiry');
-    const cvcInput = document.getElementById('card-cvc');
-    const submitBtn = document.getElementById('submit-payment');
-    const deliveryForm = document.getElementById('delivery-form');
-    const deliveryInputs = deliveryForm ? deliveryForm.querySelectorAll('input, textarea') : [];
+    // ... (No logic changes here, keeping window.initValidation for mock)
+    window.initValidation = () => {
+        const cardInput = document.getElementById('card-number');
+        const expiryInput = document.getElementById('card-expiry');
+        const cvcInput = document.getElementById('card-cvc');
+        const submitBtn = document.getElementById('submit-payment');
+        const deliveryForm = document.getElementById('delivery-form');
+        const deliveryInputs = deliveryForm ? deliveryForm.querySelectorAll('input, textarea') : [];
 
-    if (!cardInput || !expiryInput || !cvcInput) return;
+        if (!cardInput || !expiryInput || !cvcInput) return;
 
-    // Helper to validate form and toggle button
-    const validateForm = () => {
-        // Card: 16 digits
-        const cardVal = cardInput.value.replace(/\s+/g, '');
-        const isCardValid = /^\d{16}$/.test(cardVal);
+        const validateForm = () => {
+            const cardVal = cardInput.value.replace(/\s+/g, '');
+            const isCardValid = /^\d{16}$/.test(cardVal);
 
-        // Expiry: MM/YY
-        const expiryVal = expiryInput.value;
-        let isExpiryValid = false;
-        if (/^\d{2}\/\d{2}$/.test(expiryVal)) {
-            const [month, year] = expiryVal.split('/').map(num => parseInt(num, 10));
-            if (month >= 1 && month <= 12) {
-                isExpiryValid = true;
+            const expiryVal = expiryInput.value;
+            let isExpiryValid = false;
+            if (/^\d{2}\/\d{2}$/.test(expiryVal)) {
+                const [month, year] = expiryVal.split('/').map(num => parseInt(num, 10));
+                if (month >= 1 && month <= 12) isExpiryValid = true;
             }
-        }
 
-        // CVC: 3 digits
-        const cvcVal = cvcInput.value;
-        const isCvcValid = /^\d{3}$/.test(cvcVal);
+            const cvcVal = cvcInput.value;
+            const isCvcValid = /^\d{3}$/.test(cvcVal);
 
-        // Delivery Form Validation
-        const isDeliveryValid = deliveryForm ? deliveryForm.checkValidity() : true;
+            const isDeliveryValid = deliveryForm ? deliveryForm.checkValidity() : true;
 
-        if (isCardValid && isExpiryValid && isCvcValid && isDeliveryValid) {
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
-                submitBtn.style.cursor = 'pointer';
+            if (isCardValid && isExpiryValid && isCvcValid && isDeliveryValid) {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+                }
+            } else {
+                if (submitBtn) submitBtn.disabled = true;
             }
-        } else {
-            if (submitBtn) submitBtn.disabled = true;
-        }
-    };
+        };
 
-    // Card Input
-    cardInput.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 16) value = value.slice(0, 16);
-        const parts = [];
-        for (let i = 0; i < value.length; i += 4) {
-            parts.push(value.substring(i, i + 4));
-        }
-        e.target.value = parts.join(' ');
+        cardInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 16) value = value.slice(0, 16);
+            const parts = [];
+            for (let i = 0; i < value.length; i += 4) parts.push(value.substring(i, i + 4));
+            e.target.value = parts.join(' ');
+            validateForm();
+        });
+
+        expiryInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 4) value = value.slice(0, 4);
+            if (value.length >= 2) value = value.substring(0, 2) + '/' + value.substring(2);
+            e.target.value = value;
+            validateForm();
+        });
+
+        cvcInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 3) value = value.slice(0, 3);
+            e.target.value = value;
+            validateForm();
+        });
+
+        deliveryInputs.forEach(input => input.addEventListener('input', validateForm));
         validateForm();
-    });
+    }
 
-    // Expiry Input
-    expiryInput.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 4) value = value.slice(0, 4);
-        if (value.length >= 2) {
-            value = value.substring(0, 2) + '/' + value.substring(2);
-        }
-        e.target.value = value;
-        validateForm();
-    });
-
-    // CVC Input
-    cvcInput.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 3) value = value.slice(0, 3);
-        e.target.value = value;
-        validateForm();
-    });
-
-    // Delivery Inputs
-    deliveryInputs.forEach(input => {
-        input.addEventListener('input', validateForm);
-    });
-
-    // Initial check
-    validateForm();
+    // Call it immediately
+    if (window.initValidation) window.initValidation();
 }
 
 
@@ -490,7 +483,7 @@ function loadOrderSummary() {
     if (!orderItemsContainer) return;
 
     const subtotal = orderData.cart.reduce((total, item) => {
-        const product = productsData.find(p => p.id === item.id) || item;
+        const product = productsData.find(p => p.id === item.id || p._id === item.id) || item;
         return total + (product.price || item.price) * item.quantity;
     }, 0);
 
@@ -499,13 +492,15 @@ function loadOrderSummary() {
 
     // Update order items
     orderItemsContainer.innerHTML = orderData.cart.map(item => {
-        const product = productsData.find(p => p.id === item.id) || item;
+        const product = productsData.find(p => p.id === item.id || p._id === item.id) || item;
         const itemTotal = (product.price || item.price) * item.quantity;
+        const imgSrc = product.image || item.image || '../assets/placeholder.jpg';
+        const safeImg = imgSrc.startsWith('.') ? imgSrc : '../' + imgSrc;
 
         return `
             <div class="order-item">
                 <div class="order-item-image">
-                    <img src="../${product.image.startsWith('.') ? product.image : '../' + product.image}" alt="${product.name || item.name}">
+                    <img src="${safeImg}" alt="${product.name || item.name}" onerror="this.src='../assets/placeholder.jpg'">
                 </div>
                 <div class="order-item-details">
                     <h4>${product.name || item.name}</h4>
@@ -518,7 +513,6 @@ function loadOrderSummary() {
         `;
     }).join('');
 
-    // Update totals
     const subtotalEl = document.getElementById('order-subtotal');
     const taxEl = document.getElementById('order-tax');
     const totalEl = document.getElementById('order-total');
@@ -527,58 +521,41 @@ function loadOrderSummary() {
     if (taxEl) taxEl.textContent = `LKR ${tax.toFixed(2)}`;
     if (totalEl) totalEl.textContent = `LKR ${total.toFixed(2)}`;
 
-    // Pre-fill delivery form with user data
     if (orderData.user) {
-        const nameInput = document.getElementById('delivery-name');
-        const phoneInput = document.getElementById('delivery-phone');
-        const addressInput = document.getElementById('delivery-address');
-
-        if (nameInput) nameInput.value = orderData.user.name || '';
-        if (phoneInput) phoneInput.value = orderData.user.phone || '';
-        if (addressInput) addressInput.value = orderData.user.address || '';
+        if (document.getElementById('delivery-name')) document.getElementById('delivery-name').value = orderData.user.name || '';
+        if (document.getElementById('delivery-phone')) document.getElementById('delivery-phone').value = orderData.user.phone || '';
+        if (document.getElementById('delivery-address')) document.getElementById('delivery-address').value = orderData.user.address || '';
     }
 }
 
 
 async function initializeStripe() {
     try {
-        // Calculate total
         const subtotal = orderData.cart.reduce((total, item) => {
-            const product = productsData.find(p => p.id === item.id) || item;
+            const product = productsData.find(p => p.id === item.id || p._id === item.id) || item;
             return total + (product.price || item.price) * item.quantity;
         }, 0);
 
         const tax = subtotal * taxRate;
         const total = subtotal + deliveryFee + tax;
 
-        // Create payment intent
-        const data = await API.createPaymentIntent(total, 'lkr', orderData.cart);
+        const data = await API.createPaymentIntent(total, 'lkr', orderData.cart); // Should pass userId if possible
 
-        if (!data.success) {
-            throw new Error(data.error || 'Failed to initialize payment');
-        }
+        if (!data.success) throw new Error(data.error || 'Failed to initialize payment');
 
         clientSecret = data.clientSecret;
         orderData.paymentIntentId = data.paymentIntentId;
 
-        // Check if Mock Payment
         if (clientSecret.startsWith('mock_')) {
             isMockPayment = true;
             renderMockPaymentElement();
             return;
         }
 
-        // Real Stripe Initialization
-        let stripePublishableKey = 'pk_test_51SiVxnJ7t3J5nMf6S27rcXJrY0T0mkR93ct5KNbmP9X1o12tgCRvAn6x910ONCHd605coYiWczJJu2VwxU7KKODP00rwN2gjel';
+        let stripePublishableKey = 'pk_test_sample';
         try {
-            const keyResponse = await fetch('/api/config/stripe-key');
-            if (keyResponse.ok) {
-                const keyData = await keyResponse.json();
-                if (keyData.success && keyData.publishableKey) {
-                    stripePublishableKey = keyData.publishableKey;
-                }
-            }
-        } catch (e) { /* Ignore */ }
+            stripePublishableKey = await API.getStripeKey();
+        } catch (e) { console.error('Stripe Key Error', e); }
 
         if (typeof Stripe !== 'undefined') {
             stripe = Stripe(stripePublishableKey);
@@ -630,7 +607,7 @@ function renderMockPaymentElement() {
                 </div>
             </div>
         `;
-        initValidation();
+        if (window.initValidation) window.initValidation();
     }
 }
 
@@ -641,7 +618,6 @@ function setupBtnToggles() {
             e.preventDefault();
             btn.classList.toggle('active');
 
-            // Check mark update
             const icon = btn.querySelector('i');
             if (icon) {
                 if (btn.classList.contains('active')) {
@@ -653,7 +629,6 @@ function setupBtnToggles() {
                 }
             }
 
-            // Sync hidden input if needed
             const id = btn.id.replace('-btn', '');
             const input = document.getElementById(id);
             if (input) {

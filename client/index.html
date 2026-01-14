@@ -26,15 +26,15 @@
                 </div>
                 <div class="hero-stats">
                     <div class="stat">
-                        <h3>5000+</h3>
+                        <h3 id="stat-meals"><i class="fas fa-spinner fa-spin" style="font-size: 1rem;"></i></h3>
                         <p>Healthy Meals Served</p>
                     </div>
                     <div class="stat">
-                        <h3>98%</h3>
+                        <h3 id="stat-satisfaction"><i class="fas fa-spinner fa-spin" style="font-size: 1rem;"></i></h3>
                         <p>Customer Satisfaction</p>
                     </div>
                     <div class="stat">
-                        <h3>45 min</h3>
+                        <h3 id="stat-delivery"><i class="fas fa-spinner fa-spin" style="font-size: 1rem;"></i></h3>
                         <p>Average Delivery Time</p>
                     </div>
                 </div>
@@ -88,11 +88,7 @@
                 journey</p>
 
             <div class="menu-categories">
-                <button class="btn category-btn active" data-category="all">All</button>
-                <button class="btn category-btn" data-category="salads">Salads</button>
-                <button class="btn category-btn" data-category="smoothies">Smoothies</button>
-                <button class="btn category-btn" data-category="bowls">Bowls</button>
-                <button class="btn category-btn" data-category="meals">Main Meals</button>
+                <!-- Categories loaded dynamically by JavaScript -->
             </div>
 
             <div class="products-grid" id="products-container">
@@ -115,7 +111,7 @@
                 </div>
                 <div class="about-text">
                     <h2 class="section-title">Our Story</h2>
-                    <p>Founded in 2020, <span data-config-key="appName">healthybite</span> was born from a simple idea:
+                    <p>Founded in 2025, <span data-config-key="appName">Healthybite</span> was born from a simple idea:
                         healthy eating should be delicious,
                         convenient, and accessible to everyone. Our team of nutritionists, chefs, and food enthusiasts
                         work together to create meals that nourish both body and soul.</p>
@@ -139,54 +135,11 @@
     </section>
 
     <!-- Testimonials -->
-    <section class="testimonials">
+    <section id="testimonials" class="testimonials">
         <div class="container">
             <h2 class="section-title">What Our Customers Say</h2>
-            <div class="testimonials-slider">
-                <div class="testimonial-card">
-                    <div class="testimonial-content">
-                        <i class="fas fa-quote-left"></i>
-                        <p>"<span data-config-key="appName">healthybite</span> has completely transformed my
-                            relationship with food. I've lost 15 pounds and
-                            have more energy than ever!"</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah Johnson">
-                        <div>
-                            <h4>Sarah Johnson</h4>
-                            <span>Customer for 8 months</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-content">
-                        <i class="fas fa-quote-left"></i>
-                        <p>"As a busy professional, I never had time to cook healthy meals. <span
-                                data-config-key="appName">healthybite</span> saves me hours
-                            every week!"</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="Michael Chen">
-                        <div>
-                            <h4>Michael Chen</h4>
-                            <span>Customer for 1 year</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-content">
-                        <i class="fas fa-quote-left"></i>
-                        <p>"The quality is exceptional. You can taste the freshness in every bite. Highly recommended!"
-                        </p>
-                    </div>
-                    <div class="testimonial-author">
-                        <img src="https://randomuser.me/api/portraits/women/67.jpg" alt="Priya Sharma">
-                        <div>
-                            <h4>Priya Sharma</h4>
-                            <span>Customer for 6 months</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="testimonials-slider" id="testimonials-container">
+                <!-- Reviews will be loaded dynamically from the backend -->
             </div>
         </div>
     </section>
@@ -196,7 +149,7 @@
         <div class="container">
             <div class="cta-content">
                 <h2>Ready to Start Your Healthy Journey?</h2>
-                <p>Join thousands of satisfied customers and get <span id="cta-discount">20</span>% off your first order
+                <p>Join thousands of satisfied customers and get <span id="cta-discount"></span>% off your first order
                 </p>
                 <div class="cta-buttons">
                     <a href="/auth/register.html" class="btn btn-primary">Sign Up Now</a>
@@ -212,9 +165,6 @@
     <!-- Login Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2><span>Login to</span> <span data-config-key="appName">healthybite</span>
-            </h2>
             <form id="loginForm">
                 <div class="form-group">
                     <label for="modal-email">Email</label>
@@ -242,7 +192,6 @@
             </form>
         </div>
     </div>
-
 
     <script src="./load-scripts.js"></script>
     <script type="module" src="./script.js"></script>

@@ -1,8 +1,8 @@
-import { getUsers } from '../../controllers/user.controller.js';
+import { getTeamMembers } from '../../controllers/teammember.controller.js';
 
 export default async function handler(req, res) {
     if (req.method === 'GET') {
-        return getUsers(req, res);
+        return getTeamMembers(req, res);
     }
     return res.status(405).json({ error: 'Method not allowed' });
 }

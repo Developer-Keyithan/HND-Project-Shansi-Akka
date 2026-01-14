@@ -19,7 +19,12 @@ const productSchema = new mongoose.Schema({
     sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     stock: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    // Popularity Metrics
+    views: { type: Number, default: 0 },
+    sales: { type: Number, default: 0 },
+    cartAdditions: { type: Number, default: 0 },
+    wishlistCount: { type: Number, default: 0 }
 });
 
 export default mongoose.model("Product", productSchema);

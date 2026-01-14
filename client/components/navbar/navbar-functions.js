@@ -1,6 +1,10 @@
 import { AppConfig } from "../../app.config.js";
 import { currentNav, getParameterByName } from "../../shared/common.js";
 import { showNotification } from "../../actions.js";
+import { Popover } from "../../plugins/Modal/modal.js";
+import { API } from "../../shared/api.js";
+
+let globalUser = null;
 
 // Navigation Functions
 export function initNavigation() {
@@ -20,6 +24,37 @@ export function initNavigation() {
             });
         });
     }
+    // Check auth on init
+    checkAuth();
+}
+
+export function setGlobalUser(user) {
+    globalUser = user;
+}
+
+export async function checkAuth() {
+    const token = localStorage.getItem('healthybite-token');
+    console.log(token);
+    if (token) {
+        try {
+            const res = await API.getCurrentUser();
+            if (res && res.success) {
+                globalUser = res.user;
+            } else {
+                localStorage.removeItem('healthybite-token');
+                globalUser = null;
+            }
+        } catch (e) {
+            console.error("Auth check failed", e);
+            if (e.status === 401) {
+                localStorage.removeItem('healthybite-token');
+                globalUser = null;
+            }
+        }
+    } else {
+        globalUser = null;
+    }
+    updateUserMenu();
 }
 
 // Search toggle
@@ -39,13 +74,13 @@ export function toggleSearchBar() {
     }
 }
 
-// User Menu
 export function updateUserMenu() {
     const userMenu = document.querySelector('.user-menu');
     if (!userMenu) return;
 
-    const userData = localStorage.getItem('healthybite-user');
-    const currentUser = userData ? JSON.parse(userData) : null;
+    // Use globalUser fetched from API
+    const currentUser = globalUser;
+
     userMenu.innerHTML = '';
     if (currentUser) {
         // Logged in user dropdown
@@ -81,15 +116,39 @@ export function updateUserMenu() {
             newLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
 
-                const isHome =
-                    window.location.pathname === '/' ||
-                    window.location.pathname.endsWith('index.html');
+                const isHome = currentNav() === 'index.html' || currentNav() === '';
 
                 if (isHome) {
                     const loginModal = document.getElementById('loginModal');
                     if (loginModal) {
-                        loginModal.style.display = 'flex';
-                        document.body.style.overflow = 'hidden';
+                        const content = loginModal.querySelector('.modal-content');
+                        // Use Popover Plugin to open the modal content
+                        if (content) {
+                            // Extract content but keep the original intact if needed (clone)
+                            // However, since we are doing delegation in script.js, we can just use the HTML string.
+                            // But better to use the innerHTML.
+                            // Remove the close-modal button from the string if Popover adds one, 
+                            // or keep it if Popover allows custom content fully.
+                            // Popover adds its own close button (x).
+
+                            // Let's filter out the close button from the HTML if possible or just hide it via CSS in Popover
+                            let htmlContent = content.innerHTML;
+                            // A simple hack to remove the duplicate close button if present in HTML
+                            // htmlContent = htmlContent.replace(/<span class="close-modal">.*?<\/span>/, '');
+                            Popover.content({
+                                title: 'Login to ' + AppConfig.app.name,
+                                content: htmlContent,
+                                width: { max: '450px' },
+                                buttons: [],
+                                type: 'content'
+                            });
+
+                            // Re-bind close button action if the internal close button is clicked (the one from HTML)
+                            // Since it's dynamic HTML now, we can use delegation or rely on Popover's close.
+                            // The specialized close button in the HTML <span class="close-modal"> might need a listener if not removed.
+                            // But usually Popover has its own.
+                            // Let's rely on Popover's close button.
+                        }
                     }
                 } else {
                     // Redirect on other pages
@@ -197,8 +256,8 @@ export function handleCartIconDisplay() {
 
 // Logout
 export function logout() {
-    localStorage.removeItem('healthybite-user');
-    currentUser = null;
+    localStorage.removeItem('healthybite-token');
+    globalUser = null;
     updateUserMenu();
     showNotification('Logged out successfully!', 'success');
     const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
@@ -267,5 +326,7 @@ export const Navbar = {
     handleCartIconDisplay,
     initMenuSearch,
     initSearch,
-    showNotification
+    showNotification,
+    setGlobalUser,
+    checkAuth
 };

@@ -1,24 +1,31 @@
 {
-  "name": "shansi-akka-hnd-project",
-  "version": "1.0.0",
+  "name": "healthyBite",
+  "version": "1.6.0",
   "description": "Full stack deployment for HealthyBite",
   "type": "module",
   "scripts": {
-    "start": "echo \"Use 'npx vercel dev' to start locally\""
+    "start": "npx vercel dev",
+    "dev": "nodemon server.js",
+    "seed": "node scripts/seed.js"
   },
   "dependencies": {
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
     "emailjs": "^5.0.0",
-    "express": "^5.2.1",
     "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.3",
     "jwt-decode": "^4.0.0",
     "mongodb": "^7.0.0",
     "mongoose": "^9.0.2",
+    "nodemailer": "^7.0.12",
+    "rand-token": "^1.0.1",
     "stripe": "^20.1.2"
   },
   "devDependencies": {
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.11"
   }
 }

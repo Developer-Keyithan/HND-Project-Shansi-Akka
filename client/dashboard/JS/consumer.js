@@ -46,12 +46,20 @@ function updateDashboardDate() {
     if (dateEl) dateEl.textContent = now.toLocaleDateString('en-US', options);
 }
 
-function loadUserData() {
-    const orders = JSON.parse(localStorage.getItem('healthybite-orders')) || [];
+async function loadUserData(orders = []) {
+    if (orders.length === 0) {
+        const user = Auth.getCurrentUser();
+        if (user) {
+            try {
+                orders = await API.getUserOrders(user.id || user._id);
+            } catch (e) { console.error(e); }
+        }
+    }
+
     const currentMonth = new Date().getMonth();
 
     const monthlyOrders = orders.filter(order => {
-        const orderDate = new Date(order.date);
+        const orderDate = new Date(order.date || order.createdAt);
         return orderDate.getMonth() === currentMonth;
     });
 
@@ -67,7 +75,7 @@ function loadUserData() {
 
     // Calculate active deliveries
     const activeDeliveries = orders.filter(order =>
-        order.status === 'preparing' || order.status === 'shipping'
+        ['pending', 'confirmed', 'preparing', 'shipping', 'on-the-way', 'paid'].includes(order.status)
     ).length;
     if (document.getElementById('active-deliveries')) document.getElementById('active-deliveries').textContent = activeDeliveries;
 }
@@ -75,6 +83,9 @@ function loadUserData() {
 async function loadOrders() {
     const tableBody = document.getElementById('orders-table-body');
     if (!tableBody) return;
+
+    const user = Auth.getCurrentUser();
+    if (!user) return;
 
     // Show loading
     tableBody.innerHTML = `<tr><td colspan="6">
@@ -85,17 +96,20 @@ async function loadOrders() {
     </td></tr>`;
 
     try {
-        const orders = await API.getUserOrders();
+        const orders = await API.getUserOrders(user.id || user._id);
+
+        // Sync stats with fresh data
+        loadUserData(orders);
 
         if (!orders || orders.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding: 20px;">No orders found.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding: 20px;">No orders found. <a href="../pages/menu.html" style="color: var(--primary-green); font-weight: 500;">Order now</a></td></tr>';
             return;
         }
 
         tableBody.innerHTML = orders.map(order => `
             <tr>
-                <td><strong>${order.id || order.orderId}</strong></td>
-                <td>${formatDate(order.date)}</td>
+                <td><strong>${order.orderId || order._id}</strong></td>
+                <td>${formatDate(order.date || order.createdAt)}</td>
                 <td>
                     ${(order.items || []).map(item => `${item.quantity}× ${item.name}`).join(', ')}
                 </td>
@@ -163,7 +177,7 @@ async function loadRecommendations() {
                         <span class="recommendation-price">${formatCurrency(product.price)}</span>
                         <span class="recommendation-calories">${product.calories} cal</span>
                     </div>
-                    <button class="btn btn-primary btn-block add-to-cart-btn" data-id="${product.id}">
+                    <button class="btn btn-primary btn-block add-to-cart-btn" data-id="${product._id || product.id}">
                         <i class="fas fa-plus"></i> Add to Cart
                     </button>
                 </div>
@@ -171,7 +185,7 @@ async function loadRecommendations() {
         `).join('');
 
         container.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-            btn.addEventListener('click', () => addToCart(parseInt(btn.getAttribute('data-id'))));
+            btn.addEventListener('click', () => addToCart(btn.getAttribute('data-id')));
         });
     } catch (e) {
         console.error(e);

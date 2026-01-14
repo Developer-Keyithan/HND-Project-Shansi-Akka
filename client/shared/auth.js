@@ -4,37 +4,25 @@ import { AppConfig } from "../app.config.js";
 import { users } from "./data.js";
 import { EmailServiceImpl } from "./emailjs.js";
 
-// Initialize EmailJS (Replace 'YOUR_PUBLIC_KEY' with actual key in production)
-const EMAILJS_SERVICE_ID = 'service_healthybite';
-const EMAILJS_TEMPLATE_ID_WELCOME = 'template_welcome';
-const EMAILJS_TEMPLATE_ID_RESET = 'template_reset';
-
-// Get current user from localStorage
-export function getCurrentUser() {
-    const userStr = localStorage.getItem('healthybite-user');
-    if (!userStr) return null;
-    try {
-        return JSON.parse(userStr);
-    } catch (e) {
-        return null;
+// Set token only (or user context if implemented later)
+export function setCurrentUser(user, token) {
+    if (token) {
+        localStorage.setItem('healthybite-token', token);
     }
-}
-
-// Set current user
-export function setCurrentUser(user) {
-    localStorage.setItem('healthybite-user', JSON.stringify(user));
 }
 
 // Remove current user (logout)
 export function removeCurrentUser() {
-    localStorage.removeItem('healthybite-user');
+    localStorage.removeItem('healthybite-token');
     const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
     window.location.href = appUrl + '/index.html';
 }
 
 // Check if user is authenticated
 export function isAuthenticated() {
-    return getCurrentUser() !== null;
+    const token = localStorage.getItem('healthybite-token');
+    // Optionally check expiry here
+    return !!token;
 }
 
 // Check if user has specific role
@@ -75,16 +63,18 @@ export async function sendEmail(templateId, templateParams) {
 // Authenticate user (Mock)
 export async function loginUser(email, password) {
     try {
+        // Get local cart
+        const localCart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
+
         // Use API for validation
-        const result = await API.login(email, password);
+        const result = await API.login(email, password, localCart);
 
         if (result.success) {
-            // NOTE: We don't automatically set session here in pure API approach,
-            // but the caller expects it? 
-            // Previous code did set it. Let's keep consistency.
-            // Actually previous code:
-            // if (result.success) { setCurrentUser(result.user); return result; }
-            setCurrentUser(result.user);
+            // Clear local cart now that it's moved to DB
+            if (localCart.length > 0) {
+                localStorage.removeItem('healthybite-cart');
+            }
+            setCurrentUser(result.user, result.token);
             return result;
         } else {
             return { success: false, error: result.message };
@@ -101,7 +91,9 @@ export async function registerUser(userData) {
         const result = await API.register(userData);
 
         if (result.success) {
-            setCurrentUser(result.user);
+            // Clear local cart after registration moves it to DB
+            localStorage.removeItem('healthybite-cart');
+            setCurrentUser(result.user, result.token);
 
             // Send Welcome Email
             // We use the simpler method signature for generic emails or the specific one
@@ -182,7 +174,6 @@ export async function logoutUser() {
 
 // Combined export object for backward compatibility if needed within modules
 export const Auth = {
-    getCurrentUser,
     setCurrentUser,
     removeCurrentUser,
     isAuthenticated,

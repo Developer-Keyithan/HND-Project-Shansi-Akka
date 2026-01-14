@@ -94,6 +94,10 @@
     gap: 0.5rem;
 }
 
+.nav-actions .btn-search {
+    width: max-content;
+}
+
 .search-container {
     position: relative;
     width: auto;
@@ -155,6 +159,7 @@
 
 .user-menu {
     display: flex;
+    flex-direction: row;
     gap: 10px;
 }
 

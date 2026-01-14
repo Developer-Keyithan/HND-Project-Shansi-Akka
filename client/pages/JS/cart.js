@@ -1,19 +1,55 @@
 import { Popover } from "../../plugins/Modal/modal.js";
 import { AppConfig } from "../../app.config.js";
 import { Auth } from "../../shared/auth.js";
-import { products } from "../../shared/data.js";
+import { API } from "../../shared/api.js";
 import { showNotification, updateCartCount } from "../../actions.js";
 
 let cart = JSON.parse(localStorage.getItem('healthybite-cart')) || [];
 let deliveryFee = AppConfig.deliveryFee || 200;
 let taxRate = AppConfig.tax || 0.05;
+let productsData = [];
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+    // Fetch fresh data
+    try {
+        const [products, config] = await Promise.all([
+            API.getProducts(),
+            API.getConfig()
+        ]);
+        productsData = products || [];
+        if (config) {
+            deliveryFee = config.deliveryFee || deliveryFee;
+            taxRate = (config.tax !== undefined ? config.tax / 100 : taxRate);
+        }
+    } catch (e) {
+        console.error("Failed to load initial data", e);
+    }
+
+    // If logged in and local cart is empty, try to load from user object
+    const user = Auth.getCurrentUser();
+    if (user && user.cart && (JSON.parse(localStorage.getItem('healthybite-cart')) || []).length === 0) {
+        localStorage.setItem('healthybite-cart', JSON.stringify(user.cart));
+    }
+
     loadCart();
     initEventListeners();
     updateCartCount();
     setDeliveryFee();
 });
+
+async function syncCart() {
+    const user = Auth.getCurrentUser();
+    if (user && user.id) {
+        try {
+            await API.updateCart(user.id, cart);
+            // Also update the user object in localStorage to keep it in sync
+            user.cart = cart;
+            Auth.setCurrentUser(user);
+        } catch (e) {
+            console.warn("Failed to sync cart with database", e);
+        }
+    }
+}
 
 function setDeliveryFee() {
     const feeEl = document.getElementById('delivery-fee');
@@ -85,13 +121,17 @@ function loadCart() {
     }
 
     cartItemsContainer.innerHTML = cart.map(item => {
-        const product = products.find(p => p.id === item.id) || item;
+        // Find product in fresh list or fallback to item data
+        // item.id might be string or number, productsData usually have _id or id
+        const product = productsData.find(p => p.id == item.id || p._id == item.id) || item;
         const itemTotal = (product.price || item.price) * item.quantity;
+        const imgSrc = product.image || item.image || '../assets/placeholder.jpg';
+        const safeImg = imgSrc.startsWith('.') ? imgSrc : '../' + imgSrc;
 
         return `
         <div class="cart-item" data-id="${item.id}">
                 <div class="cart-item-image">
-                    <img src="../${product.image || item.image}" alt="${product.name || item.name}">
+                    <img src="${safeImg}" alt="${product.name || item.name}" onerror="this.src='../assets/placeholder.jpg'">
                 </div>
                 <div class="cart-item-info">
                     <div class="cart-item-details">
@@ -122,13 +162,13 @@ function loadCart() {
 
     // Add event listeners
     cartItemsContainer.querySelectorAll('.increase-btn').forEach(btn => {
-        btn.addEventListener('click', () => increaseQuantity(parseInt(btn.getAttribute('data-id'))));
+        btn.addEventListener('click', () => increaseQuantity(btn.getAttribute('data-id')));
     });
     cartItemsContainer.querySelectorAll('.decrease-btn').forEach(btn => {
-        btn.addEventListener('click', () => decreaseQuantity(parseInt(btn.getAttribute('data-id'))));
+        btn.addEventListener('click', () => decreaseQuantity(btn.getAttribute('data-id')));
     });
     cartItemsContainer.querySelectorAll('.remove-btn').forEach(btn => {
-        btn.addEventListener('click', () => removeFromCart(parseInt(btn.getAttribute('data-id'))));
+        btn.addEventListener('click', () => removeFromCart(btn.getAttribute('data-id')));
     });
 
     if (checkoutBtn) checkoutBtn.disabled = false;
@@ -137,7 +177,7 @@ function loadCart() {
 
 function updateSummary() {
     const subtotal = cart.reduce((total, item) => {
-        const product = products.find(p => p.id === item.id) || item;
+        const product = productsData.find(p => p.id == item.id || p._id == item.id) || item;
         return total + (product.price || item.price) * item.quantity;
     }, 0);
 
@@ -150,33 +190,35 @@ function updateSummary() {
 }
 
 function increaseQuantity(productId) {
-    const item = cart.find(i => i.id === productId);
+    // loose comparison to handle id string vs number mismatch
+    const item = cart.find(i => i.id == productId);
     if (item) {
         item.quantity += 1;
-        localStorage.setItem('healthybite-cart', JSON.stringify(cart));
-        loadCart();
-        updateCartCount();
+        saveAndRefresh();
         showNotification('Item quantity updated', 'success');
     }
 }
 
 function decreaseQuantity(productId) {
-    const item = cart.find(i => i.id === productId);
+    const item = cart.find(i => i.id == productId);
     if (item && item.quantity > 1) {
         item.quantity -= 1;
-        localStorage.setItem('healthybite-cart', JSON.stringify(cart));
-        loadCart();
-        updateCartCount();
+        saveAndRefresh();
         showNotification('Item quantity updated', 'success');
     }
 }
 
 function removeFromCart(productId) {
-    cart = cart.filter(item => item.id !== productId);
+    cart = cart.filter(item => item.id != productId);
+    saveAndRefresh();
+    showNotification('Item removed from cart', 'success');
+}
+
+function saveAndRefresh() {
     localStorage.setItem('healthybite-cart', JSON.stringify(cart));
+    syncCart();
     loadCart();
     updateCartCount();
-    showNotification('Item removed from cart', 'success');
 }
 
 function clearCart() {
@@ -197,9 +239,7 @@ function clearCart() {
 
 function performClearCart() {
     cart = [];
-    localStorage.setItem('healthybite-cart', JSON.stringify(cart));
-    loadCart();
-    updateCartCount();
+    saveAndRefresh();
     showNotification('Cart cleared', 'success');
 }
 

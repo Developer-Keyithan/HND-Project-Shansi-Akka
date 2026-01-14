@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - healthybite</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="auth.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
         rel="stylesheet">
@@ -42,7 +42,7 @@
 
         <div class="auth-card">
             <div class="auth-header">
-                <a href="/index.html" class="logo">
+                <a href="../index.html" class="logo">
                     <i class="fas fa-leaf"></i>
                     <span>healthybite</span>
                 </a>
@@ -71,7 +71,7 @@
                         <input type="checkbox" id="rememberMe">
                         <span>Remember me</span>
                     </label>
-                    <a href="forgot-password.html">Forgot Password?</a>
+                    <a href="./forgot-password.html">Forgot Password?</a>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">Login</button>
@@ -80,22 +80,22 @@
                     <span>or continue with</span>
                 </div>
 
+                <!-- Custom Google Button -->
                 <button type="button" class="btn btn-google">
                     <i class="fab fa-google"></i> Google
                 </button>
+
+                <!-- Official Render Button (Commented Out) -->
+                <!-- <div class="btn btn-google-official-container"></div> -->
             </form>
 
             <div class="auth-footer">
-                <p>Don't have an account? <a href="/auth/register.html">Sign up now</a></p>
-                <p><a href="/index.html"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
+                <p>Don't have an account? <a href="./register.html">Sign up now</a></p>
+                <p><a href="../index.html"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
             </div>
         </div>
     </div>
-
-    <script type="module" src="/shared/data.js"></script>
-    <script type="module" src="/shared/auth.js"></script>
-
-
+    <script type="module" src="./JS/login.js"></script>
 </body>
 
 </html>

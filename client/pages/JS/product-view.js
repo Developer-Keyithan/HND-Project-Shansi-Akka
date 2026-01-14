@@ -1,5 +1,6 @@
 // Product View Page JavaScript
 import { API } from "../../shared/api.js";
+import { Auth } from "../../shared/auth.js";
 import { getParameterByName, showLoading, formatCurrency } from "../../shared/common.js";
 import { addToCart, updateCartCount, showNotification } from "../../actions.js";
 
@@ -15,7 +16,7 @@ function initEventListeners() {
     // Add to cart button
     document.addEventListener('click', function (e) {
         if (e.target.closest('.btn-add-to-cart')) {
-            const productId = parseInt(e.target.closest('.btn-add-to-cart').dataset.productId);
+            const productId = e.target.closest('.btn-add-to-cart').dataset.productId;
             addToCart(productId);
         }
     });
@@ -36,10 +37,57 @@ function initEventListeners() {
             }
         }
     });
+
+    // Star rating interactivity
+    const starRating = document.getElementById('star-rating');
+    if (starRating) {
+        const stars = starRating.querySelectorAll('i');
+        stars.forEach(star => {
+            star.addEventListener('mouseover', function () {
+                const val = parseInt(this.dataset.value);
+                highlightStars(val);
+            });
+
+            star.addEventListener('mouseout', function () {
+                const currentVal = parseInt(document.getElementById('rating-value').value);
+                highlightStars(currentVal);
+            });
+
+            star.addEventListener('click', function () {
+                const val = parseInt(this.dataset.value);
+                document.getElementById('rating-value').value = val;
+                highlightStars(val);
+            });
+        });
+    }
+
+    // Review form submission
+    const reviewForm = document.getElementById('product-review-form');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            await handleSubmitReview();
+        });
+    }
+}
+
+function highlightStars(count) {
+    const starRating = document.getElementById('star-rating');
+    if (!starRating) return;
+    const stars = starRating.querySelectorAll('i');
+    stars.forEach((star, index) => {
+        if (index < count) {
+            star.classList.remove('far', 'fa-star');
+            star.classList.add('fas', 'fa-star');
+        } else {
+            star.classList.remove('fas', 'fa-star');
+            star.classList.add('far', 'fa-star');
+        }
+    });
 }
 
 async function loadProduct() {
-    const productId = parseInt(getParameterByName('id') || 0);
+    const productId = getParameterByName('id');
     const container = document.getElementById('product-container');
 
     if (!productId) {
@@ -218,39 +266,39 @@ async function loadReviews() {
     const container = document.getElementById('reviews-container');
     if (!container) return;
 
+    if (!currentProduct) return;
+
     showLoading(container, 'Fetching customer reviews...');
 
     try {
-        const reviews = await API.getReviews(currentProduct ? currentProduct.id : null);
+        const reviews = await API.getReviews({ type: 'product', productId: currentProduct._id || currentProduct.id });
 
         if (!reviews || reviews.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="far fa-comments"></i>
                     <h3>No Reviews Yet</h3>
-                    <p>Be the first to share your experience with the <strong>${currentProduct ? currentProduct.name : 'this product'}</strong>. Your feedback helps others make healthy choices!</p>
-                    <button class="btn btn-primary btn-write-review">Write a Review</button>
+                    <p>Be the first to share your experience with <strong>${currentProduct.name}</strong>.</p>
                 </div>
             `;
-
-            container.querySelector('.btn-write-review')?.addEventListener('click', () => {
-                showNotification('Review system coming soon!', 'info');
-            });
             return;
         }
 
         container.innerHTML = `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%;">
+            <div class="reviews-list">
                 ${reviews.map(review => `
-                    <div class="review-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f0f0f0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h4 style="margin: 0; color: #333;">${review.name}</h4>
-                            <span style="font-size: 0.8rem; color: #999;">${new Date(review.date).toLocaleDateString()}</span>
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-user">
+                                <img src="${review.userAvatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${review.userName}">
+                                <h4>${review.userName}</h4>
+                            </div>
+                            <span class="review-date">${new Date(review.createdAt).toLocaleDateString()}</span>
                         </div>
-                        <div style="color: #ffc107; margin-bottom: 10px;">
+                        <div class="review-stars">
                             ${generateStars(review.rating)}
                         </div>
-                        <p style="color: #555; font-style: italic; line-height: 1.6; margin: 0;">"${review.text}"</p>
+                        <p class="review-comment">${review.comment}</p>
                     </div>
                 `).join('')}
             </div>
@@ -258,6 +306,57 @@ async function loadReviews() {
     } catch (e) {
         console.error(e);
         container.innerHTML = '<p class="error-text">Failed to load reviews.</p>';
+    }
+}
+
+async function handleSubmitReview() {
+    const user = Auth.getCurrentUser();
+    if (!user) {
+        showNotification('Please login to leave a review', 'warning');
+        return;
+    }
+
+    const rating = parseInt(document.getElementById('rating-value').value);
+    const comment = document.getElementById('review-comment').value.trim();
+
+    if (rating === 0) {
+        showNotification('Please select a star rating', 'warning');
+        return;
+    }
+
+    if (!comment) {
+        showNotification('Please enter a comment', 'warning');
+        return;
+    }
+
+    const submitBtn = document.querySelector('#product-review-form button');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+    try {
+        const result = await API.addReview({
+            userId: user.id || user._id,
+            userName: user.name,
+            userAvatar: user.avatar,
+            rating,
+            comment,
+            type: 'product',
+            productId: currentProduct._id || currentProduct.id
+        });
+
+        if (result.success) {
+            showNotification('Thank you for your review!', 'success');
+            document.getElementById('product-review-form').reset();
+            document.getElementById('rating-value').value = 0;
+            highlightStars(0);
+            loadReviews(); // Refresh reviews
+        }
+    } catch (error) {
+        console.error('Submit review error:', error);
+        showNotification('Failed to submit review', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Submit Review';
     }
 }
 

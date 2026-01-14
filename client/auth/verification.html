@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - healthybite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="auth.css">
+    <link rel="stylesheet" href="../plugins/fontawesome-free-7.1.0-web/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        .verification-container {
+            max-width: 500px;
+            margin: 50px auto;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .code-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .code-inputs input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .resend-btn {
+            color: #4CAF50;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .resend-btn:disabled {
+            color: #999;
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <!-- Hero Section (Left) -->
+        <div class="auth-hero">
+            <div class="auth-hero-content">
+                <h2>Secure Your Account</h2>
+                <p>We take your security seriously. Please verify your identity to continue.</p>
+                <div class="auth-features">
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Secure Verification</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-envelope"></i>
+                        <span>Email Confirmation</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-lock"></i>
+                        <span>Data Protection</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-user-check"></i>
+                        <span>Identity Verification</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Section (Right) -->
+        <div class="auth-card">
+            <div class="auth-header">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-leaf"></i>
+                    <span>healthybite</span>
+                </a>
+                <h1>Verify Email</h1>
+                <p>We sent a 6-character code to <br><strong id="email-display">user@example.com</strong></p>
+            </div>
+
+            <form id="verifyForm" class="auth-form">
+                <div class="form-group">
+                    <label for="token">Verification Code</label>
+                    <input type="text" id="token" placeholder="Enter Token"
+                        style="text-align: center; letter-spacing: 5px; font-size: 20px; font-weight: bold;"
+                        maxlength="6" required>
+                </div>
+
+                <div class="timer" id="timer-display" style="text-align: center; margin-bottom: 20px; color: #666;">
+                    Code expires in 10:00
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Verify</button>
+            </form>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <p>Did not receive the code?</p>
+                <button id="resendBtn" class="resend-btn" disabled
+                    style="background:none; border:none; color: #4CAF50; cursor: pointer; text-decoration: underline;">Resend
+                    Code</button>
+            </div>
+
+            <div class="auth-footer">
+                <p>Wrong email? <a href="javascript:void(0);" id="startOver">Start over</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { API } from '../shared/api.js';
+        import { showNotification } from '../actions.js';
+        import { AppConfig } from '../app.config.js';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        const mode = urlParams.get('mode') || 'registration';
+
+        if (!email) {
+            window.location.href = mode === 'login' ? 'login.html' : 'register.html';
+        }
+
+        document.getElementById('startOver').addEventListener('click', () => {
+            window.location.href = mode === 'login' ? 'login.html' : 'register.html';
+        });
+        
+        document.getElementById('email-display').textContent = email;
+
+        // Timer Logic
+        const STORAGE_KEY = `verify_expire`;
+
+        // Reset timer if this is a fresh redirection
+        if (urlParams.get('new') === 'true') {
+            localStorage.removeItem(STORAGE_KEY);
+            // Remove 'new' param from URL without reloading
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + `?email=${encodeURIComponent(email)}&mode=${mode}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+        }
+
+        // Duration in seconds (30 seconds)
+        const DURATION = 30;
+
+        let expireTime;
+        const storedJson = localStorage.getItem(STORAGE_KEY);
+
+        if (storedJson) {
+            try {
+                const stored = JSON.parse(storedJson);
+                expireTime = stored.expire;
+            } catch (e) {
+                console.error("Invalid storage format", e);
+            }
+        }
+
+        if (!expireTime) {
+            // First time load (from Register or Login redirect): Set expiry
+            expireTime = Date.now() + (DURATION * 1000);
+            const data = { expire: expireTime, email: email, mode: mode };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } else {
+            expireTime = parseInt(expireTime, 10);
+        }
+
+        const timerDisplay = document.getElementById('timer-display');
+        const resendBtn = document.getElementById('resendBtn');
+
+        function updateTimer() {
+            const now = Date.now();
+            const distance = expireTime - now;
+
+            if (distance <= 0) {
+                clearInterval(timer);
+                timerDisplay.textContent = "Code Expired";
+                timerDisplay.style.color = "red";
+                resendBtn.disabled = false;
+                // Do NOT remove storage key here, so reload keeps it expired
+            } else {
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                timerDisplay.textContent = `Code expires in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        const timer = setInterval(updateTimer, 1000);
+        updateTimer(); // Initial call
+
+        // Verify
+        document.getElementById('verifyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = document.getElementById('token').value.trim();
+
+            if (!token) return;
+
+            const submitBtn = e.target.querySelector('button');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Verifying...';
+            submitBtn.disabled = true;
+
+            try {
+                const endpoint = mode === 'login' ? '/auth/verify-login' : '/auth/verify';
+
+                const res = await API._fetch(endpoint, {
+                    method: 'POST',
+                    body: JSON.stringify({ email, token })
+                });
+
+                if (res.success) {
+                    showNotification(mode === 'login' ? 'Login successful!' : 'Account verified!', 'success');
+                    clearInterval(timer);
+
+                    if (mode === 'login' && res.token && res.user) {
+                        console.log(res.user);
+                        const currentUser = res.user;
+                        // Or manually if dynamic import is tricky here (it's a module, so it's fine)
+                        // But we can just use localStorage for simplicity if Auth not available in this scope easily
+                        // Actually, let's use localStorage to be safe and simple
+                        localStorage.setItem('healthybite-token', res.token);
+
+                        setTimeout(() => {
+                            const redirectPaths = {
+                                'admin': '/dashboard/admin.html',
+                                'administrator': '/dashboard/admin.html',
+                                'seller': '/dashboard/seller.html',
+                                'delivery-partner': '/dashboard/delivery-partner.html',
+                                'delivery-man': '/dashboard/delivery-man.html',
+                                'technical-supporter': '/dashboard/technical.html'
+                            };
+                            const redirectPath = AppConfig.app.url + redirectPaths[currentUser.role] || '/dashboard/consumer.html';
+                            // window.location.href = redirectPath;
+                        }, 1000);
+
+                    } else {
+                        setTimeout(() => {
+                            window.location.href = AppConfig.app.url + '/auth/login.html';
+                        }, 1500);
+                    }
+
+                    localStorage.removeItem(STORAGE_KEY);
+
+                } else {
+                    showNotification(res.error || 'Invalid token', 'error');
+                    if (res.expired) {
+                        timerDisplay.textContent = "Code Expired";
+                        resendBtn.disabled = false;
+                    }
+                }
+            } catch (err) {
+                showNotification(err.message || 'Verification failed', 'error');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Resend
+        resendBtn.addEventListener('click', async () => {
+            resendBtn.disabled = true;
+            resendBtn.textContent = "Sending...";
+
+            try {
+                const res = await API._fetch('/auth/resend-verify', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, type: mode })
+                });
+
+                if (res.success) {
+                    showNotification('New code sent!', 'success');
+                    // Reset Timer
+                    localStorage.removeItem(STORAGE_KEY);
+                    window.location.reload();
+                } else {
+                    showNotification(res.error, 'error');
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = "Resend Code";
+                }
+            } catch (err) {
+                showNotification(err.message || "Failed to resend code", 'error');
+                resendBtn.disabled = false;
+                resendBtn.textContent = "Resend Code";
+            }
+        });
+    </script>
+</body>
+
+</html>

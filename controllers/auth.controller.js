@@ -3,7 +3,7 @@ import User from '../models/user.model.js';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+
 let tokenBlacklist = [];
 
 export async function registerUser(req, res) {
@@ -27,15 +27,19 @@ export async function registerUser(req, res) {
             name,
             role: role || 'consumer',
             phone,
-            address
+            address,
+            cart: req.body.cart || [] // Accept initial cart
         });
 
         await newUser.save();
 
+        // Send Welcome Email (Non-blocking)
+        sendWelcomeEmail(email, name).catch(console.error);
+
         // Generate JWT token
         const token = jwt.sign(
             { id: newUser._id, role: newUser.role },
-            JWT_SECRET_KEY,
+            process.env.JWT_SECRET_KEY,
             { expiresIn: "7d" }
         );
 
@@ -46,7 +50,7 @@ export async function registerUser(req, res) {
             role: newUser.role,
             phone: newUser.phone,
             address: newUser.address,
-            password: newUser.password
+            cart: newUser.cart
         };
 
         res.status(201).json({
@@ -59,6 +63,9 @@ export async function registerUser(req, res) {
     }
 }
 
+import { storeLoginOTP, sendVerificationEmail } from "./verification.controller.js";
+import crypto from 'crypto';
+
 export async function login(req, res) {
     try {
         await connectDB();
@@ -69,32 +76,60 @@ export async function login(req, res) {
             return res.status(400).json({ error: "Email and password are required" });
         }
 
+        console.log('Login Attempt for:', email);
         const user = await User.findOne({ email: email.toLowerCase() });
 
         if (!user) {
+            console.log('User not found');
             return res.status(404).json({ error: "User not found" });
         }
 
-        if (user.password !== password) {
+        console.log('User found. Comparing passwords...');
+        const isMatch = await user.comparePassword(password);
+        console.log('Password match result:', isMatch);
+
+        if (!isMatch) {
+            console.log('Password mismatch');
             return res.status(400).json({ error: "Invalid password" });
         }
 
+        // --- NEW LOGIC: Trigger Verification ---
+
+        // Generate Code
+        const token = crypto.randomBytes(3).toString('hex').toUpperCase();
+
+        // Store Code
+        await storeLoginOTP(user.email, token);
+
+        // Send Email
+        await sendVerificationEmail(user.email, token, 'login');
+
         // Generate JWT token
-        const token = jwt.sign(
+        const loginToken = jwt.sign(
             { id: user._id, role: user.role },
-            JWT_SECRET_KEY,
+            process.env.JWT_SECRET_KEY,
             { expiresIn: "7d" }
         );
 
+        const userData = {
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            cart: user.cart.length
+        };
+
+        res.status(201).json({
+            success: true,
+            user: userData,
+            token: loginToken
+        });
+
+        // Return status telling frontend to redirect
         res.status(200).json({
             success: true,
-            user: {
-                id: user._id.toString(),
-                email: user.email,
-                name: user.name,
-                role: user.role
-            },
-            token
+            verificationRequired: true,
+            email: user.email,
+            message: "Verification code sent to email"
         });
 
     } catch (error) {
@@ -240,6 +275,10 @@ export async function googleLogin(req, res) {
             authProvider: user.authProvider
         };
 
+        // Send login notification
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        sendLoginNotification(user.email, { device: 'Unknown', os: 'Unknown', browser: 'Unknown' }, ip).catch(console.error);
+
         res.status(200).json({
             success: true,
             user: userData
@@ -248,5 +287,28 @@ export async function googleLogin(req, res) {
     } catch (error) {
         console.error('Google auth error:', error);
         res.status(500).json({ error: 'Authentication failed' });
+    }
+}
+
+export async function getCurrentUser(req, res) {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const userData = {
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            cart: user.cart.length,
+            avatar: user.avatar,
+            permissions: user.permissions || [],
+        };
+
+        res.status(200).json({ success: true, user: userData });
+    } catch (error) {
+        console.error('Get Current User Error:', error);
+        res.status(500).json({ error: 'Failed to get current user' });
     }
 }

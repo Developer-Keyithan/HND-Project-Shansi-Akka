@@ -1,29 +1,27 @@
 import { Toast } from "../../plugins/Toast/toast.js";
 import { Auth } from "../../shared/auth.js";
+import { API } from "../../shared/api.js";
 import { AppConfig } from "../../app.config.js";
 import { showNotification } from "../../actions.js";
+import { SocialAuth } from "../../shared/socialauth.js";
 
 document.addEventListener('DOMContentLoaded', function () {
     // Check for existing session
-    const userStr = localStorage.getItem('healthybite-user');
-    if (userStr) {
-        try {
-            const user = JSON.parse(userStr);
-            const redirectPaths = {
-                'admin': '/dashboard/admin.html',
-                'administrator': '/dashboard/admin.html',
-                'seller': '/dashboard/seller.html',
-                'delivery-partner': '/dashboard/delivery-partner.html',
-                'delivery-man': '/dashboard/delivery-man.html',
-                'technical-supporter': '/dashboard/technical.html'
-            };
-            const redirectPath = redirectPaths[user.role] || '/dashboard/consumer.html';
-            const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
-            window.location.href = appUrl + redirectPath;
-            return;
-        } catch (e) {
-            localStorage.removeItem('healthybite-user');
-        }
+    // Check for existing session
+    const currentUser = Auth.getCurrentUser();
+    if (currentUser) {
+        const redirectPaths = {
+            'admin': '/dashboard/admin.html',
+            'administrator': '/dashboard/admin.html',
+            'seller': '/dashboard/seller.html',
+            'delivery-partner': '/dashboard/delivery-partner.html',
+            'delivery-man': '/dashboard/delivery-man.html',
+            'technical-supporter': '/dashboard/technical.html'
+        };
+        const redirectPath = redirectPaths[currentUser.role] || '/dashboard/consumer.html';
+        const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
+        window.location.href = appUrl + redirectPath;
+        return;
     }
 
     // Toggle password visibility
@@ -219,42 +217,68 @@ document.addEventListener('DOMContentLoaded', function () {
         const password = passwordInput.value;
 
         try {
-            const result = await Auth.registerUser({
-                name: fullName,
-                email: email,
-                phone: phone,
-                password: password
+            // New Flow: Initiate Registration (Step 1)
+            const result = await API._fetch('/auth/register-init', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: fullName,
+                    email: email,
+                    phone: phone,
+                    password: password,
+                    address: '' // Optional for now
+                })
             });
 
             if (result.success) {
-                showNotification('Account created successfully! Welcome to healthybite.', 'success');
+                showNotification('Verification code sent to your email.', 'info');
                 setTimeout(() => {
                     const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
-                    window.location.href = appUrl + '/dashboard/consumer.html';
+                    window.location.href = `${appUrl}/auth/verification.html?email=${encodeURIComponent(email)}&new=true`;
                 }, 1500);
             } else {
                 showNotification(result.error, 'error');
-                // Re-enable on error
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
-                // Re-validate to ensure button state aligns with form state
                 validateForm();
             }
         } catch (err) {
             console.error(err);
-            showNotification("An error occurred during registration.", 'error');
-            // Re-enable on error
+            showNotification(err.message || "An error occurred during registration.", 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
             validateForm();
         }
     });
 
-    // Google sign-in check
+    // Google sign-in
     const googleBtn = document.querySelector('.btn-google');
     if (googleBtn) {
-        googleBtn.addEventListener('click', function () {
-            showNotification('Google sign-in would be implemented here.', 'info');
+        googleBtn.addEventListener('click', async function () {
+            try {
+                // Prevent multiple clicks
+                if (this.disabled) return;
+                this.disabled = true;
+
+                showNotification('Connecting to Google...', 'info');
+                const result = await SocialAuth.signInWithGoogle();
+
+                if (result && result.success) {
+                    const user = result.user;
+                    Auth.setCurrentUser(user, result.token);
+
+                    showNotification('Registration with Google successful!', 'success');
+
+                    setTimeout(() => {
+                        const appUrl = (AppConfig?.app?.url || '').replace(/\/$/, '');
+                        window.location.href = appUrl + '/dashboard/consumer.html';
+                    }, 1500);
+                }
+            } catch (error) {
+                console.error('Google sign-in failed', error);
+                showNotification('Google sign-in failed: ' + (error.message || 'Unknown error'), 'error');
+            } finally {
+                if (googleBtn) googleBtn.disabled = false;
+            }
         });
     }
 });

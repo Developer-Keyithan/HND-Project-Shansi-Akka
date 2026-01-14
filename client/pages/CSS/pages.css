@@ -1466,7 +1466,7 @@
     align-items: center;
     gap: 30px;
     margin-bottom: 30px;
-    padding: 20px;
+    padding: 20px 0;
     background-color: var(--background-light);
     border-radius: var(--radius);
 }
