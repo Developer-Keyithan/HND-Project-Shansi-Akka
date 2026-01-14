@@ -13,7 +13,6 @@ export class LoggerService {
             data
         };
         this.logs.push(entry);
-        console.log(`[${level.toUpperCase()}] ${message}`, data || '');
 
         // Keep logs manageable
         if (this.logs.length > 200) {

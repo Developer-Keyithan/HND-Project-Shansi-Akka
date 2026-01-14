@@ -226,7 +226,6 @@
                     clearInterval(timer);
 
                     if (mode === 'login' && res.token && res.user) {
-                        console.log(res.user);
                         const currentUser = res.user;
                         // Or manually if dynamic import is tricky here (it's a module, so it's fine)
                         // But we can just use localStorage for simplicity if Auth not available in this scope easily

@@ -140,7 +140,6 @@ export class SocialAuthService {
     }
 
     async renderGoogleButton(containerId) {
-        console.log(`[SocialAuth] Attempting to render Google button in #${containerId}`);
         const container = document.getElementById(containerId);
         if (!container) {
             console.error(`[SocialAuth] Container #${containerId} NOT FOUND in DOM.`);
@@ -148,7 +147,6 @@ export class SocialAuthService {
         }
 
         if (!this.googleSDKLoaded) {
-            console.log('[SocialAuth] Google SDK not loaded, initializing...');
             await this.init();
         }
 
@@ -162,7 +160,6 @@ export class SocialAuthService {
             google.accounts.id.initialize({
                 client_id: this.googleClientId,
                 callback: async (response) => {
-                    console.log('[SocialAuth] Google Button Callback Triggered', response);
                     if (window.handleGoogleLoginResponse) {
                         window.handleGoogleLoginResponse(response);
                     } else {
@@ -175,7 +172,6 @@ export class SocialAuthService {
                 container,
                 { theme: "outline", size: "large", width: "100%" }
             );
-            console.log(`[SocialAuth] Google button rendered successfully in #${containerId}`);
         } catch (err) {
             console.error('[SocialAuth] Error rendering Google button:', err);
         }

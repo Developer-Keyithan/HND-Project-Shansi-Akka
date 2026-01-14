@@ -45,8 +45,6 @@ export const API = {
                 error.response = { data }; // Backward compatibility
                 throw error;
             }
-
-            console.log(`[API] ${method} ${endpoint}`, data);
             return data;
 
         } catch (error) {

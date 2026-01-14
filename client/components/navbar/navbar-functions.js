@@ -34,7 +34,6 @@ export function setGlobalUser(user) {
 
 export async function checkAuth() {
     const token = localStorage.getItem('healthybite-token');
-    console.log(token);
     if (token) {
         try {
             const res = await API.getCurrentUser();

@@ -8,7 +8,6 @@ const email = 'sathyjaseelankeyithan@gmail.com';
 
 connectDB().then(async () => {
     const res = await User.deleteOne({ email });
-    console.log(`User ${email} deleted. Count: ${res.deletedCount}`);
     process.exit();
 }).catch(err => {
     console.error(err);
