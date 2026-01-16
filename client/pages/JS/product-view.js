@@ -310,7 +310,7 @@ async function loadReviews() {
 }
 
 async function handleSubmitReview() {
-    const user = Auth.getCurrentUser();
+    const user = API.getCurrentUser();
     if (!user) {
         showNotification('Please login to leave a review', 'warning');
         return;

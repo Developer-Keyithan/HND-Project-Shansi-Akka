@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Check for existing session
     // Check for existing session
-    const currentUser = Auth.getCurrentUser();
+    const currentUser = API.getCurrentUser();
     if (currentUser) {
         const redirectPaths = {
             'admin': '/dashboard/admin.html',

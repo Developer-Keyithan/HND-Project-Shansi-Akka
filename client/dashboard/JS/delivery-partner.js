@@ -9,7 +9,7 @@ function initDashboard() {
     // Auth Check
     if (!Auth || !Auth.requireRole('delivery-partner')) return;
 
-    const user = Auth.getCurrentUser();
+    const user = API.getCurrentUser();
     if (user) {
         const userNameElem = document.getElementById('user-name');
         if (userNameElem) userNameElem.textContent = user.name;

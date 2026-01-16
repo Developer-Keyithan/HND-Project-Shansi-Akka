@@ -21,7 +21,7 @@ let productsData = [];
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Check authentication
-    const currentUser = Auth.getCurrentUser();
+    const currentUser = API.getCurrentUser();
     if (!currentUser) {
         showNotification('Please login to continue', 'error');
         setTimeout(() => {

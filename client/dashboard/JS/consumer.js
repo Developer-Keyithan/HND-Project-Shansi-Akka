@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function initDashboard() {
-    const user = Auth.getCurrentUser();
+    const user = API.getCurrentUser();
     if (!user) return;
 
     // Set user data
@@ -48,7 +48,7 @@ function updateDashboardDate() {
 
 async function loadUserData(orders = []) {
     if (orders.length === 0) {
-        const user = Auth.getCurrentUser();
+        const user = API.getCurrentUser();
         if (user) {
             try {
                 orders = await API.getUserOrders(user.id || user._id);
@@ -84,7 +84,7 @@ async function loadOrders() {
     const tableBody = document.getElementById('orders-table-body');
     if (!tableBody) return;
 
-    const user = Auth.getCurrentUser();
+    const user = API.getCurrentUser();
     if (!user) return;
 
     // Show loading

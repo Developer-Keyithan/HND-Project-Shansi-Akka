@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    const currentUser = Auth.getCurrentUser();
+    const currentUser = API.getCurrentUser();
     const role = currentUser.role;
 
     // Allowed roles for this page

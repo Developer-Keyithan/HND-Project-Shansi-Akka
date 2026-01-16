@@ -39,7 +39,7 @@ export async function addToCart(productId) {
     localStorage.setItem('healthybite-cart', JSON.stringify(cart));
 
     // Sync with DB if logged in
-    const user = Auth.getCurrentUser();
+    const user = API.getCurrentUser();
     if (user && user.id) {
         try {
             await API.updateCart(user.id, cart);
@@ -92,7 +92,7 @@ export function checkPageAccess(requiredRole) {
 
     if (requiredRole && !Auth.hasRole(requiredRole)) {
         // Special logic for hierarchy
-        const user = Auth.getCurrentUser();
+        const user = API.getCurrentUser();
 
         // Administrator (Super Admin) implies Admin
         if (requiredRole === 'admin' && user.role === 'administrator') return true;

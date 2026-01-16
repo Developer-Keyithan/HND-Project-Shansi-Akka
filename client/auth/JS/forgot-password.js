@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const forgotPasswordForm = document.getElementById('forgotPasswordForm');
 
     // Check for existing session
-    const currentUser = Auth.getCurrentUser();
+    const currentUser = API.getCurrentUser();
     if (currentUser) {
         const redirectPaths = {
             'admin': '/dashboard/admin.html',

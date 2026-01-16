@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // If logged in and local cart is empty, try to load from user object
-    const user = Auth.getCurrentUser();
+    const user = API.getCurrentUser();
     if (user && user.cart && (JSON.parse(localStorage.getItem('healthybite-cart')) || []).length === 0) {
         localStorage.setItem('healthybite-cart', JSON.stringify(user.cart));
     }
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 });
 
 async function syncCart() {
-    const user = Auth.getCurrentUser();
+    const user = API.getCurrentUser();
     if (user && user.id) {
         try {
             await API.updateCart(user.id, cart);
@@ -244,7 +244,7 @@ function performClearCart() {
 }
 
 function proceedToCheckout() {
-    const currentUser = Auth.getCurrentUser();
+    const currentUser = API.getCurrentUser();
 
     if (!currentUser) {
         showNotification('Please login to proceed to checkout', 'error');
