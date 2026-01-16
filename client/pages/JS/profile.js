@@ -35,7 +35,7 @@ function initEventListeners() {
 }
 
 function loadProfile() {
-    const currentUser = Auth.getCurrentUser();
+    const currentUser = API.getCurrentUser();
 
     if (!currentUser) {
         const appUrl = (AppConfig?.app?.url || AppConfig?.appUrl || '').replace(/\/$/, '');
@@ -83,7 +83,7 @@ function showSection(sectionId) {
 async function saveProfile(e) {
     e.preventDefault();
 
-    const currentUser = Auth.getCurrentUser();
+    const currentUser = API.getCurrentUser();
     if (!currentUser) return;
 
     const formData = {
@@ -121,7 +121,7 @@ async function saveProfile(e) {
 }
 
 async function loadOrders() {
-    const currentUser = Auth.getCurrentUser();
+    const currentUser = API.getCurrentUser();
     if (!currentUser) return;
 
     const ordersContainer = document.getElementById('orders-list');

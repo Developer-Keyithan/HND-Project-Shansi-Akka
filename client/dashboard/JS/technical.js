@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    const currentUser = Auth.getCurrentUser();
+    const currentUser = API.getCurrentUser();
     if (currentUser.role !== 'technical-supporter') {
         window.location.href = '/pages/errors/403.html';
         return;

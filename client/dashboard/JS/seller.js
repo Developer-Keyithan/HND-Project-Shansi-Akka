@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function initDashboard() {
-    const user = Auth.getCurrentUser();
+    const user = API.getCurrentUser();
     if (!user) return;
 
     if (document.getElementById('user-name')) document.getElementById('user-name').textContent = user.name;
