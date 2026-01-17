@@ -6,10 +6,11 @@ import { Logger } from "../../shared/logger.js";
 import { AppConfig } from "../../app.config.js";
 import { Utils } from "../../shared/utils.js";
 import { showNotification } from "../../actions.js";
+import { API } from "../../shared/api.js";
 
 const EmailService = EmailServiceImpl; // Alias
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     // --- Method 1: Official Google Render Button (Robust but Fixed Design) ---
     /*
     // Initialize Social Auth immediately
@@ -119,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Check for existing session
     // Check for existing session
-    const currentUser = API.getCurrentUser();
+    const currentUser = await API.getCurrentUser();
     if (currentUser) {
         const redirectPaths = {
             'admin': '/dashboard/admin.html',

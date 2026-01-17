@@ -5,25 +5,33 @@ import { AppConfig } from "../../app.config.js";
 import { showNotification } from "../../actions.js";
 import { SocialAuth } from "../../shared/socialauth.js";
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     // Check for existing session
     // Check for existing session
-    const currentUser = API.getCurrentUser();
-    if (currentUser) {
+    try {
+        const currentUser = await API.getCurrentUser();
+        console.log(currentUser);
+
+        if (!currentUser) return;
+
         const redirectPaths = {
-            'admin': '/dashboard/admin.html',
-            'administrator': '/dashboard/admin.html',
-            'seller': '/dashboard/seller.html',
+            admin: '/dashboard/admin.html',
+            administrator: '/dashboard/admin.html',
+            seller: '/dashboard/seller.html',
             'delivery-partner': '/dashboard/delivery-partner.html',
             'delivery-man': '/dashboard/delivery-man.html',
             'technical-supporter': '/dashboard/technical.html'
         };
-        const redirectPath = redirectPaths[currentUser.role] || '/dashboard/consumer.html';
+
+        const redirectPath =
+            redirectPaths[currentUser.role] || '/dashboard/consumer.html';
+
         const appUrl = (AppConfig.app?.url || '').replace(/\/$/, '');
         window.location.href = appUrl + redirectPath;
-        return;
-    }
 
+    } catch (error) {
+        console.error('Get current user failed:', error);
+    }
     // Toggle password visibility
     const togglePassword = document.getElementById('togglePassword');
     const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
