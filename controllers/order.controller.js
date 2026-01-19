@@ -71,3 +71,20 @@ export async function updateOrder(req, res) {
         res.status(500).json({ error: "Internal server error" });
     }
 }
+
+export async function getOrderById(req, res) {
+    await connectDB();
+    const { id } = req.params;
+    try {
+        const order = await Order.findOne({
+            $or: [
+                { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null },
+                { orderId: id }
+            ].filter(q => q._id || q.orderId)
+        });
+        if (!order) return res.status(404).json({ error: "Order not found" });
+        res.status(200).json({ success: true, order });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
