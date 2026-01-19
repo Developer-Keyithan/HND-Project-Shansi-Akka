@@ -94,23 +94,41 @@ This structure allows hundreds of logical endpoints to run efficiently without h
 ## 📂 Project Structure
 
 ```
-├── api/                # Vercel Serverless Functions (Grouped)
-│   ├── auth/           # Authentication Handler
-│   ├── common/         # Shared endpoints (Config, Reviews, etc.)
-│   ├── products/       # Product Handlers
-│   ├── orders/         # Order Handlers
-│   └── users/          # User Handlers
-├── client/             # Frontend Application
-│   ├── assets/         # Images, Icons
-│   ├── components/     # Shared UI Components (Navbar, Footer)
-│   ├── pages/          # Individual HTML Pages
-│   ├── shared/         # Shared JS Logic (API wrapper, Auth)
-│   ├── style.css       # Core Styles
-│   └── script.js       # Main Frontend Logic
-├── controllers/        # Business Logic (Reused by both server.js and /api)
-├── lib/                # Database Connection (Mongoose)
-├── vercel.json         # Vercel Routing Configuration
-└── server.js           # Local Development Server
+Healthybite v1.2.0          # Project Name
+├── api/                    # Vercel Serverless Functions (Grouped)
+│   ├── auth/               # Authentication Handler
+│   ├── common/             # Shared endpoints (Config, Reviews, etc.)
+│   ├── products/           # Product Handlers
+│   ├── orders/             # Order Handlers
+│   └── users/              # User Handlers
+├── client/                 # Frontend Application
+│   ├── assets/             # Images, Icons
+│   ├── auth/               # Authentication Pages
+│   ├── components/         # Shared UI Components (Navbar, Footer)
+│   ├── dashboard/          # Dashboard Pages
+│   ├── pages/              # Individual HTML Pages
+│   ├── plugins/            # Plugins (e.g., Toast, Font Awesome, etc.)
+│   ├── shared/             # Shared JS Logic (API wrapper, Auth)
+│   ├── action.js           # Action Script
+│   ├── app.config.js       # App Configuration
+│   ├── index.html          # Main HTML Page
+│   ├── load-script.js      # Load Scripts
+│   ├── script.js           # Main Frontend Logic
+│   ├── style.css           # Default Styles
+│   ├── style.xs.css        # Extra Small Devices Styles
+│   ├── style.sm.css        # Small Devices Styles
+│   ├── style.md.css        # Medium Devices Styles
+│   ├── style.lg.css        # Large Devices Styles
+│   ├── style.xl.css        # Extra Large Devices Styles
+│   └── style.2xl.css       # Extra Extra Large Devices Styles
+├── controllers/            # Business Logic (Reused by both server.js and /api)
+├── lib/                    # Database Connection (Mongoose)
+├── middlewares/            # Middleware Functions
+├── models/                 # Database Models
+├── scripts/                # Actions outside the project are scripts.
+├── app.js                  # Route Definitions
+├── server.js               # Local Development Server
+└── vercel.json             # Vercel Routing Configuration
 ```
 
 ## 📝 License
