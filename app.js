@@ -78,11 +78,11 @@ r.delete('/products', deleteProduct);
 r.get('/products/:id', getProductById);
 
 // Categories
-r.get('/categories', getCategories);
+r.get('/common/categories', getCategories);
 
 // Config
 r.get('/config', getConfig);
-r.get('/config/cta-offer', getCTAOffer);
+r.get('/common/cta-offer', getCTAOffer);
 r.get('/config/stripe-key', getStripeKey);
 r.get('/config/social-keys', getSocialKeys);
 
@@ -116,37 +116,37 @@ r.get('/orders/:id', async (req, res) => {
 });
 
 // Reviews
-r.get('/reviews', getReviews);
-r.post('/reviews', (req, res) => {
+r.get('/common/reviews', getReviews);
+r.post('/common/reviews', (req, res) => {
     if (req.body.reviewId !== undefined) return toggleFeatured(req, res);
     return addReview(req, res);
 });
 
 // FAQs
-r.get('/faqs', getFaqs);
+r.get('/common/faqs', getFaqs);
 
 // Team Members
-r.get('/team-members', getTeamMembers);
+r.get('/common/team-members', getTeamMembers);
 
 // Contact
-r.post('/contact', submitContactForm);
-r.get('/contact', getContactMessages);
+r.post('/common/contact', submitContactForm);
+r.get('/common/contact', getContactMessages);
 
 // Diet Plans
-r.get('/diet-plans', getDietPlans);
+r.get('/common/diet-plans', getDietPlans);
 
 // Policies
-r.get('/policies', getPolicy);
+r.get('/common/policies', getPolicy);
 
 // Translations
-r.get('/translations', getTranslations);
+r.get('/common/translations', getTranslations);
 
 // Logs
 r.get('/logs', handleLogs);
 r.post('/logs', handleLogs);
 
 // Stats
-r.get('/stats', getStats);
+r.get('/common/stats', getStats);
 
 // Use router
 // Important: When running in Vercel, the path might be different, but we mount on /api/
