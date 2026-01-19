@@ -2,7 +2,6 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import connectDB from './lib/db.js';
-import Order from './models/order.model.js';
 
 // Controllers
 import { initiateRegistration, verifyRegistration, verifyLogin, resendVerification } from './controllers/verification.controller.js';
@@ -11,7 +10,7 @@ import { getProducts, createProduct, updateProduct, deleteProduct, getProductByI
 import { getCategories } from './controllers/category.controller.js';
 import { getConfig, getStripeKey, getSocialKeys, getCTAOffer } from './controllers/config.controller.js';
 import { getUsers, saveUser, deleteUser, getUserById, updateUserCart, updateUserProfile } from './controllers/user.controller.js';
-import { getOrders, createOrder, updateOrder } from './controllers/order.controller.js';
+import { getOrders, createOrder, updateOrder, getOrderById } from './controllers/order.controller.js';
 import { getReviews, addReview, toggleFeatured } from './controllers/review.controller.js';
 import { getFaqs } from './controllers/faq.controller.js';
 import { getTeamMembers } from './controllers/teammember.controller.js';
@@ -54,109 +53,92 @@ app.use(async (req, res, next) => {
 connectDB();
 
 // Routes
-const r = express.Router();
+const router = express.Router();
 
 // Auth
-r.post('/auth/login', login);
-r.post('/auth/register', registerUser);
-r.post('/auth/logout', logout);
-r.post('/auth/google', googleLogin);
-r.post('/auth/facebook', facebookLogin);
-r.get('/auth/me', new Auth().middleware(), getCurrentUser);
-
-// Verification Flow
-r.post('/auth/register-init', initiateRegistration);
-r.post('/auth/verify', verifyRegistration);
-r.post('/auth/verify-login', verifyLogin);
-r.post('/auth/resend-verify', resendVerification);
+router.post('/auth/login', login);
+router.post('/auth/register', registerUser);
+router.post('/auth/logout', logout);
+router.post('/auth/google', googleLogin);
+router.post('/auth/facebook', facebookLogin);
+router.get('/auth/me', new Auth().middleware(), getCurrentUser);
+router.post('/auth/register-init', initiateRegistration);
+router.post('/auth/verify', verifyRegistration);
+router.post('/auth/verify-login', verifyLogin);
+router.post('/auth/resend-verify', resendVerification);
 
 // Products
-r.get('/products', getProducts);
-r.post('/products', createProduct);
-r.put('/products', updateProduct);
-r.delete('/products', deleteProduct);
-r.get('/products/:id', getProductById);
-
-// Categories
-r.get('/common/categories', getCategories);
-
-// Config
-r.get('/config', getConfig);
-r.get('/common/cta-offer', getCTAOffer);
-r.get('/config/stripe-key', getStripeKey);
-r.get('/config/social-keys', getSocialKeys);
-
-// Users
-r.get('/users', getUsers);
-r.post('/users', saveUser);
-r.delete('/users', deleteUser);
-r.get('/users/profile', getUserById);
-r.post('/users/profile/update', updateUserProfile);
-r.post('/users/cart', updateUserCart);
+router.get('/products', getProducts);
+router.post('/products', createProduct);
+router.put('/products', updateProduct);
+router.delete('/products', deleteProduct);
+router.get('/products/:id', getProductById);
 
 // Orders
-r.get('/orders', getOrders);
-r.post('/orders', createOrder);
-r.put('/orders', updateOrder);
-r.get('/orders/:id', async (req, res) => {
-    try {
-        await connectDB();
-        const id = req.params.id;
-        const order = await Order.findOne({
-            $or: [
-                { _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null },
-                { orderId: id }
-            ].filter(q => q._id || q.orderId)
-        });
-        if (!order) return res.status(404).json({ error: "Order not found" });
-        res.status(200).json({ success: true, order });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+router.get('/orders', getOrders);
+router.post('/orders', createOrder);
+router.put('/orders', updateOrder);
+router.get('/orders/:id', getOrderById);
+
+// Users
+router.get('/users', getUsers);
+router.post('/users', saveUser);
+router.get('/users/profile', getUserById);
+router.put('/users/update-profile', updateUserProfile);
+router.post('/users/cart', updateUserCart);
+router.delete('/users/delete', deleteUser);
+
+// Categories
+router.get('/common/categories', getCategories);
+
+// Config
+router.get('/common/config', getConfig);
+router.get('/common/cta-offer', getCTAOffer);
+router.get('/common/stripe-key', getStripeKey);
+router.get('/common/social-keys', getSocialKeys);
 
 // Reviews
-r.get('/common/reviews', getReviews);
-r.post('/common/reviews', (req, res) => {
+router.get('/common/reviews', getReviews);
+router.post('/common/reviews', (req, res) => {
     if (req.body.reviewId !== undefined) return toggleFeatured(req, res);
     return addReview(req, res);
 });
 
 // FAQs
-r.get('/common/faqs', getFaqs);
+router.get('/common/faqs', getFaqs);
 
 // Team Members
-r.get('/common/team-members', getTeamMembers);
+router.get('/common/team-members', getTeamMembers);
 
 // Contact
-r.post('/common/contact', submitContactForm);
-r.get('/common/contact', getContactMessages);
+router.post('/common/contact', submitContactForm);
+router.get('/common/contact', getContactMessages);
 
 // Diet Plans
-r.get('/common/diet-plans', getDietPlans);
+router.get('/common/diet-plans', getDietPlans);
 
 // Policies
-r.get('/common/policies', getPolicy);
+router.get('/common/policies', getPolicy);
 
 // Translations
-r.get('/common/translations', getTranslations);
+router.get('/common/translations', getTranslations);
 
 // Logs
-r.get('/logs', handleLogs);
-r.post('/logs', handleLogs);
+router.get('/common/logs', handleLogs);
+router.post('/common/logs', handleLogs);
 
 // Stats
-r.get('/common/stats', getStats);
+router.get('/common/stats', getStats);
 
 // Use router
 // Important: When running in Vercel, the path might be different, but we mount on /api/
-// or simply handle requests directly if we treat this as the root handler.
+// or simply handle requests directly if we treat this as the root handlerouter.
 // For consistency with client-side, we mount on /api but handle stripping if needed.
 // However, in Vercel function, req.url comes relative to the function.
 // So if we hit /api/auth/login, and rewritten to /api/index.js, req.url might be /auth/login or /api/auth/login depending on rewrite.
 // Safe bet: Mount on /api AND / (fallback) or just inspect.
 // But standard Express app in Vercel usually mounts root.
-// Let's stick to mounting on /api to match server.js behavior.
-app.use('/api', r);
+// Let's stick to mounting on /api to match serverouter.js behaviorouter.
+app.use('/api', router);
 
 export default app;
